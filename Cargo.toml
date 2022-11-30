@@ -1,0 +1,25 @@
+[package]
+name = "shade"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[dependencies]
+bevy = { version = "0.9", features = ["dynamic"] }
+
+bevy_egui = "0.17.1"
+bevy_rapier2d = "0.19.0"
+bevy_prototype_lyon = "0.7.1"
+bevy_ecs_ldtk = "0.5.0"
+bevy_asset_loader = { version = "0.14.0", features = ["2d"] }
+bevy-inspector-egui = "0.14.0"
+
+seldom_state = "0.3.0"
+leafwing-input-manager = "0.7.0"

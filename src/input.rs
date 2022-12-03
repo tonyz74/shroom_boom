@@ -21,15 +21,14 @@ impl InputAction {
 
         use InputKind::*;
         use KeyCode as KC;
-        use MouseButton as MB;
 
         InputMap::new([
             (Keyboard(KC::A), RunLeft),
             (Keyboard(KC::D), RunRight),
             (Keyboard(KC::Space), Jump),
 
-            (Mouse(MB::Left), Slash),
-            (Mouse(MB::Right), Dash),
+            (Keyboard(KC::E), Slash),
+            (Keyboard(KC::R), Dash),
 
             (Keyboard(KC::W), Teleport),
             (Keyboard(KC::S), Liquefy)

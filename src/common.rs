@@ -16,3 +16,19 @@ impl AnimTimer {
         AnimTimer(Timer::from_seconds(s, TimerMode::Repeating))
     }
 }
+
+#[derive(Debug, Default, Clone)]
+pub struct Anim {
+    pub tex: Handle<TextureAtlas>,
+    pub speed: f32
+}
+
+impl Anim {
+    pub fn new(handle: Handle<TextureAtlas>, speed: f32) -> Self {
+        Anim {
+            tex: handle,
+            speed
+        }
+    }
+}
+

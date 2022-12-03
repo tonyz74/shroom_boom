@@ -20,16 +20,19 @@ pub fn player_setup_anim(app: &mut App) {
             .with_system(anim_run)
             .with_system(anim_idle)
             .with_system(flip_sprite_on_direction)
+            .with_system(swing)
+            .with_system(crate::attack::animate_melee)
     );
 }
 
 fn animate_player(
     time: Res<Time>,
     texture_atlases: Res<Assets<TextureAtlas>>,
-    mut query: Query<(&mut AnimTimer,
-                      &mut TextureAtlasSprite,
-                      &Handle<TextureAtlas>),
-                     With<Player>>,
+    mut query: Query<(
+        &mut AnimTimer,
+        &mut TextureAtlasSprite,
+        &Handle<TextureAtlas>
+    ), With<Player>>
 ) {
     for (mut timer, mut sprite, texture_atlas_handle) in &mut query {
         timer.tick(time.delta());
@@ -40,25 +43,44 @@ fn animate_player(
     }
 }
 
+fn reset_anim_to(
+    anims: Res<PlayerAssets>,
+    name: &str,
+    (mut sprite, mut atlas, mut timer): (
+        Mut<'_, TextureAtlasSprite>,
+        Mut<'_, Handle<TextureAtlas>>,
+        Mut<'_, AnimTimer>
+    )
+) {
+    let new = &anims.anims[name];
+
+    sprite.index = 0;
+    *atlas = new.tex.clone();
+
+    timer.set_duration(Duration::new(
+        new.speed as u64,
+        (new.speed.fract() * 1_000_000_000.) as u32
+    ));
+}
+
 // ANIMATION CHANGES BASED ON STATE MACHINE
 
-fn anim_run(anims: Res<PlayerAssets>,
-            mut q: Query<(&mut TextureAtlasSprite,
-                          &mut Handle<TextureAtlas>,
-                          &mut AnimTimer),
-                         (With<Player>, Added<Run>)>
+fn anim_run(
+    anims: Res<PlayerAssets>,
+    mut q: Query<(
+        &mut TextureAtlasSprite,
+        &mut Handle<TextureAtlas>,
+        &mut AnimTimer
+    ), (
+        With<Player>,
+        Added<Run>
+    )>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let run = &anims.sprite_sheets["RUN"];
-    let (mut sprite, mut atlas, mut timer) = q.single_mut();
-
-    sprite.index = 0;
-    *atlas = run.0.clone();
-
-    timer.set_duration(Duration::new(run.1 as u64, (run.1.fract() * 1_000_000_000.) as u32));
+    reset_anim_to(anims, "RUN", q.single_mut());
 }
 
 fn anim_idle(anims: Res<PlayerAssets>,
@@ -71,13 +93,7 @@ fn anim_idle(anims: Res<PlayerAssets>,
         return;
     }
 
-    let idle = &anims.sprite_sheets["IDLE"];
-    let (mut sprite, mut atlas, mut timer) = q.single_mut();
-
-    sprite.index = 0;
-    *atlas = idle.0.clone();
-
-    timer.set_duration(Duration::new(idle.1 as u64, (idle.1.fract() * 1_000_000_000.) as u32));
+    reset_anim_to(anims, "IDLE", q.single_mut());
 }
 
 
@@ -96,3 +112,40 @@ fn flip_sprite_on_direction(mut q: Query<(&mut TextureAtlasSprite, &Player)>) {
         sprite.flip_x = false;
     }
 }
+
+
+// TEMP
+
+use leafwing_input_manager::prelude::*;
+use crate::input::InputAction;
+
+use crate::attack::MeleeAttack;
+
+fn swing(
+    assets: Res<PlayerAssets>,
+    mut commands: Commands,
+    q: Query<(
+        Entity,
+        &GlobalTransform,
+        &ActionState<InputAction>
+    ), With<Player>>
+) {
+    if q.is_empty() {
+        return;
+    }
+
+    let (ent, pos, input) = q.single();
+    let pos = pos.translation();
+
+    if input.just_pressed(InputAction::Slash) {
+        MeleeAttack::spawn(
+            commands,
+            MeleeAttack { source: ent, damage: 12 },
+            Vec2::new(pos.x, pos.y),
+            Vec2::new(72.0, 48.0),
+            assets.slash_anim.clone()
+        );
+    }
+}
+
+

@@ -46,29 +46,14 @@ impl Plugin for ShadePlugin {
             .add_plugin(PlayerPlugin)
 
             .add_startup_system(add_camera)
-            .add_startup_system(add_ground)
-
-            .init_resource::<SlashResource>()
-
-            .add_startup_system(add_slash)
-
-            .add_system(draw_slash);
+            .add_startup_system(add_ground);
     }
 }
 
 pub fn add_camera(mut commands: Commands, mut config: ResMut<RapierConfiguration>) {
     config.gravity = Vect::new(0.0, -500.0);
-
     commands.spawn(Camera2dBundle::default());
 }
-
-#[derive(Resource, Default)]
-pub struct SlashResource {
-    pub slashes: Vec<Handle<Image>>,
-    pub i: usize
-}
-
-use crate::common::AnimTimer;
 
 pub fn add_ground(mut commands: Commands) {
     commands.spawn((
@@ -90,55 +75,3 @@ pub fn add_ground(mut commands: Commands) {
 
     );
 }
-
-pub fn add_slash(mut commands: Commands,
-                 mut sr: ResMut<SlashResource>,
-                 asset_server: Res<AssetServer>) {
-
-    sr.slashes = vec![
-        asset_server.load("slash/01.png"),
-        asset_server.load("slash/02.png"),
-        asset_server.load("slash/03.png"),
-        asset_server.load("slash/04.png"),
-        asset_server.load("slash/05.png"),
-        asset_server.load("slash/06.png"),
-        asset_server.load("slash/blank.png")
-    ];
-
-    commands.spawn((
-        SpriteBundle {
-            sprite: Sprite {
-                custom_size: Some(Vec2::new(16., 9.)),
-                ..default()
-            },
-            transform: Transform::from_scale(Vec3::new(8.0, 8.0, 1.0)),
-            texture: sr.slashes[0].clone(),
-            ..default()
-        },
-
-
-        AnimTimer::from_seconds(0.04)
-    ));
-}
-
-pub fn draw_slash(time: Res<Time>,
-                  mut sr: ResMut<SlashResource>,
-                  mut q: Query<(&mut Handle<Image>, &mut AnimTimer)>
-) {
-    if q.is_empty() { return; }
-
-
-    let (mut tex, mut timer) = q.single_mut();
-
-    timer.tick(time.delta());
-
-    if timer.just_finished() {
-        if sr.i < sr.slashes.len() {
-            *tex = sr.slashes[sr.i].clone();
-        }
-
-        sr.i = (sr.i + 1) % 20;
-    }
-}
-
-

@@ -28,12 +28,12 @@ pub fn player_setup_triggers(app: &mut App) {
 // ACTION TRIGGERS
 
 macro_rules! action_trigger {
-    ($trig_name:ident, $actions:expr) => {
+    ($filter: ty, $trig_name:ident, $actions:expr) => {
         #[derive(Copy, Clone, Reflect, FromReflect)]
         pub struct $trig_name;
 
         impl Trigger for $trig_name {
-            type Param<'w, 's> = Query<'w, 's, &'static ActionState<InputAction>>;
+            type Param<'w, 's> = Query<'w, 's, &'static ActionState<InputAction>, $filter>;
 
             fn trigger(&self, _: Entity, actions: &Self::Param<'_, '_>) -> bool {
                 let action_state = actions.single();
@@ -50,10 +50,29 @@ macro_rules! action_trigger {
     }
 }
 
-action_trigger!(RunTrigger, [InputAction::RunLeft, InputAction::RunRight]);
-action_trigger!(JumpTrigger, [InputAction::Jump]);
-action_trigger!(DashTrigger, [InputAction::Dash]);
-action_trigger!(SlashTrigger, [InputAction::Slash]);
+action_trigger!(
+    With<Player>,
+    RunTrigger,
+    [InputAction::RunLeft, InputAction::RunRight]
+);
+
+action_trigger!(
+    With<Player>,
+    JumpTrigger,
+    [InputAction::Jump]
+);
+
+action_trigger!(
+    With<Player>,
+    DashTrigger,
+    [InputAction::Dash]
+);
+
+action_trigger!(
+    With<Player>,
+    SlashTrigger,
+    [InputAction::Slash]
+);
 
 // FALLING TRIGGER
 

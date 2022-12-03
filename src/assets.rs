@@ -1,11 +1,15 @@
 use bevy::prelude::*;
-use crate::state::GameState;
+use crate::{
+    common::Anim,
+    state::GameState
+};
 
 use std::collections::HashMap;
 
 #[derive(Resource, Default, Debug)]
 pub struct PlayerAssets {
-    pub sprite_sheets: HashMap<String, (Handle<TextureAtlas>, f32)>
+    pub anims: HashMap<String, Anim>,
+    pub slash_anim: Anim
 }
 
 impl PlayerAssets {
@@ -25,7 +29,8 @@ impl PlayerAssets {
             SIZE,
             4, 1,
             None,
-            None);
+            None
+        );
 
         let idle_handle = texture_atlases.add(idle_atlas);
 
@@ -42,10 +47,25 @@ impl PlayerAssets {
         let run_handle = texture_atlases.add(run_atlas);
 
 
-        player_assets.sprite_sheets = HashMap::from([
-            ("IDLE".to_string(), (idle_handle, 0.2)),
-            ("RUN".to_string(), (run_handle, 0.08))
+        player_assets.anims = HashMap::from([
+            ("IDLE".to_string(), Anim::new(idle_handle, 0.2)),
+            ("RUN".to_string(), Anim::new(run_handle, 0.08))
         ]);
+
+
+        // SLASH
+        let slash_sheet = asset_server.load("slash/slash longgg.png");
+        let slash_atlas = TextureAtlas::from_grid(
+            slash_sheet,
+            Vec2::new(36.0, 24.0),
+            3, 1,
+            None,
+            None
+        );
+
+        let slash_handle = texture_atlases.add(slash_atlas);
+
+        player_assets.slash_anim = Anim::new(slash_handle, 0.05);
     }
 }
 

@@ -70,14 +70,17 @@ fn run_common(entity: Entity,
     ];
 
     for origin in raycast_origins.iter() {
-        let rc = ctx.cast_ray(*origin,
-                              Vect::new(vel_x, 0.0).normalize(),
-                              PLAYER_COLLIDER_CAPSULE.radius + 1.0,
-                              true,
-                              QueryFilter {
-                                  exclude_collider: Some(entity),
-                                  ..default()
-                              });
+        let rc = ctx.cast_ray(
+            *origin,
+            Vect::new(vel_x, 0.0).normalize(),
+            PLAYER_COLLIDER_CAPSULE.radius + 1.0,
+            true,
+            QueryFilter {
+                flags: QueryFilterFlags::EXCLUDE_SENSORS,
+                exclude_collider: Some(entity),
+                ..default()
+            }
+        );
 
         if rc.is_some() {
             player.vel.x = 0.0;

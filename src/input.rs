@@ -6,13 +6,12 @@ use leafwing_input_manager::user_input::InputKind;
 pub enum InputAction {
     RunLeft,
     RunRight,
+    Crouch,
     Jump,
 
     Slash,
     Dash,
-
     Teleport,
-    Liquefy
 }
 
 impl InputAction {
@@ -25,13 +24,12 @@ impl InputAction {
         InputMap::new([
             (Keyboard(KC::A), RunLeft),
             (Keyboard(KC::D), RunRight),
+            (Keyboard(KC::S), Crouch),
             (Keyboard(KC::Space), Jump),
 
             (Keyboard(KC::E), Slash),
             (Keyboard(KC::R), Dash),
-
             (Keyboard(KC::W), Teleport),
-            (Keyboard(KC::S), Liquefy)
         ])
     }
 

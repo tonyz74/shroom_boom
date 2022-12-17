@@ -2,8 +2,9 @@ pub mod common;
 
 pub mod attack;
 
-// Individual entities
+// Gameplay
 pub mod player;
+pub mod level;
 
 // Subsystems
 pub mod state;

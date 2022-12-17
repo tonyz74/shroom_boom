@@ -7,7 +7,7 @@ use crate::{
     assets::PlayerAssets,
     player::{
         Player,
-        state_machine::{Idle, Run, Jump, Fall, Dash, Slash, Teleport}
+        state_machine::{Idle, Run, Jump, Fall, Dash, Slash, Teleport, Crouch}
     }
 };
 
@@ -19,9 +19,10 @@ pub fn player_setup_anim(app: &mut App) {
             .with_system(animate_player)
             .with_system(anim_run)
             .with_system(anim_idle)
+            .with_system(anim_crouch)
             .with_system(flip_sprite_on_direction)
-            .with_system(swing)
             .with_system(crate::attack::animate_melee)
+            // .with_system(crate::attack::track_source_entity)
     );
 }
 
@@ -96,6 +97,23 @@ fn anim_idle(anims: Res<PlayerAssets>,
     reset_anim_to(anims, "IDLE", q.single_mut());
 }
 
+fn anim_crouch(
+    anims: Res<PlayerAssets>,
+     mut q: Query<(
+         &mut TextureAtlasSprite,
+         &mut Handle<TextureAtlas>,
+         &mut AnimTimer
+     ), (
+         With<Player>,
+         Added<Crouch>
+     )>
+) {
+    if q.is_empty() {
+        return;
+    }
+
+    reset_anim_to(anims, "CROUCH", q.single_mut());
+}
 
 // GENERAL ANIMATIONS
 
@@ -112,40 +130,3 @@ fn flip_sprite_on_direction(mut q: Query<(&mut TextureAtlasSprite, &Player)>) {
         sprite.flip_x = false;
     }
 }
-
-
-// TEMP
-
-use leafwing_input_manager::prelude::*;
-use crate::input::InputAction;
-
-use crate::attack::MeleeAttack;
-
-fn swing(
-    assets: Res<PlayerAssets>,
-    mut commands: Commands,
-    q: Query<(
-        Entity,
-        &GlobalTransform,
-        &ActionState<InputAction>
-    ), With<Player>>
-) {
-    if q.is_empty() {
-        return;
-    }
-
-    let (ent, pos, input) = q.single();
-    let pos = pos.translation();
-
-    if input.just_pressed(InputAction::Slash) {
-        MeleeAttack::spawn(
-            commands,
-            MeleeAttack { source: ent, damage: 12 },
-            Vec2::new(pos.x, pos.y),
-            Vec2::new(72.0, 48.0),
-            assets.slash_anim.clone()
-        );
-    }
-}
-
-

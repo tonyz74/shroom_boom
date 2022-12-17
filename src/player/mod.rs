@@ -8,17 +8,23 @@ use crate::{
     common::AnimTimer
 };
 
-mod consts;
+pub mod consts;
+pub mod anim;
+pub mod logic;
+pub mod triggers;
+pub mod state_machine;
+pub mod abilities;
 
-mod anim;
-mod logic;
-mod triggers;
-mod state_machine;
+use abilities::dash::DashAbility;
+use crate::player::abilities::slash::SlashAbility;
+use crate::player::abilities::jump::JumpAbility;
 
 #[derive(Component)]
 pub struct Player {
     pub vel: Vec2,
     pub health: u8,
+    pub grounded: bool,
+    pub attack_cooldown: Timer
 }
 
 #[derive(Component, Deref, DerefMut)]
@@ -33,11 +39,16 @@ impl Plugin for PlayerPlugin {
                 .with_system(setup_player)
         );
 
+        app.add_system(follow_player);
+
         anim::player_setup_anim(app);
         logic::player_setup_logic(app);
         triggers::player_setup_triggers(app);
     }
 }
+
+#[derive(Component)]
+pub struct FollowMarker;
 
 fn setup_player(mut commands: Commands, assets: Res<PlayerAssets>) {
     use consts::{PLAYER_COLLIDER_CAPSULE, PLAYER_SIZE_PX};
@@ -50,7 +61,7 @@ fn setup_player(mut commands: Commands, assets: Res<PlayerAssets>) {
                 ..default()
             },
             texture_atlas: anim.tex.clone(),
-            transform: Transform::from_xyz(0.0, 0.0, 0.0),
+            transform: Transform::from_xyz(0.0, 1000.0, 5.0),
             ..default()
         },
 
@@ -71,11 +82,53 @@ fn setup_player(mut commands: Commands, assets: Res<PlayerAssets>) {
             ..default()
         },
 
-        Player { health: 10, vel: Vec2::splat(0.0) },
+        Player {
+            health: 10,
+            grounded: false,
+            vel: Vec2::splat(0.0),
+            attack_cooldown: Timer::from_seconds(
+                consts::PLAYER_ATTACK_COOLDOWN,
+                TimerMode::Once
+            ),
+        },
+
+        DashAbility::default(),
+        SlashAbility::default(),
+        JumpAbility::default(),
 
         InputAction::input_manager_bundle(),
 
         state_machine::player_state_machine(),
     ));
+
+    commands.spawn((
+        SpriteBundle {
+            sprite: Sprite {
+                color: Color::rgb(1.0, 0.0, 0.0),
+                custom_size: Some(Vec2::new(8.0, 8.0)),
+                ..default()
+            },
+            transform: Transform::from_xyz(0.0, 0.0, 20.0),
+            ..default()
+        },
+
+        // FollowMarker
+    ));
 }
 
+fn follow_player(
+    q: Query<&GlobalTransform, With<Player>>,
+    mut followers: Query<&mut Transform, With<FollowMarker>>
+) {
+    if q.is_empty() {
+        return;
+    }
+
+    let pos = q.single();
+    let pos = pos.translation();
+
+    for mut follower in followers.iter_mut() {
+        follower.translation.x = pos.x + 16.0;
+        follower.translation.y = pos.y;
+    }
+}

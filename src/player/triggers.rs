@@ -1,12 +1,21 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::KinematicCharacterControllerOutput;
 use seldom_state::prelude::*;
+use bevy_rapier2d::prelude::*;
 use leafwing_input_manager::prelude::*;
 
 use crate::{
-    player::Player,
+    player::{
+        Player,
+        consts::PLAYER_SIZE_PX,
+        abilities::{
+            dash::DashAbility,
+            slash::SlashAbility
+        }
+    },
     input::InputAction
 };
+use crate::player::abilities::jump::JumpAbility;
+use crate::player::consts::PLAYER_COLLIDER_CAPSULE;
 
 pub fn player_setup_triggers(app: &mut App) {
     use TriggerPlugin as TP;
@@ -18,9 +27,11 @@ pub fn player_setup_triggers(app: &mut App) {
         .add_plugin(TP::<JumpTrigger>::default())
         .add_plugin(TP::<DashTrigger>::default())
         .add_plugin(TP::<SlashTrigger>::default())
+        .add_plugin(TP::<CrouchTrigger>::default())
 
         // Environment triggers
         .add_plugin(TP::<FallTrigger>::default())
+        .add_plugin(TP::<HitHeadTrigger>::default())
         .add_plugin(TP::<GroundedTrigger>::default());
 }
 
@@ -58,22 +69,60 @@ action_trigger!(
 
 action_trigger!(
     With<Player>,
-    JumpTrigger,
-    [InputAction::Jump]
+    CrouchTrigger,
+    [InputAction::Crouch]
 );
 
-action_trigger!(
-    With<Player>,
-    DashTrigger,
-    [InputAction::Dash]
-);
+#[derive(Copy, Clone, Reflect, FromReflect)]
+pub struct DashTrigger;
 
-action_trigger!(
-    With<Player>,
-    SlashTrigger,
-    [InputAction::Slash]
-);
+impl Trigger for DashTrigger {
+    type Param<'w, 's> = Query<'w, 's, (
+        &'static ActionState<InputAction>,
+        &'static DashAbility
+    ), With<Player>>;
 
+    fn trigger(&self, _: Entity, params: &Self::Param<'_, '_>) -> bool {
+        for (input, dash) in params.iter() {
+            let ok = input.pressed(InputAction::Dash) && dash.cd.finished();
+            return ok;
+        }
+        false
+    }
+}
+
+#[derive(Copy, Clone, Reflect, FromReflect)]
+pub struct JumpTrigger;
+
+impl Trigger for JumpTrigger {
+    type Param<'w, 's> = Query<'w, 's, &'static JumpAbility, With<Player>>;
+
+    fn trigger(&self, _: Entity, player_q: &Self::Param<'_, '_>) -> bool {
+        if player_q.is_empty() {
+            return false;
+        }
+
+        let jump = player_q.single();
+        let ok = !jump.coyote_time.finished() && !jump.jump_buffer.finished();
+        ok
+    }
+}
+
+#[derive(Copy, Clone, Reflect, FromReflect)]
+pub struct SlashTrigger;
+
+impl Trigger for SlashTrigger {
+    type Param<'w, 's> = Query<'w, 's, (
+        &'static ActionState<InputAction>,
+        &'static SlashAbility
+    )>;
+
+    fn trigger(&self, _: Entity, actions: &Self::Param<'_, '_>) -> bool {
+        let (action_state, slash) = actions.single();
+
+        action_state.pressed(InputAction::Slash) && slash.cd.finished()
+    }
+}
 // FALLING TRIGGER
 
 #[derive(Copy, Clone, Reflect, FromReflect)]
@@ -89,6 +138,53 @@ impl Trigger for FallTrigger {
 
         let player = player_q.single();
         return player.vel.y < 0.0;
+    }
+}
+
+#[derive(Copy, Clone, Reflect, FromReflect)]
+pub struct HitHeadTrigger;
+
+impl Trigger for HitHeadTrigger {
+    type Param<'w, 's> = (
+        Query<'w, 's, (Entity, &'static Player, &'static GlobalTransform)>,
+        Res<'w, RapierContext>
+    );
+
+    fn trigger(&self, _: Entity, (q, ctx): &Self::Param<'_, '_>) -> bool {
+        if q.is_empty() {
+            return false;
+        }
+
+        let (entity, ply, tf) = q.single();
+        let pos = Vec2::new(tf.translation().x, tf.translation().y);
+
+        let span = PLAYER_COLLIDER_CAPSULE.radius;
+
+        let origins = [
+            Vect::new(pos.x - span, pos.y),
+            Vect::new(pos.x + 0.00, pos.y),
+            Vect::new(pos.x + span, pos.y),
+        ];
+
+        for origin in origins {
+            let rc = ctx.cast_ray(
+                origin,
+                Vect::new(0.0, 1.0).normalize(),
+                PLAYER_SIZE_PX.y / 2.0 + ply.vel.y + 1.0,
+                true,
+                QueryFilter {
+                    flags: QueryFilterFlags::EXCLUDE_SENSORS,
+                    exclude_collider: Some(entity),
+                    ..default()
+                }
+            );
+
+            if rc.is_some() {
+                return true;
+            }
+        }
+
+        false
     }
 }
 
@@ -111,4 +207,5 @@ impl Trigger for GroundedTrigger {
         return out.grounded;
     }
 }
+use crate::player::consts;
 

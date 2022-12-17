@@ -46,10 +46,22 @@ impl PlayerAssets {
 
         let run_handle = texture_atlases.add(run_atlas);
 
+        // CROUCH
+
+        let crouch_atlas = TextureAtlas::from_grid(
+            sheet.clone(),
+            SIZE,
+            1, 1,
+            None,
+            Some(Vec2::new(17., 0.) * SIZE),
+        );
+
+        let crouch_handle = texture_atlases.add(crouch_atlas);
 
         player_assets.anims = HashMap::from([
             ("IDLE".to_string(), Anim::new(idle_handle, 0.2)),
-            ("RUN".to_string(), Anim::new(run_handle, 0.08))
+            ("RUN".to_string(), Anim::new(run_handle, 0.08)),
+            ("CROUCH".to_string(), Anim::new(crouch_handle, 0.4))
         ]);
 
 

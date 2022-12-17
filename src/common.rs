@@ -8,7 +8,7 @@ pub enum UpdateStage {
 
 pub const PHYSICS_STEPS_PER_SEC: f64 = 60.0;
 
-#[derive(Component, Deref, DerefMut)]
+#[derive(Default, Component, Deref, DerefMut)]
 pub struct AnimTimer(Timer);
 
 impl AnimTimer {

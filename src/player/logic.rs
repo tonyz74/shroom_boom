@@ -5,28 +5,46 @@ use leafwing_input_manager::prelude::*;
 
 use crate::{
     input::InputAction,
-    player::{Player, state_machine as ps},
+    player::{
+        Player,
+        state_machine as ps,
+        consts::{
+            PLAYER_FALL_GRAVITY,
+            PLAYER_TERMINAL_VELOCITY,
+            PLAYER_RUN_SPEED,
+            PLAYER_JUMP_SPEED
+        }
+    },
     state::GameState,
     common::{UpdateStage, PHYSICS_STEPS_PER_SEC}
 };
 
 pub fn player_setup_logic(app: &mut App) {
+    use crate::player::abilities::{dash, slash, jump};
+
     app.add_system_set(
         SystemSet::on_update(GameState::Gameplay)
             .label(UpdateStage::GameLogic)
-            .after(UpdateStage::Physics)
             .with_system(idle)
             .with_system(run_grounded)
             .with_system(run_air)
-            .with_system(jump)
+            .with_system(enter_fall)
+            .with_system(crouch)
+            .with_system(crouch_update)
     );
+
+    dash::register_dash_ability(app);
+    slash::register_slash_ability(app);
+    jump::register_jump_ability(app);
 
     app.add_system_set(
         SystemSet::on_update(GameState::Gameplay)
             .label(UpdateStage::Physics)
+            .after(UpdateStage::GameLogic)
             .with_run_criteria(FixedTimestep::steps_per_second(PHYSICS_STEPS_PER_SEC))
             .with_system(fall.before(physics_update))
             .with_system(physics_update)
+            .with_system(update_grounded)
     );
 }
 
@@ -50,9 +68,9 @@ fn run_common(entity: Entity,
     use crate::player::consts::PLAYER_COLLIDER_CAPSULE;
 
     let vel_x = if action.pressed(InputAction::RunLeft) {
-        -5.0
+        -PLAYER_RUN_SPEED
     } else if action.pressed(InputAction::RunRight) {
-        5.0
+        PLAYER_RUN_SPEED
     } else {
         0.0
     };
@@ -66,6 +84,7 @@ fn run_common(entity: Entity,
     // Cast from both head and feet
     let raycast_origins = [
         Vect::new(pos.x, pos.y + (span / 2.0)),
+        Vect::new(pos.x, pos.y + (0.00000000)),
         Vect::new(pos.x, pos.y - (span / 2.0)),
     ];
 
@@ -114,7 +133,7 @@ pub fn run_air(
                   &ActionState<InputAction>,
                   &GlobalTransform,
                   &mut Player),
-                 Or<(With<ps::Jump>, With<ps::Fall>)>>,
+                 Or<(With<ps::Jump>, With<ps::Fall>, With<ps::Slash>, With<ps::Crouch>)>>,
     mut rapier: ResMut<RapierContext>
 ) {
     if q.is_empty() {
@@ -125,33 +144,64 @@ pub fn run_air(
     run_common(e, &action, &mut player, tf, &mut rapier);
 }
 
-
-pub fn jump(mut q: Query<&mut Player, Added<ps::Jump>>) {
-    if q.is_empty() {
-        return;
-    }
-
-    let mut player = q.single_mut();
-    player.vel.y = 12.0;
-}
-
-pub fn fall(mut q: Query<&mut Player, Or<(With<ps::Jump>, With<ps::Fall>)>>) {
-    if q.is_empty() {
-        return;
-    }
-
-    let mut player = q.single_mut();
-    player.vel.y += 0.01667 * -40.0;
-
-    if player.vel.y <= -20.0 {
-        player.vel.y = -20.0;
+pub fn enter_fall(mut q: Query<&mut Player, Added<ps::Fall>>) {
+    for mut p in q.iter_mut() {
+        if p.vel.y > 0.0 {
+            p.vel.y = 0.0;
+        }
     }
 }
 
-pub fn physics_update(
-    mut q: Query<(&mut KinematicCharacterController, &Player)>,
+pub fn fall(
+    mut q: Query<
+        (&mut Player, Option<&ps::Slash>),
+        Or<(
+            With<ps::Jump>,
+            With<ps::Fall>,
+            With<ps::Slash>,
+            With<ps::Crouch>
+        )>
+    >
 ) {
+    if q.is_empty() {
+        return;
+    }
+
+    let (mut player, s) = q.single_mut();
+
+    if player.grounded {
+        return;
+    }
+
+    // Fixed timestep
+    player.vel.y += 0.01667 * PLAYER_FALL_GRAVITY;
+
+    if player.vel.y <= PLAYER_TERMINAL_VELOCITY {
+        player.vel.y = PLAYER_TERMINAL_VELOCITY;
+    }
+}
+
+pub fn physics_update(mut q: Query<(&mut KinematicCharacterController, &Player)>) {
     let (mut cc, p) = q.single_mut();
     cc.translation = Some(p.vel);
 }
 
+pub fn update_grounded(mut q: Query<(&mut Player, &KinematicCharacterControllerOutput)>) {
+    for (mut player, out) in q.iter_mut() {
+        player.grounded = out.grounded;
+    }
+}
+
+pub fn crouch(q: Query<&Player, Added<ps::Crouch>>) {
+    for _ in q.iter() {
+        println!("started crouching");
+    }
+}
+
+pub fn crouch_update(mut q: Query<&mut Player, With<ps::Crouch>>) {
+    for mut player in q.iter_mut() {
+        if player.grounded {
+            player.vel.y = 0.0;
+        }
+    }
+}

@@ -12,11 +12,11 @@ use crate::{
             PLAYER_FALL_GRAVITY,
             PLAYER_TERMINAL_VELOCITY,
             PLAYER_RUN_SPEED,
-            PLAYER_JUMP_SPEED
         }
     },
     state::GameState,
-    common::{UpdateStage, PHYSICS_STEPS_PER_SEC}
+    common::{UpdateStage, PHYSICS_STEPS_PER_SEC},
+    level::consts::SOLIDS_INTERACTION_GROUP
 };
 
 pub fn player_setup_logic(app: &mut App) {
@@ -97,6 +97,7 @@ fn run_common(entity: Entity,
             QueryFilter {
                 flags: QueryFilterFlags::EXCLUDE_SENSORS,
                 exclude_collider: Some(entity),
+                groups: Some(SOLIDS_INTERACTION_GROUP),
                 ..default()
             }
         );
@@ -129,11 +130,17 @@ pub fn run_grounded(
 }
 
 pub fn run_air(
-    mut q: Query<(Entity,
-                  &ActionState<InputAction>,
-                  &GlobalTransform,
-                  &mut Player),
-                 Or<(With<ps::Jump>, With<ps::Fall>, With<ps::Slash>, With<ps::Crouch>)>>,
+    mut q: Query<(
+        Entity,
+        &ActionState<InputAction>,
+        &GlobalTransform,
+        &mut Player
+    ), Or<(
+        With<ps::Jump>,
+        With<ps::Fall>,
+        With<ps::Slash>,
+        With<ps::Crouch>
+    )>>,
     mut rapier: ResMut<RapierContext>
 ) {
     if q.is_empty() {
@@ -159,7 +166,7 @@ pub fn fall(
             With<ps::Jump>,
             With<ps::Fall>,
             With<ps::Slash>,
-            With<ps::Crouch>
+            With<ps::Crouch>,
         )>
     >
 ) {
@@ -167,7 +174,7 @@ pub fn fall(
         return;
     }
 
-    let (mut player, s) = q.single_mut();
+    let (mut player, _s) = q.single_mut();
 
     if player.grounded {
         return;
@@ -179,9 +186,17 @@ pub fn fall(
     if player.vel.y <= PLAYER_TERMINAL_VELOCITY {
         player.vel.y = PLAYER_TERMINAL_VELOCITY;
     }
+
 }
 
-pub fn physics_update(mut q: Query<(&mut KinematicCharacterController, &Player)>) {
+pub fn physics_update(
+    mut q: Query<(&mut KinematicCharacterController, &Player)>,
+    state: Res<State<GameState>>
+) {
+    if *state.current() != GameState::Gameplay {
+        return;
+    }
+
     let (mut cc, p) = q.single_mut();
     cc.translation = Some(p.vel);
 }
@@ -194,7 +209,6 @@ pub fn update_grounded(mut q: Query<(&mut Player, &KinematicCharacterControllerO
 
 pub fn crouch(q: Query<&Player, Added<ps::Crouch>>) {
     for _ in q.iter() {
-        println!("started crouching");
     }
 }
 

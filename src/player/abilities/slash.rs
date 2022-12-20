@@ -102,11 +102,11 @@ fn slash_ability_trigger(
         &mut SlashAbility
     ), Added<s::Slash>>
 ) {
-    for (entity, mut player, spr, mut slash) in q.iter_mut() {
+    for (entity, player, spr, mut slash) in q.iter_mut() {
         slash.cd.reset();
         slash.dur.reset();
 
-        let mut direction = SlashDirection::Right;
+        let direction;
 
         if player.vel.y < -8.0 {
             direction = SlashDirection::Down;

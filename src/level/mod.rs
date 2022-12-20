@@ -1,25 +1,17 @@
-mod consts;
+pub mod coord;
+pub mod consts;
+
 mod solid;
 mod one_way;
+mod exit;
+mod transition;
+mod enemies;
 
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 
-use crate::{
-    state::GameState
-};
-
-#[derive(Component, Default)]
-pub struct CollisionTile;
-
-#[derive(Component, Default)]
-pub struct IntGridMarker;
-
-#[derive(Bundle, LdtkIntCell)]
-pub struct CollisionTileBundle {
-    marker: IntGridMarker
-}
+use crate::state::GameState;
 
 #[derive(Component, Default)]
 pub struct PlayerTileMarker;
@@ -30,6 +22,9 @@ pub struct PlayerTileBundle {
     #[from_entity_instance]
     entity_instance: EntityInstance
 }
+
+#[derive(Component)]
+pub struct LevelRegion;
 
 pub struct LevelLoaderPlugin;
 
@@ -42,54 +37,107 @@ impl Plugin for LevelLoaderPlugin {
                 ..default()
             })
             .insert_resource(LevelSelection::Index(0))
-            .register_ldtk_entity::<PlayerTileBundle>("Player");
+            .register_ldtk_entity::<PlayerTileBundle>("EntryPoint");
 
         solid::register_solid_tile(app);
         one_way::register_one_way_tile(app);
+        exit::register_exit_entity(app);
+        transition::register_transition_systems(app);
+        enemies::register_enemy_spawnpoints(app);
 
         app.add_system_set(
-            SystemSet::on_enter(GameState::Gameplay)
+            SystemSet::on_enter(GameState::LevelTransition)
                 .with_system(load_level)
         );
 
         app.add_system_set(
-            SystemSet::on_update(GameState::Gameplay)
+            SystemSet::on_update(GameState::LevelTransition)
                 .with_system(move_player)
+                .with_system(reconfigure_region_to_fit_level)
         );
     }
 }
 
 fn load_level(
     mut commands: Commands,
-    asset_server: Res<AssetServer>
+    asset_server: Res<AssetServer>,
+    levels: Query<Entity, With<LevelSet>>
 ) {
+    if !levels.is_empty() {
+        return;
+    }
+
     commands.spawn(
         LdtkWorldBundle {
             ldtk_handle: asset_server.load("levels/levels.ldtk"),
             transform: Transform::from_scale(
-                Vec3::new(
-                    consts::RENDERED_TILE_SIZE / consts::TILE_SIZE,
-                    consts::RENDERED_TILE_SIZE / consts::TILE_SIZE,
-                    1.0
-                )
+                Vec3::new(consts::SCALE_FACTOR, consts::SCALE_FACTOR, 1.0)
             ),
             ..default()
         }
-    );
+    ).with_children(|parent| {
+        parent.spawn((
+            Sensor,
+            RigidBody::Fixed,
+            Collider::cuboid(1.0, 1.0),
+            TransformBundle::default(),
+            LevelRegion
+        ));
+    });
+}
+
+pub fn reconfigure_region_to_fit_level(
+    levels: Query<&Handle<LdtkAsset>>,
+    assets: Res<Assets<LdtkAsset>>,
+    sel: Res<LevelSelection>,
+
+    mut region: Query<(&mut Transform, &mut Collider), With<LevelRegion>>,
+) {
+    if levels.is_empty() || assets.is_empty() {
+        return;
+    }
+
+    for (mut region, mut collider) in region.iter_mut() {
+        let level = assets.get(levels.single()).unwrap();
+
+        if let Some(lvl) = level.get_level(&sel) {
+            let half_extents = Vec2::new(
+                lvl.px_wid as f32 / 2.0,
+                lvl.px_hei as f32 / 2.0
+            );
+
+            region.translation = Vec3::new(half_extents.x, half_extents.y, 0.0);
+            *collider = Collider::cuboid(half_extents.x + 10.0, half_extents.y + 10.0);
+        }
+    }
 }
 
 use crate::player::Player;
 use crate::player::consts::PLAYER_SIZE_PX;
 
+#[derive(Component)]
+pub struct Active;
+
 fn move_player(
-    mut q: Query<&mut Transform, With<Player>>,
+    mut commands: Commands,
+    level_info: Res<transition::LevelTransition>,
+    mut q: Query<(Entity, &mut Transform), With<Player>>,
     pos: Query<&EntityInstance, Added<PlayerTileMarker>>
 ) {
-    for p in pos.iter() {
-        info!("{:?}", p);
+    for inst in pos.iter() {
+        let entry_point_id = match inst.field_instances[0].value {
+            FieldValue::Int(Some(id)) => id,
+            _ => panic!()
+        };
 
-        let mut tf = q.single_mut();
-        tf.translation = (Vec2::new(p.grid.x as f32, 32.0 - p.grid.y as f32) * 32.0).extend(1.0);
+        if entry_point_id as u32 != level_info.entry_point_id {
+            continue;
+        }
+
+        let (e, mut tf) = q.single_mut();
+        tf.translation = coord::grid_coord_to_translation(inst.grid, IVec2::new(48, 32)).extend(1.0);
         tf.translation.x += PLAYER_SIZE_PX.x / 2.0;
+
+        commands.entity(e).insert(Active);
     }
 }

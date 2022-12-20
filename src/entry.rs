@@ -11,7 +11,9 @@ use crate::{
     assets::AssetLoaderPlugin,
     player::PlayerPlugin,
     input::InputPlugin,
-    level::LevelLoaderPlugin
+    level::LevelLoaderPlugin,
+    enemies::EnemyPlugin,
+    camera::CameraPlugin
 };
 
 pub struct ShadePlugin;
@@ -26,11 +28,13 @@ impl Plugin for ShadePlugin {
 
             // physics
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
-            .add_plugin(RapierDebugRenderPlugin::default())
+            // .add_plugin(RapierDebugRenderPlugin::default())
 
             // egui
             .add_plugin(EguiPlugin)
             .add_plugin(WorldInspectorPlugin::new())
+
+            .insert_resource(ClearColor(Color::rgb(0.015, 0.015, 0.1)))
 
             // custom shapes
             .add_plugin(ShapePlugin)
@@ -39,79 +43,19 @@ impl Plugin for ShadePlugin {
             .add_plugin(StateMachinePlugin)
 
             // subsystems
+            .add_plugin(CameraPlugin)
             .add_plugin(AssetLoaderPlugin)
             .add_plugin(InputPlugin)
 
             // gameplay
             .add_plugin(PlayerPlugin)
+            .add_plugin(EnemyPlugin)
             .add_plugin(LevelLoaderPlugin)
 
-            .add_system(track_player)
-
-            .add_startup_system(add_camera);
-            // .add_startup_system(add_ground);
+            .add_startup_system(setup_rapier);
     }
 }
 
-pub fn add_camera(mut commands: Commands, mut config: ResMut<RapierConfiguration>) {
+pub fn setup_rapier(mut config: ResMut<RapierConfiguration>) {
     config.gravity = Vect::new(0.0, -500.0);
-    commands.spawn(Camera2dBundle::default());
-}
-
-pub fn track_player(
-    p: Query<&GlobalTransform, With<crate::player::Player>>,
-    mut q: Query<&mut Transform, With<Camera2d>>
-) {
-    if p.is_empty() || q.is_empty() {
-        return;
-    }
-
-    let pos = p.single().translation();
-    let mut cam_pos = q.single_mut();
-
-    let fac_x = 20.0;
-    let fac_y = 20.0;
-
-    cam_pos.translation.x += (pos.x - cam_pos.translation.x) / fac_x;
-    cam_pos.translation.y += (pos.y - cam_pos.translation.y) / fac_y;
-}
-
-pub fn add_ground(mut commands: Commands) {
-    commands.spawn((
-        Restitution::coefficient(0.8),
-        Friction::coefficient(0.0),
-        Collider::cuboid(500.0, 50.0),
-
-        RigidBody::Fixed,
-
-        SpriteBundle {
-            sprite: Sprite {
-                color: Color::rgb(1.0, 0.4, 0.4),
-                custom_size: Some(Vec2::new(1000.0, 100.0)),
-                ..default()
-            },
-            transform: Transform::from_xyz(0.0, -100.0, 0.0),
-            ..default()
-        }
-    ));
-
-    commands.spawn((
-        Restitution::coefficient(0.8),
-        Friction::coefficient(0.0),
-        Collider::ball(50.0),
-
-        TransformBundle::from(Transform::from_xyz(600.0, 0.0, 0.0)),
-
-        RigidBody::Fixed,
-    ));
-
-    commands.spawn((
-        Restitution::coefficient(0.8),
-        Friction::coefficient(0.0),
-        Collider::ball(50.0),
-
-        TransformBundle::from(Transform::from_xyz(800.0, -100.0, 0.0)),
-
-        RigidBody::Fixed,
-    ));
 }

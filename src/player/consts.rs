@@ -25,3 +25,6 @@ pub const PLAYER_JUMP_SPEED: f32 = 14.0;
 pub const PLAYER_FALL_GRAVITY: f32 = -40.0;
 
 pub const PLAYER_TERMINAL_VELOCITY: f32 = -20.0;
+
+pub const PLAYER_COYOTE_TIME: f32 = 0.15;
+pub const PLAYER_JUMP_BUFFER_TIME: f32 = 0.1;

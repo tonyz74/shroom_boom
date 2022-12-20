@@ -9,19 +9,19 @@ use crate::{
         consts::PLAYER_SIZE_PX,
         abilities::{
             dash::DashAbility,
-            slash::SlashAbility
+            slash::SlashAbility,
+            jump::JumpAbility
         }
     },
     input::InputAction
 };
-use crate::player::abilities::jump::JumpAbility;
+use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 use crate::player::consts::PLAYER_COLLIDER_CAPSULE;
 
 pub fn player_setup_triggers(app: &mut App) {
     use TriggerPlugin as TP;
 
     app
-
         // Input triggers
         .add_plugin(TP::<RunTrigger>::default())
         .add_plugin(TP::<JumpTrigger>::default())
@@ -91,6 +91,11 @@ impl Trigger for DashTrigger {
     }
 }
 
+// action_trigger!(
+//     With<Player>,
+//     JumpTrigger,
+//     [InputAction::Jump]
+// );
 #[derive(Copy, Clone, Reflect, FromReflect)]
 pub struct JumpTrigger;
 
@@ -175,6 +180,7 @@ impl Trigger for HitHeadTrigger {
                 QueryFilter {
                     flags: QueryFilterFlags::EXCLUDE_SENSORS,
                     exclude_collider: Some(entity),
+                    groups: Some(SOLIDS_INTERACTION_GROUP),
                     ..default()
                 }
             );
@@ -207,5 +213,4 @@ impl Trigger for GroundedTrigger {
         return out.grounded;
     }
 }
-use crate::player::consts;
 

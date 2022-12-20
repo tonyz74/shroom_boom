@@ -4,7 +4,9 @@ pub mod attack;
 
 // Gameplay
 pub mod player;
+pub mod camera;
 pub mod level;
+pub mod enemies;
 
 // Subsystems
 pub mod state;

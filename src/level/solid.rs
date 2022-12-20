@@ -18,7 +18,7 @@ pub fn register_solid_tile(app: &mut App) {
     app
         .register_ldtk_int_cell_for_layer::<SolidTileBundle>("Tiles", 1)
         .add_system_set(
-            SystemSet::on_update(GameState::Gameplay)
+            SystemSet::on_update(GameState::LevelTransition)
                 .with_system(add_solid_tiles)
         );
 }

@@ -24,7 +24,6 @@ pub struct Player {
     pub vel: Vec2,
     pub health: u8,
     pub grounded: bool,
-    pub attack_cooldown: Timer
 }
 
 #[derive(Component, Deref, DerefMut)]
@@ -34,12 +33,7 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
-            SystemSet::on_enter(GameState::Gameplay)
-                .with_system(setup_player)
-        );
-
-        app.add_system(follow_player);
+        app.add_system_set(SystemSet::on_enter(GameState::LevelTransition).with_system(setup_player));
 
         anim::player_setup_anim(app);
         logic::player_setup_logic(app);
@@ -50,7 +44,15 @@ impl Plugin for PlayerPlugin {
 #[derive(Component)]
 pub struct FollowMarker;
 
-fn setup_player(mut commands: Commands, assets: Res<PlayerAssets>) {
+fn setup_player(
+    mut commands: Commands,
+    assets: Res<PlayerAssets>,
+    exists: Query<&Player>
+) {
+    if !exists.is_empty() {
+        return;
+    }
+
     use consts::{PLAYER_COLLIDER_CAPSULE, PLAYER_SIZE_PX};
     let anim = &assets.anims["IDLE"];
 
@@ -61,7 +63,7 @@ fn setup_player(mut commands: Commands, assets: Res<PlayerAssets>) {
                 ..default()
             },
             texture_atlas: anim.tex.clone(),
-            transform: Transform::from_xyz(0.0, 1000.0, 5.0),
+            transform: Transform::from_xyz(20.0, 800.0, 5.0),
             ..default()
         },
 
@@ -77,8 +79,8 @@ fn setup_player(mut commands: Commands, assets: Res<PlayerAssets>) {
             slide: true,
             snap_to_ground: Some(CharacterLength::Relative(0.2)),
             offset: CharacterLength::Relative(0.02),
-            apply_impulse_to_dynamic_bodies: true,
             filter_flags: QueryFilterFlags::EXCLUDE_SENSORS,
+            filter_groups: Some(InteractionGroups::new(Group::GROUP_2.bits().into(), Group::GROUP_2.bits().into())),
             ..default()
         },
 
@@ -86,11 +88,9 @@ fn setup_player(mut commands: Commands, assets: Res<PlayerAssets>) {
             health: 10,
             grounded: false,
             vel: Vec2::splat(0.0),
-            attack_cooldown: Timer::from_seconds(
-                consts::PLAYER_ATTACK_COOLDOWN,
-                TimerMode::Once
-            ),
         },
+
+        Sensor,
 
         DashAbility::default(),
         SlashAbility::default(),
@@ -100,35 +100,4 @@ fn setup_player(mut commands: Commands, assets: Res<PlayerAssets>) {
 
         state_machine::player_state_machine(),
     ));
-
-    commands.spawn((
-        SpriteBundle {
-            sprite: Sprite {
-                color: Color::rgb(1.0, 0.0, 0.0),
-                custom_size: Some(Vec2::new(8.0, 8.0)),
-                ..default()
-            },
-            transform: Transform::from_xyz(0.0, 0.0, 20.0),
-            ..default()
-        },
-
-        // FollowMarker
-    ));
-}
-
-fn follow_player(
-    q: Query<&GlobalTransform, With<Player>>,
-    mut followers: Query<&mut Transform, With<FollowMarker>>
-) {
-    if q.is_empty() {
-        return;
-    }
-
-    let pos = q.single();
-    let pos = pos.translation();
-
-    for mut follower in followers.iter_mut() {
-        follower.translation.x = pos.x + 16.0;
-        follower.translation.y = pos.y;
-    }
 }

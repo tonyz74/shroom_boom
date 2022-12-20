@@ -1,6 +1,6 @@
 use bevy::prelude::*;
-use seldom_state::prelude::*;
 use leafwing_input_manager::prelude::*;
+use std::time::Duration;
 
 use crate::{
     input::InputAction,
@@ -9,7 +9,9 @@ use crate::{
     player::{
         Player,
         consts::{
-            PLAYER_JUMP_SPEED
+            PLAYER_JUMP_SPEED,
+            PLAYER_COYOTE_TIME,
+            PLAYER_JUMP_BUFFER_TIME
         },
         state_machine as s
     }
@@ -23,10 +25,15 @@ pub struct JumpAbility {
 
 impl Default for JumpAbility {
     fn default() -> Self {
-        Self {
-            jump_buffer: Timer::from_seconds(0.1, TimerMode::Once),
-            coyote_time: Timer::from_seconds(0.2, TimerMode::Once),
-        }
+        let mut me = Self {
+            coyote_time: Timer::from_seconds(PLAYER_COYOTE_TIME, TimerMode::Once),
+            jump_buffer: Timer::from_seconds(PLAYER_JUMP_BUFFER_TIME, TimerMode::Once),
+        };
+
+        me.coyote_time.tick(me.coyote_time.duration() + Duration::from_secs(1));
+        me.jump_buffer.tick(me.jump_buffer.duration() + Duration::from_secs(1));
+
+        me
     }
 }
 
@@ -54,7 +61,12 @@ pub fn jump_ability_request(
     }
 }
 
-pub fn jump_ability_reset_coyote_time(mut q: Query<(&Player, &mut JumpAbility), Without<s::Jump>>) {
+pub fn jump_ability_reset_coyote_time(
+    mut q: Query<(
+        &Player,
+        &mut JumpAbility
+    ), Without<s::Jump>>
+) {
     for (player, mut jump) in q.iter_mut() {
         if player.grounded {
             jump.coyote_time.reset();
@@ -94,6 +106,6 @@ pub fn jump_ability_trigger(
         player.vel.y = PLAYER_JUMP_SPEED;
 
         let dur = jump.coyote_time.duration();
-        jump.coyote_time.tick(dur + std::time::Duration::from_secs(1));
+        jump.coyote_time.tick(dur + Duration::from_secs(1));
     }
 }

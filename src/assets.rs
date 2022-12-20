@@ -81,6 +81,38 @@ impl PlayerAssets {
     }
 }
 
+#[derive(Resource, Default, Debug)]
+pub struct SnakeEnemyAssets {
+    pub anims: HashMap<String, Anim>,
+}
+
+impl SnakeEnemyAssets {
+    pub fn load(
+        asset_server: Res<AssetServer>,
+        mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+        mut assets: ResMut<SnakeEnemyAssets>
+    ) {
+
+        const SIZE: Vec2 = Vec2::new(28., 16.);
+        let sheet = asset_server.load("enemies/snake/snake cropped.png");
+
+        // IDLE
+
+        let idle_atlas = TextureAtlas::from_grid(
+            sheet.clone(),
+            SIZE,
+            4, 1,
+            None,
+            None
+        );
+
+        let idle_handle = texture_atlases.add(idle_atlas);
+
+        assets.anims = HashMap::from([
+            ("IDLE".to_string(), Anim::new(idle_handle, 0.2)),
+        ]);
+    }
+}
 
 pub struct AssetLoaderPlugin;
 
@@ -88,18 +120,20 @@ impl Plugin for AssetLoaderPlugin {
     fn build(&self, app: &mut App) {
         app
             .init_resource::<PlayerAssets>()
+            .init_resource::<SnakeEnemyAssets>()
             .add_state(GameState::AssetLoading)
 
             .add_startup_system_set(
                 SystemSet::new()
                     .label("assets")
                     .with_system(PlayerAssets::load)
+                    .with_system(SnakeEnemyAssets::load)
             )
 
-            .add_startup_system(enter_gameplay.after("assets"));
+            .add_startup_system(enter_level_transition.after("assets"));
     }
 }
 
-fn enter_gameplay(mut state: ResMut<State<GameState>>) {
-    state.overwrite_set(GameState::Gameplay).unwrap();
+fn enter_level_transition(mut state: ResMut<State<GameState>>) {
+    state.overwrite_set(GameState::LevelTransition).unwrap();
 }

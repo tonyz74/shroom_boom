@@ -67,7 +67,7 @@ fn dash_ability_update(
         &mut DashAbility
     ), With<s::Dash>>
 ) {
-    for (e, mut player, mut dash) in q.iter_mut() {
+    for (e, player, mut dash) in q.iter_mut() {
         let _ = player;
         dash.dur.tick(time.delta());
 

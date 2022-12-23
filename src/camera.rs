@@ -95,11 +95,8 @@ fn camera_reconfigure_to_fit_level(
                 lvl.px_hei as f32 * SCALE_FACTOR
             ) - half_extents;
 
-
-
             if camera.border_min.x > camera.border_max.x
                 || camera.border_min.y > camera.border_max.y {
-                warn!("Level is too small, outside of walls will be visible!");
                 camera.border_max = camera.border_max + half_extents;
             }
         }

@@ -16,6 +16,7 @@ pub mod state_machine;
 pub mod abilities;
 
 use abilities::dash::DashAbility;
+use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 use crate::player::abilities::slash::SlashAbility;
 use crate::player::abilities::jump::JumpAbility;
 
@@ -80,7 +81,7 @@ fn setup_player(
             snap_to_ground: Some(CharacterLength::Relative(0.2)),
             offset: CharacterLength::Relative(0.02),
             filter_flags: QueryFilterFlags::EXCLUDE_SENSORS,
-            filter_groups: Some(InteractionGroups::new(Group::GROUP_2.bits().into(), Group::GROUP_2.bits().into())),
+            filter_groups: Some(SOLIDS_INTERACTION_GROUP),
             ..default()
         },
 

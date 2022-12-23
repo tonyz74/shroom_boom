@@ -3320,6 +3320,7 @@ dependencies = [
  "bevy-inspector-egui",
  "bevy_asset_loader",
  "bevy_ecs_ldtk",
+ "bevy_ecs_tilemap",
  "bevy_egui",
  "bevy_prototype_lyon",
  "bevy_rapier2d",

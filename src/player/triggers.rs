@@ -142,7 +142,7 @@ impl Trigger for FallTrigger {
         }
 
         let player = player_q.single();
-        return player.vel.y < 0.0;
+        player.vel.y < 0.0
     }
 }
 

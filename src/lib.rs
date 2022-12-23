@@ -13,3 +13,4 @@ pub mod state;
 pub mod assets;
 pub mod entry;
 pub mod input;
+pub mod pathfind;

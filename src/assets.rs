@@ -93,15 +93,15 @@ impl SnakeEnemyAssets {
         mut assets: ResMut<SnakeEnemyAssets>
     ) {
 
-        const SIZE: Vec2 = Vec2::new(28., 16.);
-        let sheet = asset_server.load("enemies/snake/snake cropped.png");
+        const SIZE: Vec2 = Vec2::new(16., 16.);
+        let sheet = asset_server.load("sprites/enemies/tmp_16x16.png");
 
         // IDLE
 
         let idle_atlas = TextureAtlas::from_grid(
             sheet.clone(),
             SIZE,
-            4, 1,
+            1, 1,
             None,
             None
         );
@@ -109,7 +109,7 @@ impl SnakeEnemyAssets {
         let idle_handle = texture_atlases.add(idle_atlas);
 
         assets.anims = HashMap::from([
-            ("IDLE".to_string(), Anim::new(idle_handle, 0.2)),
+            ("IDLE".to_string(), Anim::new(idle_handle, 0.1)),
         ]);
     }
 }

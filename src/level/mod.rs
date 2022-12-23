@@ -6,11 +6,12 @@ mod one_way;
 mod exit;
 mod transition;
 mod enemies;
+mod util;
 
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
-
+use crate::level::consts::TILE_SIZE;
 use crate::state::GameState;
 
 #[derive(Component, Default)]
@@ -122,8 +123,19 @@ fn move_player(
     mut commands: Commands,
     level_info: Res<transition::LevelTransition>,
     mut q: Query<(Entity, &mut Transform), With<Player>>,
-    pos: Query<&EntityInstance, Added<PlayerTileMarker>>
+    pos: Query<&EntityInstance, Added<PlayerTileMarker>>,
+
+
+    level_sel: Res<LevelSelection>,
+    level: Query<&Handle<LdtkAsset>>,
+    assets: Res<Assets<LdtkAsset>>,
 ) {
+    if level.is_empty() || assets.is_empty() {
+        return;
+    }
+
+    let lvl = assets.get(level.single()).unwrap().get_level(&level_sel).unwrap();
+
     for inst in pos.iter() {
         let entry_point_id = match inst.field_instances[0].value {
             FieldValue::Int(Some(id)) => id,
@@ -135,7 +147,14 @@ fn move_player(
         }
 
         let (e, mut tf) = q.single_mut();
-        tf.translation = coord::grid_coord_to_translation(inst.grid, IVec2::new(48, 32)).extend(1.0);
+        tf.translation = coord::grid_coord_to_translation(
+            inst.grid,
+            IVec2::new(
+                (lvl.px_wid as f32 / TILE_SIZE) as i32,
+                (lvl.px_hei as f32 / TILE_SIZE) as i32
+            ),
+        ).extend(1.0);
+
         tf.translation.x += PLAYER_SIZE_PX.x / 2.0;
 
         commands.entity(e).insert(Active);

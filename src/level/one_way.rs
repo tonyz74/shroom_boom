@@ -5,18 +5,14 @@ use bevy_rapier2d::prelude::*;
 use std::collections::HashMap;
 
 use crate::{
-    level::consts::{
-        ALL_PLATFORMS_INTERACTION_GROUP,
-        SOLIDS_INTERACTION_GROUP,
-        ONE_WAY_PLATFORMS_COLLISION_GROUP
-    },
+    level::consts::ONE_WAY_PLATFORMS_COLLISION_GROUP,
     state::GameState,
     player::{
         Player,
         state_machine as s,
-        consts::{PLAYER_TERMINAL_VELOCITY, PLAYER_SIZE_PX}
     }
 };
+use crate::level::consts::SOLIDS_COLLISION_GROUP;
 
 #[derive(Default, Component)]
 pub struct OneWayTileSpawnMarker;
@@ -87,7 +83,6 @@ pub fn add_one_way_tiles(
                     *y_level as f32 * 8.0,
                     0.0
                 )),
-
                 ONE_WAY_PLATFORMS_COLLISION_GROUP
             ));
         });
@@ -95,59 +90,61 @@ pub fn add_one_way_tiles(
 }
 
 pub fn enable_one_way_colliders(
-    mut query: Query<(Entity, &mut KinematicCharacterController), (With<Player>, Without<s::Crouch>)>,
-    mut colliders: Query<(&Collider, &GlobalTransform), With<OneWayTile>>,
+    query: Query<Entity, (With<Player>, Without<s::Crouch>)>,
+    mut colliders: Query<(&mut Collider, &mut CollisionGroups, &GlobalTransform), With<OneWayTile>>,
     rapier: Res<RapierContext>
 ) {
-    for (player, mut cc) in query.iter_mut() {
-        for (collider, collider_pos) in colliders.iter_mut() {
+    for player in query.iter() {
+        for (collider, mut collision_groups, collider_pos) in colliders.iter_mut() {
             let pos = collider_pos.translation()
                 / collider_pos.to_scale_rotation_translation().0;
 
-
-            // UPCAST
-            let ix = rapier.cast_shape(
+            let cast = rapier.cast_shape(
                 Vect::new(pos.x, pos.y),
                 Rot::default(),
                 Vect::new(0.0, 1.0),
-                collider,
-                PLAYER_TERMINAL_VELOCITY.abs() + PLAYER_SIZE_PX.y / 2.0,
+                &collider,
+                Real::MAX,
                 QueryFilter {
                     predicate: Some(&|x: Entity| x == player),
                     ..default()
                 }
             );
 
-            // If the player is above the platform:
-            if ix.is_some() && ix.unwrap().1.toi > 1.0 {
-                cc.filter_groups = Some(ALL_PLATFORMS_INTERACTION_GROUP);
+            if let Some((_, Toi { toi, .. })) = cast {
+                if toi < 0.2 {
+                    *collision_groups = ONE_WAY_PLATFORMS_COLLISION_GROUP;
+                } else {
+                    *collision_groups = SOLIDS_COLLISION_GROUP;
+                }
             }
 
-            // DOWNCAST
-            let below = rapier.cast_shape(
+            let cast = rapier.cast_shape(
                 Vect::new(pos.x, pos.y),
                 Rot::default(),
                 Vect::new(0.0, -1.0),
-                collider,
-                PLAYER_TERMINAL_VELOCITY.abs() + PLAYER_SIZE_PX.y / 2.0,
+                &collider,
+                Real::MAX,
                 QueryFilter {
                     predicate: Some(&|x: Entity| x == player),
                     ..default()
                 }
             );
 
-            // If the player is below the platform:
-            if below.is_some() {
-                cc.filter_groups = Some(SOLIDS_INTERACTION_GROUP);
+            if cast.is_some() {
+                *collision_groups = ONE_WAY_PLATFORMS_COLLISION_GROUP;
             }
         }
     }
 }
 
 pub fn disable_one_way_colliders(
-    mut player_query: Query<&mut KinematicCharacterController, Added<s::Crouch>>,
+    player_query: Query<&Player, Added<s::Crouch>>,
+    mut one_way_platforms: Query<&mut CollisionGroups, With<OneWayTile>>
 ) {
-    for mut cc in player_query.iter_mut() {
-        cc.filter_groups = Some(SOLIDS_INTERACTION_GROUP);
+    for _ in player_query.iter() {
+        for mut platform in one_way_platforms.iter_mut() {
+            *platform = ONE_WAY_PLATFORMS_COLLISION_GROUP;
+        }
     }
 }

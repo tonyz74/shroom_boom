@@ -14,34 +14,36 @@ use crate::{
 use crate::pathfind::crawl::CrawlPathfinder;
 use crate::pathfind::Pathfinder;
 
-pub const SNAKE_FALL_GRAVITY: f32 = -15.0;
-pub const SNAKE_TERMINAL_VELOCITY: f32 = -20.0;
+pub const FLOWER_FALL_GRAVITY: f32 = -40.0;
+pub const FLOWER_TERMINAL_VELOCITY: f32 = -20.0;
 
-pub struct SnakeEnemyPlugin;
+pub struct FlowerEnemyPlugin;
 
-impl Plugin for SnakeEnemyPlugin {
+impl Plugin for FlowerEnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_system_set(
             SystemSet::on_update(GameState::Gameplay)
                 .with_system(gravity)
                 .with_system(do_movement)
                 .with_system(enter_idle)
+                .with_system(enter_jump)
                 .with_system(update_sprite_if_flipped)
         );
 
         app.add_plugin(TriggerPlugin::<s::FallTrigger>::default());
         app.add_plugin(TriggerPlugin::<s::GroundedTrigger>::default());
+        app.add_plugin(TriggerPlugin::<s::NeedsJumpTrigger>::default());
     }
 }
 
 #[derive(Component, Default, Debug)]
-pub struct SnakeEnemy;
+pub struct FlowerEnemy;
 
 #[derive(Bundle)]
 pub struct SnakeEnemyBundle {
     #[bundle]
     pub enemy: EnemyBundle,
-    pub snake: SnakeEnemy,
+    pub snake: FlowerEnemy,
     pub crawl: CrawlPathfinder
 }
 
@@ -51,20 +53,15 @@ impl SnakeEnemyBundle {
            enemy: EnemyBundle {
                anim_timer: AnimTimer::from_seconds(assets.anims["IDLE"].speed),
 
-               collider: Collider::cuboid(32.0, 32.0),
+               collider: Collider::cuboid(24.0, 24.0),
 
-               rigid_body: RigidBody::Fixed,
+               rigid_body: RigidBody::KinematicPositionBased,
 
                character_controller: KinematicCharacterController {
                    slide: true,
                    snap_to_ground: Some(CharacterLength::Relative(0.2)),
                    offset: CharacterLength::Relative(0.02),
                    filter_flags: QueryFilterFlags::EXCLUDE_SENSORS,
-                   autostep: Some(CharacterAutostep {
-                       max_height: CharacterLength::Relative(1.0),
-                       min_width: CharacterLength::Absolute(0.0),
-                       ..default()
-                   }),
                    ..default()
                },
 
@@ -72,7 +69,7 @@ impl SnakeEnemyBundle {
 
                sprite_sheet: SpriteSheetBundle {
                    sprite: TextureAtlasSprite {
-                        custom_size: Some(Vec2::new(64.0, 64.0)),
+                        custom_size: Some(Vec2::new(48.0, 48.0)),
                         ..default()
                    },
                     texture_atlas: assets.anims["IDLE"].clone().tex,
@@ -87,24 +84,31 @@ impl SnakeEnemyBundle {
                path: Pathfinder::default()
            },
 
-           snake: SnakeEnemy,
+           snake: FlowerEnemy,
 
-           crawl: CrawlPathfinder
+           crawl: CrawlPathfinder::default()
        }
     }
 }
 
-fn gravity(mut q: Query<&mut Enemy, With<s::Fall>>) {
+fn gravity(mut q: Query<&mut Enemy, Without<s::Run>>) {
     for mut enemy in q.iter_mut() {
-        enemy.vel.y += 0.016667 * SNAKE_FALL_GRAVITY;
+        enemy.vel.y += 0.016667 * FLOWER_FALL_GRAVITY;
 
-        if enemy.vel.y <= SNAKE_TERMINAL_VELOCITY {
-            enemy.vel.y = SNAKE_TERMINAL_VELOCITY;
+        if enemy.vel.y <= FLOWER_TERMINAL_VELOCITY {
+            enemy.vel.y = FLOWER_TERMINAL_VELOCITY;
         }
     }
 }
 
-fn enter_idle(mut q: Query<&mut Enemy, Added<s::Idle>>) {
+fn enter_jump(mut q: Query<&mut Enemy, Added<s::Jump>>) {
+    for mut enemy in q.iter_mut() {
+        enemy.vel.y = 8.0;
+        enemy.vel.x = 0.0;
+    }
+}
+
+fn enter_idle(mut q: Query<&mut Enemy, Added<s::Run>>) {
     for mut enemy in q.iter_mut() {
         enemy.vel.x = 0.0;
         enemy.vel.y = 0.0;

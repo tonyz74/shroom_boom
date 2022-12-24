@@ -7,6 +7,7 @@ pub enum UpdateStage {
 }
 
 pub const PHYSICS_STEPS_PER_SEC: f64 = 60.0;
+pub const PHYSICS_STEP_DELTA: f32 = 1.0 / 60.0;
 
 #[derive(Default, Component, Deref, DerefMut)]
 pub struct AnimTimer(Timer);

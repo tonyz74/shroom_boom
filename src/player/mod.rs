@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+use leafwing_input_manager::InputManagerBundle;
+use seldom_state::prelude::StateMachine;
 
 use crate::{
     state::GameState,
@@ -20,10 +22,28 @@ use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 use crate::player::abilities::slash::SlashAbility;
 use crate::player::abilities::jump::JumpAbility;
 
+#[derive(Bundle)]
+pub struct PlayerBundle {
+    pub player: Player,
+    pub slash: SlashAbility,
+    pub dash: DashAbility,
+    pub jump: JumpAbility,
+    pub character_controller: KinematicCharacterController,
+    pub rigid_body: RigidBody,
+    pub sensor: Sensor,
+    pub collider: Collider,
+    pub state_machine: StateMachine,
+    pub anim_timer: AnimTimer,
+
+    #[bundle]
+    pub input: InputManagerBundle<InputAction>,
+    #[bundle]
+    pub sprite_sheet: SpriteSheetBundle
+}
+
 #[derive(Component)]
 pub struct Player {
     pub vel: Vec2,
-    pub health: u8,
     pub grounded: bool,
 }
 
@@ -57,48 +77,48 @@ fn setup_player(
     use consts::{PLAYER_COLLIDER_CAPSULE, PLAYER_SIZE_PX};
     let anim = &assets.anims["IDLE"];
 
-    commands.spawn((
-        SpriteSheetBundle {
-            sprite: TextureAtlasSprite {
-                custom_size: Some(PLAYER_SIZE_PX),
+    commands.spawn(
+        PlayerBundle {
+            sprite_sheet: SpriteSheetBundle {
+                sprite: TextureAtlasSprite {
+                    custom_size: Some(PLAYER_SIZE_PX),
+                    ..default()
+                },
+                texture_atlas: anim.tex.clone(),
                 ..default()
             },
-            texture_atlas: anim.tex.clone(),
-            transform: Transform::from_xyz(20.0, 800.0, 5.0),
-            ..default()
-        },
 
-        AnimTimer::from_seconds(anim.speed),
+            anim_timer: AnimTimer::from_seconds(anim.speed),
 
-        Collider::capsule(PLAYER_COLLIDER_CAPSULE.segment.a.into(),
-                          PLAYER_COLLIDER_CAPSULE.segment.b.into(),
-                          PLAYER_COLLIDER_CAPSULE.radius),
+            collider: Collider::capsule(PLAYER_COLLIDER_CAPSULE.segment.a.into(),
+                                       PLAYER_COLLIDER_CAPSULE.segment.b.into(),
+                                       PLAYER_COLLIDER_CAPSULE.radius),
 
-        RigidBody::KinematicPositionBased,
+            rigid_body: RigidBody::KinematicPositionBased,
 
-        KinematicCharacterController {
-            slide: true,
-            snap_to_ground: Some(CharacterLength::Relative(0.2)),
-            offset: CharacterLength::Relative(0.02),
-            filter_flags: QueryFilterFlags::EXCLUDE_SENSORS,
-            filter_groups: Some(SOLIDS_INTERACTION_GROUP),
-            ..default()
-        },
+            character_controller: KinematicCharacterController {
+                slide: true,
+                snap_to_ground: Some(CharacterLength::Relative(0.2)),
+                offset: CharacterLength::Relative(0.02),
+                filter_flags: QueryFilterFlags::EXCLUDE_SENSORS,
+                filter_groups: Some(SOLIDS_INTERACTION_GROUP),
+                ..default()
+            },
 
-        Player {
-            health: 10,
-            grounded: false,
-            vel: Vec2::splat(0.0),
-        },
+            player: Player {
+                grounded: false,
+                vel: Vec2::ZERO
+            },
 
-        Sensor,
+            sensor: Sensor,
 
-        DashAbility::default(),
-        SlashAbility::default(),
-        JumpAbility::default(),
+            dash: DashAbility::default(),
+            slash: SlashAbility::default(),
+            jump: JumpAbility::default(),
 
-        InputAction::input_manager_bundle(),
+            input: InputAction::input_manager_bundle(),
 
-        state_machine::player_state_machine(),
-    ));
+            state_machine: state_machine::player_state_machine()
+        }
+    );
 }

@@ -18,6 +18,7 @@ use crate::{
     common::{UpdateStage, PHYSICS_STEPS_PER_SEC},
     level::consts::SOLIDS_INTERACTION_GROUP
 };
+use crate::common::PHYSICS_STEP_DELTA;
 
 pub fn player_setup_logic(app: &mut App) {
     use crate::player::abilities::{dash, slash, jump};
@@ -181,7 +182,7 @@ pub fn fall(
     }
 
     // Fixed timestep
-    player.vel.y += 0.01667 * PLAYER_FALL_GRAVITY;
+    player.vel.y += PHYSICS_STEP_DELTA * PLAYER_FALL_GRAVITY;
 
     if player.vel.y <= PLAYER_TERMINAL_VELOCITY {
         player.vel.y = PLAYER_TERMINAL_VELOCITY;

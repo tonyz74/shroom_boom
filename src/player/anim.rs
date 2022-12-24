@@ -7,7 +7,7 @@ use crate::{
     assets::PlayerAssets,
     player::{
         Player,
-        state_machine::{Idle, Run, Jump, Fall, Dash, Slash, Teleport, Crouch}
+        state_machine::{Idle, Run, Jump, Fall, Dash, Slash, Crouch}
     }
 };
 

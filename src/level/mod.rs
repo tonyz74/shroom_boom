@@ -14,6 +14,13 @@ use bevy_ecs_ldtk::prelude::*;
 use crate::level::consts::TILE_SIZE;
 use crate::state::GameState;
 
+
+#[derive(Resource, Default)]
+pub struct LevelInfo {
+    pub cell_size: Vec2,
+    pub grid_size: Vec2,
+}
+
 #[derive(Component, Default)]
 pub struct PlayerTileMarker;
 
@@ -37,6 +44,7 @@ impl Plugin for LevelLoaderPlugin {
                 level_background: LevelBackground::Nonexistent,
                 ..default()
             })
+            .init_resource::<LevelInfo>()
             .insert_resource(LevelSelection::Index(0))
             .register_ldtk_entity::<PlayerTileBundle>("EntryPoint");
 
@@ -54,6 +62,7 @@ impl Plugin for LevelLoaderPlugin {
         app.add_system_set(
             SystemSet::on_update(GameState::LevelTransition)
                 .with_system(move_player)
+                .with_system(refresh_level)
                 .with_system(reconfigure_region_to_fit_level)
         );
     }
@@ -87,29 +96,31 @@ fn load_level(
     });
 }
 
-pub fn reconfigure_region_to_fit_level(
+pub fn refresh_level(
     levels: Query<&Handle<LdtkAsset>>,
     assets: Res<Assets<LdtkAsset>>,
     sel: Res<LevelSelection>,
 
-    mut region: Query<(&mut Transform, &mut Collider), With<LevelRegion>>,
+    mut lvl_info: ResMut<LevelInfo>
 ) {
     if levels.is_empty() || assets.is_empty() {
         return;
     }
 
+    let lvl = assets.get(levels.single()).unwrap().get_level(&sel).unwrap();
+
+    lvl_info.cell_size = Vec2::new(TILE_SIZE, TILE_SIZE);
+    lvl_info.grid_size = IVec2::new(lvl.px_wid, lvl.px_hei).as_vec2() / lvl_info.cell_size;
+}
+
+pub fn reconfigure_region_to_fit_level(
+    mut region: Query<(&mut Transform, &mut Collider), With<LevelRegion>>,
+    lvl_info: Res<LevelInfo>
+) {
     for (mut region, mut collider) in region.iter_mut() {
-        let level = assets.get(levels.single()).unwrap();
-
-        if let Some(lvl) = level.get_level(&sel) {
-            let half_extents = Vec2::new(
-                lvl.px_wid as f32 / 2.0,
-                lvl.px_hei as f32 / 2.0
-            );
-
-            region.translation = Vec3::new(half_extents.x, half_extents.y, 0.0);
-            *collider = Collider::cuboid(half_extents.x + 10.0, half_extents.y + 10.0);
-        }
+        let half_extents = (lvl_info.grid_size * lvl_info.cell_size) / 2.0;
+        region.translation = Vec3::new(half_extents.x, half_extents.y, 0.0);
+        *collider = Collider::cuboid(half_extents.x + 10.0, half_extents.y + 10.0);
     }
 }
 
@@ -121,38 +132,22 @@ pub struct Active;
 
 fn move_player(
     mut commands: Commands,
-    level_info: Res<transition::LevelTransition>,
+    transition: Res<transition::LevelTransition>,
     mut q: Query<(Entity, &mut Transform), With<Player>>,
     pos: Query<&EntityInstance, Added<PlayerTileMarker>>,
-
-
-    level_sel: Res<LevelSelection>,
-    level: Query<&Handle<LdtkAsset>>,
-    assets: Res<Assets<LdtkAsset>>,
+    lvl_info: Res<LevelInfo>,
 ) {
-    if level.is_empty() || assets.is_empty() {
-        return;
-    }
-
-    let lvl = assets.get(level.single()).unwrap().get_level(&level_sel).unwrap();
-
     for inst in pos.iter() {
-        let entry_point_id = match inst.field_instances[0].value {
-            FieldValue::Int(Some(id)) => id,
-            _ => panic!()
-        };
+        let entry_point_id = util::val_expect_i32(&inst.field_instances[0].value).unwrap();
 
-        if entry_point_id as u32 != level_info.entry_point_id {
+        if entry_point_id as u32 != transition.entry_point_id {
             continue;
         }
 
         let (e, mut tf) = q.single_mut();
         tf.translation = coord::grid_coord_to_translation(
             inst.grid,
-            IVec2::new(
-                (lvl.px_wid as f32 / TILE_SIZE) as i32,
-                (lvl.px_hei as f32 / TILE_SIZE) as i32
-            ),
+            lvl_info.grid_size.as_ivec2()
         ).extend(1.0);
 
         tf.translation.x += PLAYER_SIZE_PX.x / 2.0;

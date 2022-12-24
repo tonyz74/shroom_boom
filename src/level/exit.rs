@@ -4,12 +4,15 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
     level::{
+        util,
         LevelRegion, Active,
         transition::{LevelTransition, TransitionEffect}
     },
     state::GameState,
     player::Player,
 };
+use crate::level::{coord, LevelInfo};
+use crate::level::consts::SCALE_FACTOR;
 
 #[derive(Component, Default)]
 pub struct ExitTileMarker;
@@ -43,18 +46,14 @@ pub fn register_exit_entity(app: &mut App) {
 
 fn add_exit_entities(
     mut commands: Commands,
-    q: Query<&EntityInstance, Added<ExitTileMarker>>
+    q: Query<&EntityInstance, Added<ExitTileMarker>>,
+    lvl_info: Res<LevelInfo>
 ) {
     for inst in q.iter() {
-        let link = match inst.field_instances[0].value {
-            FieldValue::Int(Some(link)) => link,
-            _ => panic!()
-        };
+        let link = util::val_expect_i32(&inst.field_instances[0].value).unwrap();
+        let entry_point_id = util::val_expect_i32(&inst.field_instances[1].value).unwrap();
 
-        let entry_point_id = match inst.field_instances[1].value {
-            FieldValue::Int(Some(entry_point_id)) => entry_point_id,
-            _ => panic!()
-        };
+        let tl = coord::grid_coord_to_translation(inst.grid, lvl_info.grid_size.as_ivec2());
 
         commands.spawn((
             Sensor,
@@ -62,12 +61,8 @@ fn add_exit_entities(
             Collider::cuboid(inst.width as f32 / 2., inst.height as f32 / 2.),
             TransformBundle::from_transform(
                 Transform::default()
-                    .with_translation(Vec3::new(
-                        inst.grid.x as f32 * 32.0 + (inst.width as f32 * 2.0),
-                        (32 - inst.grid.y) as f32 * 32.0 - (inst.height as f32 * 2.0),
-                        0.0
-                    ))
-                    .with_scale(Vec3::new(4.0, 4.0, 1.0))
+                    .with_translation(Vec3::new(tl.x, tl.y, 0.0))
+                    .with_scale(Vec3::new(SCALE_FACTOR, SCALE_FACTOR, 1.0))
             ),
 
             LevelExit {
@@ -114,7 +109,7 @@ fn on_player_out_of_bounds(
     for (pos, player) in player.iter() {
         for region in region.iter() {
             if rapier.intersection_pair(player, region).is_none() {
-                println!("player is at {:?}", pos.translation());
+                info!("Player exiting the level at {:?}", pos.translation());
                 state.set(GameState::LevelTransition).unwrap();
             }
         }

@@ -58,6 +58,6 @@ impl Plugin for ShadePlugin {
     }
 }
 
-pub fn setup_rapier(mut config: ResMut<RapierConfiguration>) {
-    config.gravity = Vect::new(0.0, -500.0);
+pub fn setup_rapier(config: ResMut<RapierConfiguration>) {
+    let _ = config;
 }

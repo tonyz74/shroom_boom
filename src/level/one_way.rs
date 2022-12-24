@@ -12,7 +12,7 @@ use crate::{
         state_machine as s,
     }
 };
-use crate::level::consts::SOLIDS_COLLISION_GROUP;
+use crate::level::consts::{SOLIDS_COLLISION_GROUP, TILE_SIZE};
 
 #[derive(Default, Component)]
 pub struct OneWayTileSpawnMarker;
@@ -76,11 +76,14 @@ pub fn add_one_way_tiles(
         commands.entity(common_parent).with_children(|parent| {
             parent.spawn((
                 OneWayTile,
-                Collider::cuboid((chunk.end - chunk.start + 1) as f32 * 4., 4.),
+                Collider::cuboid(
+                    (chunk.end - chunk.start + 1) as f32 * TILE_SIZE / 2.,
+                    TILE_SIZE / 2.
+                ),
                 RigidBody::Fixed,
                 TransformBundle::from_transform(Transform::from_xyz(
-                    ((chunk.start + chunk.end) as f32 / 2.0) * 8.0,
-                    *y_level as f32 * 8.0,
+                    ((chunk.start + chunk.end) as f32 / 2.0) * TILE_SIZE,
+                    *y_level as f32 * TILE_SIZE,
                     0.0
                 )),
                 ONE_WAY_PLATFORMS_COLLISION_GROUP
@@ -102,7 +105,7 @@ pub fn enable_one_way_colliders(
             let cast = rapier.cast_shape(
                 Vect::new(pos.x, pos.y),
                 Rot::default(),
-                Vect::new(0.0, 1.0),
+                Vect::Y,
                 &collider,
                 Real::MAX,
                 QueryFilter {
@@ -112,6 +115,7 @@ pub fn enable_one_way_colliders(
             );
 
             if let Some((_, Toi { toi, .. })) = cast {
+                // If the player is already inside the platform:
                 if toi < 0.2 {
                     *collision_groups = ONE_WAY_PLATFORMS_COLLISION_GROUP;
                 } else {
@@ -119,10 +123,12 @@ pub fn enable_one_way_colliders(
                 }
             }
 
+
+            // If there is a player below the
             let cast = rapier.cast_shape(
                 Vect::new(pos.x, pos.y),
                 Rot::default(),
-                Vect::new(0.0, -1.0),
+                -Vect::Y,
                 &collider,
                 Real::MAX,
                 QueryFilter {

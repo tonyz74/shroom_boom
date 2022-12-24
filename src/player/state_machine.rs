@@ -4,6 +4,17 @@ use seldom_state::prelude::*;
 // STATES
 
 #[derive(Component, Reflect, Copy, Clone)]
+pub struct Slash {
+    pub midair: bool
+}
+
+#[derive(Component, Reflect, Copy, Clone)]
+pub struct Dash;
+
+#[derive(Component, Reflect, Copy, Clone)]
+pub struct Crouch;
+
+#[derive(Component, Reflect, Copy, Clone)]
 pub struct Idle;
 
 #[derive(Component, Reflect, Copy, Clone)]
@@ -14,20 +25,6 @@ pub struct Jump;
 
 #[derive(Component, Reflect, Copy, Clone)]
 pub struct Fall;
-
-#[derive(Component, Reflect, Copy, Clone)]
-pub struct Teleport;
-
-#[derive(Component, Reflect, Copy, Clone)]
-pub struct Slash {
-    pub midair: bool
-}
-
-#[derive(Component, Reflect, Copy, Clone)]
-pub struct Dash;
-
-#[derive(Component, Reflect, Copy, Clone)]
-pub struct Crouch;
 
 // TRIGGERS
 

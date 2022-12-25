@@ -81,6 +81,8 @@ impl Plugin for PathfindingPlugin {
             .add_event::<PathfinderStopChaseEvent>();
 
         walk::register_walk_pathfinders(app);
+
+        state_machine::register_triggers(app);
     }
 }
 
@@ -89,7 +91,7 @@ pub fn pathfind_track_player(
     mut pathfinders: Query<(Entity, &GlobalTransform, &mut Pathfinder)>,
     mut ev_start: EventWriter<PathfinderStartChaseEvent>,
 ) {
-    for (player, transform) in player.iter() {
+    for (_player, transform) in player.iter() {
         let player_pos = Vec2::new(
             transform.translation().x,
             transform.translation().y

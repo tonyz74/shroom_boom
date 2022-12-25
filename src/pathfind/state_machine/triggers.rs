@@ -6,6 +6,7 @@ use crate::{
     enemies::Enemy,
     pathfind::{Pathfinder, walk::WalkPathfinder}
 };
+use crate::attack::HurtAbility;
 
 #[derive(Copy, Clone, Reflect, FromReflect)]
 pub struct FallTrigger;
@@ -62,3 +63,38 @@ impl Trigger for NeedsJumpTrigger {
     }
 }
 
+
+#[derive(Copy, Clone, Reflect, FromReflect)]
+pub struct HurtTrigger;
+
+impl Trigger for HurtTrigger {
+    type Param<'w, 's> = Query<'w, 's, &'static Enemy>;
+
+    fn trigger(&self, entity: Entity, walks: &Self::Param<'_, '_>) -> bool {
+        if !walks.contains(entity) {
+            return false;
+        }
+
+        let enemy = walks.get(entity).unwrap();
+        let ok = enemy.hit_event.is_some();
+
+        ok
+    }
+}
+
+
+#[derive(Copy, Clone, Reflect, FromReflect)]
+pub struct StopHurtTrigger;
+
+impl Trigger for StopHurtTrigger {
+    type Param<'w, 's> = Query<'w, 's, (&'static WalkPathfinder, &'static HurtAbility)>;
+
+    fn trigger(&self, entity: Entity, walk: &Self::Param<'_, '_>) -> bool {
+        if !walk.contains(entity) {
+            return false;
+        }
+
+        let (walk, hurt) = walk.get(entity).unwrap();
+        walk.grounded && hurt.can_stop_hurting()
+    }
+}

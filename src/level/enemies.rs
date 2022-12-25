@@ -3,7 +3,7 @@ use bevy_ecs_ldtk::prelude::*;
 
 use crate::{
     state::GameState,
-    assets::SnakeEnemyAssets,
+    assets::FlowerEnemyAssets,
     enemies::flower::FlowerEnemyBundle,
     pathfind::PatrolRegion,
     level::{util, coord, consts::TILE_SIZE},
@@ -46,7 +46,7 @@ fn spawn_enemies(
     mut commands: Commands,
     enemies: Query<&EntityInstance, Added<EnemySpawnpointMarker>>,
     patrol_regions: Query<&EntityInstance, Added<PatrolRegionMarker>>,
-    snake_assets: Res<SnakeEnemyAssets>,
+    snake_assets: Res<FlowerEnemyAssets>,
     lvl_info: Res<LevelInfo>
 ) {
     let mut patrol_regions_map = HashMap::new();

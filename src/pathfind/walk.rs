@@ -4,6 +4,7 @@ use bevy_rapier2d::prelude::*;
 use crate::{
     enemies::Enemy,
     state::GameState,
+    attack::HurtAbility,
     level::consts::SCALE_FACTOR,
     pathfind::{Pathfinder, state_machine as s},
 };
@@ -40,7 +41,8 @@ impl Default for WalkPathfinderPatrolPoint {
 pub struct WalkPathfinder {
     pub jump_speed: f32,
     pub needs_jump: bool,
-    pub next_patrol_point: WalkPathfinderPatrolPoint
+    pub grounded: bool,
+    pub next_patrol_point: WalkPathfinderPatrolPoint,
 }
 
 pub fn register_walk_pathfinders(app: &mut App) {
@@ -49,18 +51,25 @@ pub fn register_walk_pathfinders(app: &mut App) {
             .with_system(walk_pathfinder_move)
             .with_system(walk_pathfinder_fall)
             .with_system(walk_pathfinder_jump)
+            .with_system(walk_pathfinder_hurt)
+            .with_system(walk_pathfinder_got_hurt)
             .with_system(walk_pathfinder_hit_ground)
             .with_system(walk_pathfinder_lose_notice)
+            .with_system(walk_pathfinder_set_grounded)
     );
 }
 
 fn walk_pathfinder_fall(
-    mut q: Query<
+    mut q: Query<(
         &mut Enemy,
-        (With<WalkPathfinder>, Without<s::Move>)
-    >
+        &WalkPathfinder
+    )>
 ) {
-    for mut enemy in q.iter_mut() {
+    for (mut enemy, walk) in q.iter_mut() {
+        if walk.grounded {
+            continue;
+        }
+
         enemy.vel.y += PHYSICS_STEP_DELTA * -40.0;
 
         if enemy.vel.y <= -20.0 {
@@ -86,7 +95,6 @@ fn walk_pathfinder_hit_ground(
     }
 }
 
-
 fn jump_if_needed(
     pos: Vec2,
     dir: Vec2,
@@ -110,10 +118,52 @@ fn jump_if_needed(
 
     if ix.is_some() {
         enemy.vel.x = 0.0;
-        walk.needs_jump = true;
+
+        if walk.grounded {
+            walk.needs_jump = true;
+        } else {
+            walk.needs_jump = false;
+        }
     } else {
         walk.needs_jump = false;
     }
+}
+
+fn walk_pathfinder_got_hurt(
+    mut pathfinders: Query<(&mut Enemy, &HurtAbility), Added<s::Hurt>>
+) {
+    for (mut enemy, _hurt) in pathfinders.iter_mut() {
+        let hit_event = enemy.hit_event.take().unwrap();
+        enemy.vel = hit_event.kb;
+    }
+}
+
+fn walk_pathfinder_hurt(
+    mut walks: Query<(
+        &GlobalTransform,
+        &Collider,
+        &mut Enemy,
+        &mut Pathfinder,
+        &mut WalkPathfinder
+    ), With<s::Hurt>>,
+    rapier: Res<RapierContext>
+) {
+   for (transform, collider, mut enemy, mut pathfinder, mut walk) in walks.iter_mut() {
+       let self_pos = Vec2::new(
+           transform.translation().x,
+           transform.translation().y
+       );
+
+       jump_if_needed(
+           Vec2::new(self_pos.x, self_pos.y),
+           Vec2::new(enemy.vel.x, 0.0).normalize(),
+           collider,
+           &mut enemy,
+           &pathfinder,
+           &mut walk,
+           &rapier
+       );
+   }
 }
 
 fn walk_pathfinder_move(
@@ -124,12 +174,10 @@ fn walk_pathfinder_move(
         &mut Enemy,
         &mut Pathfinder,
         &mut WalkPathfinder
-    )>,
+    ), Without<s::Hurt>>,
     rapier: Res<RapierContext>,
     mut ev_stop: EventWriter<PathfinderStopChaseEvent>
 ) {
-
-
     for (ent, collider, mut enemy, mut pathfinder, mut walk) in pathfinders.iter_mut() {
         let self_transform = transforms.get(ent).unwrap();
 
@@ -229,4 +277,15 @@ fn walk_pathfinder_lose_notice(
             pathfinder.lose_notice_timer.tick(time.delta());
         }
     }
+}
+
+fn walk_pathfinder_set_grounded(
+    mut walk_pathfinders: Query<(
+        &mut WalkPathfinder,
+        &KinematicCharacterControllerOutput
+    )>,
+) {
+   for (mut walk, out) in walk_pathfinders.iter_mut() {
+        walk.grounded = out.grounded;
+   }
 }

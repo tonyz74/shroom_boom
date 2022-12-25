@@ -1,15 +1,14 @@
 pub mod state_machine;
-use state_machine as s;
 
 use bevy::prelude::*;
-use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
     common::AnimTimer,
     enemies::{EnemyBundle, Enemy},
-    assets::SnakeEnemyAssets,
+    assets::FlowerEnemyAssets,
 };
+use crate::attack::{CombatLayerMask, Health, HurtAbility, KnockbackResistance};
 
 use crate::pathfind::{
     Pathfinder, BoundingBox,
@@ -23,9 +22,7 @@ pub struct FlowerEnemyPlugin;
 
 impl Plugin for FlowerEnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_plugin(TriggerPlugin::<s::FallTrigger>::default());
-        app.add_plugin(TriggerPlugin::<s::GroundedTrigger>::default());
-        app.add_plugin(TriggerPlugin::<s::NeedsJumpTrigger>::default());
+        let _ = app;
     }
 }
 
@@ -41,53 +38,60 @@ pub struct FlowerEnemyBundle {
 }
 
 impl FlowerEnemyBundle {
-    pub fn from_assets(assets: &Res<SnakeEnemyAssets>) -> Self {
-       FlowerEnemyBundle {
-           enemy: EnemyBundle {
-               anim_timer: AnimTimer::from_seconds(assets.anims["IDLE"].speed),
+    pub fn from_assets(assets: &Res<FlowerEnemyAssets>) -> Self {
+        FlowerEnemyBundle {
+            enemy: EnemyBundle {
+                anim_timer: AnimTimer::from_seconds(assets.anims["IDLE"].speed),
 
-               collider: Collider::cuboid(24.0, 24.0),
+                collider: Collider::cuboid(24.0, 24.0),
 
-               rigid_body: RigidBody::KinematicPositionBased,
+                rigid_body: RigidBody::KinematicPositionBased,
 
-               character_controller: KinematicCharacterController {
-                   slide: true,
-                   snap_to_ground: Some(CharacterLength::Relative(0.2)),
-                   offset: CharacterLength::Relative(0.02),
-                   filter_flags: QueryFilterFlags::EXCLUDE_SENSORS,
-                   ..default()
-               },
+                character_controller: KinematicCharacterController {
+                    slide: true,
+                    snap_to_ground: Some(CharacterLength::Relative(0.2)),
+                    offset: CharacterLength::Relative(0.02),
+                    filter_flags: QueryFilterFlags::EXCLUDE_SENSORS,
+                    ..default()
+                },
 
-               state_machine: state_machine::flower_enemy_state_machine(),
+                state_machine: state_machine::flower_enemy_state_machine(),
 
-               sprite_sheet: SpriteSheetBundle {
-                   sprite: TextureAtlasSprite {
+                sprite_sheet: SpriteSheetBundle {
+                    sprite: TextureAtlasSprite {
                         custom_size: Some(Vec2::new(48.0, 48.0)),
                         ..default()
-                   },
+                    },
                     texture_atlas: assets.anims["IDLE"].clone().tex,
                     transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.0)),
                     ..default()
-               },
+                },
 
-               enemy: Enemy::default(),
+                enemy: Enemy::default(),
 
-               sensor: Sensor,
+                sensor: Sensor,
 
-               path: Pathfinder {
-                   speed: 2.0,
-                   bb: BoundingBox::new(24.0, 24.0),
-                   lose_notice_timer: Timer::from_seconds(4.0, TimerMode::Once),
-                   ..default()
-               }
-           },
+                path: Pathfinder {
+                    speed: 2.0,
+                    bb: BoundingBox::new(24.0, 24.0),
+                    lose_notice_timer: Timer::from_seconds(4.0, TimerMode::Once),
+                    ..default()
+                },
 
-           snake: FlowerEnemy,
+                kb_res: KnockbackResistance::new(1.0),
+                combat_layer: CombatLayerMask::ENEMY,
 
-           crawl: WalkPathfinder {
-               jump_speed: 8.0,
-               ..default()
-           }
-       }
+                hurt_ability: HurtAbility::new(0.2),
+
+                health: Health::new(10),
+            },
+
+            snake: FlowerEnemy,
+
+            crawl: WalkPathfinder {
+                jump_speed: 8.0,
+                ..default()
+            },
+        }
     }
 }

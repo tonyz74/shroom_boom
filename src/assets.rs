@@ -82,15 +82,15 @@ impl PlayerAssets {
 }
 
 #[derive(Resource, Default, Debug)]
-pub struct SnakeEnemyAssets {
+pub struct FlowerEnemyAssets {
     pub anims: HashMap<String, Anim>,
 }
 
-impl SnakeEnemyAssets {
+impl FlowerEnemyAssets {
     pub fn load(
         asset_server: Res<AssetServer>,
         mut texture_atlases: ResMut<Assets<TextureAtlas>>,
-        mut assets: ResMut<SnakeEnemyAssets>
+        mut assets: ResMut<FlowerEnemyAssets>
     ) {
 
         const SIZE: Vec2 = Vec2::new(16., 16.);
@@ -120,14 +120,14 @@ impl Plugin for AssetLoaderPlugin {
     fn build(&self, app: &mut App) {
         app
             .init_resource::<PlayerAssets>()
-            .init_resource::<SnakeEnemyAssets>()
+            .init_resource::<FlowerEnemyAssets>()
             .add_state(GameState::AssetLoading)
 
             .add_startup_system_set(
                 SystemSet::new()
                     .label("assets")
                     .with_system(PlayerAssets::load)
-                    .with_system(SnakeEnemyAssets::load)
+                    .with_system(FlowerEnemyAssets::load)
             )
 
             .add_startup_system(enter_level_transition.after("assets"));

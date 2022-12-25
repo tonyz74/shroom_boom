@@ -18,6 +18,7 @@ pub mod state_machine;
 pub mod abilities;
 
 use abilities::dash::DashAbility;
+use crate::attack::{CombatLayerMask, KnockbackResistance};
 use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 use crate::player::abilities::slash::SlashAbility;
 use crate::player::abilities::jump::JumpAbility;
@@ -34,6 +35,9 @@ pub struct PlayerBundle {
     pub collider: Collider,
     pub state_machine: StateMachine,
     pub anim_timer: AnimTimer,
+
+    pub kb_res: KnockbackResistance,
+    pub combat_layer: CombatLayerMask,
 
     #[bundle]
     pub input: InputManagerBundle<InputAction>,
@@ -54,7 +58,10 @@ pub struct PlayerPlugin;
 
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(SystemSet::on_enter(GameState::LevelTransition).with_system(setup_player));
+        app.add_system_set(
+            SystemSet::on_enter(GameState::LevelTransition)
+                .with_system(setup_player)
+        );
 
         anim::player_setup_anim(app);
         logic::player_setup_logic(app);
@@ -91,8 +98,8 @@ fn setup_player(
             anim_timer: AnimTimer::from_seconds(anim.speed),
 
             collider: Collider::capsule(PLAYER_COLLIDER_CAPSULE.segment.a.into(),
-                                       PLAYER_COLLIDER_CAPSULE.segment.b.into(),
-                                       PLAYER_COLLIDER_CAPSULE.radius),
+                                        PLAYER_COLLIDER_CAPSULE.segment.b.into(),
+                                        PLAYER_COLLIDER_CAPSULE.radius),
 
             rigid_body: RigidBody::KinematicPositionBased,
 
@@ -118,7 +125,10 @@ fn setup_player(
 
             input: InputAction::input_manager_bundle(),
 
-            state_machine: state_machine::player_state_machine()
+            state_machine: state_machine::player_state_machine(),
+
+            kb_res: KnockbackResistance::new(1.0),
+            combat_layer: CombatLayerMask::PLAYER
         }
     );
 }

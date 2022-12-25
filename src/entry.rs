@@ -14,7 +14,8 @@ use crate::{
     level::LevelLoaderPlugin,
     enemies::EnemyPlugin,
     camera::CameraPlugin,
-    pathfind::PathfindingPlugin
+    pathfind::PathfindingPlugin,
+    attack::AttackPlugin
 };
 
 pub struct ShadePlugin;
@@ -53,6 +54,7 @@ impl Plugin for ShadePlugin {
             .add_plugin(EnemyPlugin)
             .add_plugin(LevelLoaderPlugin)
             .add_plugin(PathfindingPlugin)
+            .add_plugin(AttackPlugin)
 
             .add_startup_system(setup_rapier);
     }

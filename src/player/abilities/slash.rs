@@ -13,6 +13,7 @@ use crate::{
         state_machine as s
     }
 };
+use crate::attack::{AttackStrength, CombatLayerMask};
 
 // HELPER FUNCTIONS
 fn deg_to_rad(deg: f32) -> f32 {
@@ -139,11 +140,13 @@ fn slash_ability_trigger(
                     ..default()
                 },
 
-                attack: MeleeAttack {
-                    source: Some(entity),
-                    damage: 1,
-                    offset: Vec2::new(0.0, 0.0)
+                attack: MeleeAttack,
+
+                strength: AttackStrength {
+                    power: 2
                 },
+
+                combat_layer: CombatLayerMask::PLAYER,
 
                 anim_timer: AnimTimer::from_seconds(assets.slash_anim.speed),
 

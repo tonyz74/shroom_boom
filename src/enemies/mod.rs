@@ -1,29 +1,38 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
-
+use crate::attack::{CombatLayerMask, Health, HitEvent, HurtAbility, KnockbackResistance};
 
 use crate::common::{AnimTimer, UpdateStage};
 use crate::pathfind::Pathfinder;
+use crate::pathfind::state_machine::Hurt;
 use crate::state::GameState;
 
 pub mod flower;
 
 #[derive(Default, Component)]
 pub struct Enemy {
-    pub vel: Vec2
+    pub vel: Vec2,
+    pub hit_event: Option<HitEvent>,
 }
 
 #[derive(Bundle)]
 pub struct EnemyBundle {
     pub enemy: Enemy,
     pub sensor: Sensor,
+    pub path: Pathfinder,
     pub anim_timer: AnimTimer,
     pub collider: Collider,
     pub rigid_body: RigidBody,
     pub state_machine: StateMachine,
     pub character_controller: KinematicCharacterController,
-    pub path: Pathfinder,
+
+    pub hurt_ability: HurtAbility,
+
+    pub health: Health,
+    pub kb_res: KnockbackResistance,
+    pub combat_layer: CombatLayerMask,
+
     #[bundle]
     pub sprite_sheet: SpriteSheetBundle,
 }
@@ -38,6 +47,8 @@ impl Plugin for EnemyPlugin {
                 SystemSet::on_update(GameState::Gameplay)
                     .label(UpdateStage::Physics)
                     .with_system(move_enemies)
+                    .with_system(handle_hits)
+                    .with_system(handle_dead_enemies)
             );
     }
 }
@@ -48,20 +59,30 @@ fn move_enemies(mut q: Query<(&Enemy, &mut KinematicCharacterController)>) {
     }
 }
 
-// pub fn animate_enemies(
-//     time: Res<Time>,
-//     texture_atlases: Res<Assets<TextureAtlas>>,
-//     mut query: Query<(
-//         &mut AnimTimer,
-//         &mut TextureAtlasSprite,
-//         &Handle<TextureAtlas>
-//     ), With<Enemy>>
-// ) {
-//     for (mut timer, mut sprite, texture_atlas_handle) in &mut query {
-//         timer.tick(time.delta());
-//         if timer.just_finished() {
-//             let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
-//             sprite.index = (sprite.index + 1) % texture_atlas.textures.len();
-//         }
-//     }
-// }
+fn handle_hits(
+    mut q: Query<(&mut Enemy, &HurtAbility, &mut Health), Without<Hurt>>,
+    mut hit_events: EventReader<HitEvent>
+) {
+    for hit in hit_events.iter() {
+        if let Ok((mut target, hurt, mut health)) = q.get_mut(hit.target) {
+            if hurt.is_immune() {
+                target.hit_event = None;
+                continue;
+            }
+
+            health.hp -= hit.damage;
+            target.hit_event = Some(*hit);
+        }
+    }
+}
+
+fn handle_dead_enemies(
+    mut commands: Commands,
+    mut enemies: Query<(Entity, &Health), With<Enemy>>
+) {
+    for (entity, health) in enemies.iter() {
+        if health.hp <= 0 {
+            commands.entity(entity).despawn();
+        }
+    }
+}

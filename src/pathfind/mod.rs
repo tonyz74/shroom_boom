@@ -1,5 +1,6 @@
 pub mod walk;
 pub mod state_machine;
+mod ranged;
 
 use bevy::prelude::*;
 
@@ -48,6 +49,7 @@ pub struct Pathfinder {
     pub region: PatrolRegion,
     pub start: Vec2,
     pub speed: f32,
+    pub patrol_speed: f32,
     pub bb: BoundingBox,
     pub target: Option<Vec2>,
 

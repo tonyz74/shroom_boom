@@ -10,7 +10,8 @@ use crate::{
 };
 use crate::common::PHYSICS_STEP_DELTA;
 use crate::pathfind::PathfinderStopChaseEvent;
-
+use std::collections::HashSet;
+use crate::player::Player;
 
 #[derive(Copy, Clone, Debug)]
 pub enum WalkPathfinderPatrolPoint {
@@ -167,7 +168,7 @@ fn walk_pathfinder_hurt(
 }
 
 fn walk_pathfinder_move(
-    transforms: Query<&GlobalTransform>,
+    transforms: Query<&GlobalTransform, With<Enemy>>,
     mut pathfinders: Query<(
         Entity,
         &Collider,
@@ -178,6 +179,9 @@ fn walk_pathfinder_move(
     rapier: Res<RapierContext>,
     mut ev_stop: EventWriter<PathfinderStopChaseEvent>
 ) {
+    let mut all_should_start_patrolling = false;
+    let mut colliding_enemies: HashSet<(Entity, Entity)> = HashSet::new();
+
     for (ent, collider, mut enemy, mut pathfinder, mut walk) in pathfinders.iter_mut() {
         let self_transform = transforms.get(ent).unwrap();
 
@@ -194,7 +198,7 @@ fn walk_pathfinder_move(
                 }
 
                 enemy.vel.x = 0.0;
-                return;
+                continue;
             }
 
             let dir = Vec2::new((target_pos - self_pos).x, 0.0).normalize();
@@ -211,6 +215,8 @@ fn walk_pathfinder_move(
             );
 
         } else if pathfinder.lose_notice_timer.just_finished() {
+            all_should_start_patrolling = true;
+
             // Enter patrolling state
 
             // Decide the next patrol point to go to, which should be the
@@ -251,7 +257,7 @@ fn walk_pathfinder_move(
             }
 
             let dir = Vec2::new(target_x - self_pos.x, 0.0).normalize();
-            enemy.vel.x = dir.x;
+            enemy.vel.x = dir.x * pathfinder.patrol_speed;
 
             jump_if_needed(
                 Vec2::new(self_pos.x, self_pos.y),
@@ -265,6 +271,72 @@ fn walk_pathfinder_move(
         } else {
             enemy.vel.x = 0.0;
         }
+
+        if pathfinder.target.is_some() {
+            rapier.intersections_with_shape(
+                self_pos,
+                Rot::default(),
+                collider,
+                QueryFilter {
+                    flags: QueryFilterFlags::ONLY_KINEMATIC,
+                    exclude_rigid_body: Some(ent),
+                    ..default()
+                },
+                |collision| {
+                    if transforms.contains(collision) {
+                        colliding_enemies.insert((ent, collision));
+                    }
+
+                    true
+                }
+            );
+        }
+    }
+
+    for (c1, c2) in colliding_enemies.iter() {
+        stop_if_other_stopped(*c1, *c2, &mut pathfinders);
+    }
+
+    if all_should_start_patrolling {
+        for (_, _, _, mut pathfinder, _) in pathfinders.iter_mut() {
+            pathfinder.target = None;
+            let dur = pathfinder.lose_notice_timer.duration();
+            pathfinder.lose_notice_timer.tick(dur - std::time::Duration::from_nanos(1));
+        }
+    }
+}
+
+fn stop_if_other_stopped(
+    e1: Entity,
+    e2: Entity,
+    q: &mut Query<(
+        Entity,
+        &Collider,
+        &mut Enemy,
+        &mut Pathfinder,
+        &mut WalkPathfinder
+    ), Without<s::Hurt>>
+) {
+    if !q.contains(e1) || !q.contains(e2) {
+        return;
+    }
+
+    let e1_stopped = {
+        let v = q.get(e1).unwrap().2.vel;
+        v.x == 0.0 && v.y == 0.0
+    };
+
+    let e2_stopped = {
+        let v = q.get(e2).unwrap().2.vel;
+        v.x == 0.0 && v.y == 0.0
+    };
+
+    if e1_stopped {
+        q.get_mut(e2).unwrap().2.vel.x = 0.0;
+    }
+
+    if e2_stopped {
+        q.get_mut(e1).unwrap().2.vel.x = 0.0;
     }
 }
 
@@ -278,6 +350,7 @@ fn walk_pathfinder_lose_notice(
         }
     }
 }
+
 
 fn walk_pathfinder_set_grounded(
     mut walk_pathfinders: Query<(

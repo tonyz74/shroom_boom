@@ -4,6 +4,8 @@ use crate::attack::{AttackStrength, CombatLayerMask};
 use crate::attack::events::HitEvent;
 use crate::common::AnimTimer;
 
+use rand::prelude::*;
+
 #[derive(Bundle, Default)]
 pub struct MeleeAttackBundle {
     pub anim_timer: AnimTimer,
@@ -26,7 +28,9 @@ impl MeleeAttackBundle {
 }
 
 #[derive(Component, Default, Debug, Copy, Clone)]
-pub struct MeleeAttack;
+pub struct MeleeAttack {
+    pub source: Option<Entity>
+}
 
 pub fn animate_melee(
     time: Res<Time>,
@@ -54,16 +58,21 @@ pub fn resolve_melee_attacks(
         &GlobalTransform,
         &Collider,
         &CombatLayerMask,
-        &AttackStrength
-    ), With<MeleeAttack>>,
+        &AttackStrength,
+        &MeleeAttack
+    )>,
     rapier: Res<RapierContext>,
     mut hit_events: EventWriter<HitEvent>
 ) {
-    for (transform, collider, combat_layer, atk) in melees.iter() {
-        let atk_pos = transform.translation();
+    for (transform, collider, combat_layer, atk, melee) in melees.iter() {
+        let atk_pos = if let Some(source) = melee.source {
+            transforms.get(source).unwrap().translation()
+        } else {
+            transform.translation()
+        };
 
         rapier.intersections_with_shape(
-            Vect::new(atk_pos.x, atk_pos.y),
+            Vect::new(transform.translation().x, transform.translation().y),
             Rot::default(),
             collider,
             QueryFilter {
@@ -72,18 +81,19 @@ pub fn resolve_melee_attacks(
             },
             |hit| {
                 if let Ok(hit_combat_layer) = combat_layers_query.get(hit) {
+                    // Skip if they're friendly (friendly fire is not enabled)
                     if hit_combat_layer.is_ally_with(*combat_layer) {
                         return true;
                     }
 
                     let hit_pos = transforms.get(hit).unwrap().translation();
-                    let dir = Vec2::new(hit_pos.x - atk_pos.x, 0.0).normalize().x;
+                    let diff = (hit_pos - atk_pos).normalize();
 
                     // Only accept hits that have occurred between enemies
                     hit_events.send(HitEvent {
                         target: hit,
                         damage: atk.power,
-                        kb: Vec2::new(dir * 5.0, 3.0)
+                        kb: Vec2::new(diff.x * 4.0, 4.0) * thread_rng().gen_range(0.6..1.2)
                     });
                 }
 

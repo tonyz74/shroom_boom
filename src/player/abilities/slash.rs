@@ -140,7 +140,10 @@ fn slash_ability_trigger(
                     ..default()
                 },
 
-                attack: MeleeAttack,
+                attack: MeleeAttack {
+                    source: Some(entity),
+                    ..default()
+                },
 
                 strength: AttackStrength {
                     power: 2

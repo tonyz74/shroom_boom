@@ -12,7 +12,7 @@ pub const PLAYER_COLLIDER_CAPSULE: rp::geometry::Capsule = rp::geometry::Capsule
 
 pub const PLAYER_SIZE_PX: Vec2 = Vec2::new(64.0, 64.0);
 
-pub const PLAYER_ATTACK_COOLDOWN: f32 = 0.4;
+pub const PLAYER_ATTACK_COOLDOWN: f32 = 0.2;
 
 pub const PLAYER_DASH_LENGTH: f32 = 0.1;
 pub const PLAYER_DASH_COOLDOWN: f32 = 0.3;

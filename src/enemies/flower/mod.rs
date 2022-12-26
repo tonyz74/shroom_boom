@@ -3,6 +3,8 @@ pub mod state_machine;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
+use rand::prelude::*;
+
 use crate::{
     common::AnimTimer,
     enemies::{EnemyBundle, Enemy},
@@ -72,7 +74,8 @@ impl FlowerEnemyBundle {
                 sensor: Sensor,
 
                 path: Pathfinder {
-                    speed: 2.0,
+                    speed: thread_rng().gen_range(1.5..2.5),
+                    patrol_speed: thread_rng().gen_range(0.8..1.2),
                     bb: BoundingBox::new(24.0, 24.0),
                     lose_notice_timer: Timer::from_seconds(4.0, TimerMode::Once),
                     ..default()
@@ -81,15 +84,15 @@ impl FlowerEnemyBundle {
                 kb_res: KnockbackResistance::new(1.0),
                 combat_layer: CombatLayerMask::ENEMY,
 
-                hurt_ability: HurtAbility::new(0.2),
+                hurt_ability: HurtAbility::new(0.5),
 
-                health: Health::new(10),
+                health: Health::new(100),
             },
 
             snake: FlowerEnemy,
 
             crawl: WalkPathfinder {
-                jump_speed: 8.0,
+                jump_speed: thread_rng().gen_range(7.0..9.0),
                 ..default()
             },
         }

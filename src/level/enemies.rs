@@ -70,7 +70,7 @@ fn spawn_enemies(
     }
 
     for inst in enemies.iter() {
-        let e_ref = util::val_expect_ent_ref(&inst.field_instances[3].value).unwrap();
+        let e_ref = util::val_expect_ent_ref(&inst.field_instances[1].value).unwrap();
         let patrol_region = patrol_regions_map[&e_ref.entity_iid];
 
         let mut enemy = FlowerEnemyBundle::from_assets(&snake_assets);

@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_ecs_ldtk::GridCoords;
 
 mod melee;
 mod projectile;
@@ -27,15 +28,16 @@ impl Plugin for AttackPlugin {
                SystemSet::on_update(GameState::Gameplay)
                    .with_system(resolve_melee_attacks)
                    .with_system(move_projectile_attacks)
+                   .with_system(remove_projectiles_on_impact)
                    .with_system(hurt_ability_trigger)
                    .with_system(hurt_ability_tick_immunity)
                    .with_system(stop_hurting)
                    .with_system(temp_shoot)
            )
-           .add_event::<HitEvent>();
+           .add_event::<HitEvent>()
+           .register_type::<GridCoords>();
     }
 }
-
 
 pub fn temp_shoot(
     mut commands: Commands,
@@ -43,7 +45,7 @@ pub fn temp_shoot(
     input: Res<Input<KeyCode>>,
     assets: Res<FlowerEnemyAssets>
 ) {
-    if input.just_pressed(KeyCode::F) {
+    if input.just_pressed(KeyCode::Return) {
         let player_pos = player.single().translation();
         
         commands.spawn(ProjectileAttackBundle {
@@ -58,13 +60,13 @@ pub fn temp_shoot(
 
                 texture_atlas: assets.anims["IDLE"].tex.clone(),
 
-                transform: Transform::from_xyz(player_pos.x, player_pos.y, 12.0),
+                transform: Transform::from_xyz(player_pos.x, player_pos.y, 0.0),
 
                 ..default()
             },
 
             attack: ProjectileAttack {
-                vel: Vec2::new(-2.0, 0.0)
+                vel: Vec2::new(12.0, 0.0)
             },
 
             strength: AttackStrength::new(2),

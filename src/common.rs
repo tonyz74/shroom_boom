@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::pathfind::BoundingBox;
 
 #[derive(SystemLabel)]
 pub enum UpdateStage {
@@ -9,7 +10,7 @@ pub enum UpdateStage {
 pub const PHYSICS_STEPS_PER_SEC: f64 = 60.0;
 pub const PHYSICS_STEP_DELTA: f32 = 1.0 / 60.0;
 
-#[derive(Default, Component, Deref, DerefMut)]
+#[derive(Default, Clone, Component, Deref, DerefMut, Debug)]
 pub struct AnimTimer(Timer);
 
 impl AnimTimer {
@@ -32,4 +33,3 @@ impl Anim {
         }
     }
 }
-

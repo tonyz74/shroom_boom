@@ -4,12 +4,16 @@ use bevy_ecs_ldtk::prelude::*;
 use crate::{
     state::GameState,
     assets::FlowerEnemyAssets,
-    enemies::flower::FlowerEnemyBundle,
+    enemies::{
+        pumpkin::PumpkinEnemyBundle,
+        flower::FlowerEnemyBundle
+    },
     pathfind::PatrolRegion,
     level::{util, coord, consts::TILE_SIZE},
 };
 
 use std::collections::HashMap;
+use crate::assets::PumpkinEnemyAssets;
 use crate::level::LevelInfo;
 
 #[derive(Component, Default)]
@@ -46,8 +50,10 @@ fn spawn_enemies(
     mut commands: Commands,
     enemies: Query<&EntityInstance, Added<EnemySpawnpointMarker>>,
     patrol_regions: Query<&EntityInstance, Added<PatrolRegionMarker>>,
-    snake_assets: Res<FlowerEnemyAssets>,
-    lvl_info: Res<LevelInfo>
+    lvl_info: Res<LevelInfo>,
+
+    flower_assets: Res<FlowerEnemyAssets>,
+    pumpkin_assets: Res<PumpkinEnemyAssets>
 ) {
     let mut patrol_regions_map = HashMap::new();
 
@@ -59,7 +65,6 @@ fn spawn_enemies(
 
         let tl = GridCoords::new(inst.grid.x, inst.grid.y);
         let br = GridCoords::new(inst.grid.x + reg_dim.x, inst.grid.y + reg_dim.y);
-
 
         let region = PatrolRegion {
             tl: coord::grid_coord_to_translation(tl.into(), lvl_info.grid_size.as_ivec2()),
@@ -73,20 +78,63 @@ fn spawn_enemies(
         let e_ref = util::val_expect_ent_ref(&inst.field_instances[1].value).unwrap();
         let patrol_region = patrol_regions_map[&e_ref.entity_iid];
 
-        let mut enemy = FlowerEnemyBundle::from_assets(&snake_assets);
+        let enemy_type = match &inst.field_instances[0].value {
+            FieldValue::Enum(Some(name)) => name.clone(),
+            _ => panic!()
+        };
 
-        {
-            let path = &mut enemy.enemy.path;
-            path.region = patrol_region;
+        match enemy_type.as_str() {
+            "Flower" => spawn_flower(&mut commands, &inst, patrol_region, &lvl_info, &flower_assets),
+            "Pumpkin" => spawn_pumpkin(&mut commands, &inst, patrol_region, &lvl_info, &pumpkin_assets),
+            _ => panic!()
         }
-
-        {
-            let translation = &mut enemy.enemy.sprite_sheet.transform.translation;
-            *translation = coord::grid_coord_to_translation(
-                inst.grid, lvl_info.grid_size.as_ivec2()
-            ).extend(1.0);
-        }
-
-        commands.spawn(enemy);
     }
+}
+
+pub fn spawn_flower(
+    commands: &mut Commands,
+    inst: &EntityInstance,
+    patrol_region: PatrolRegion,
+    lvl_info: &Res<LevelInfo>,
+    assets: &Res<FlowerEnemyAssets>
+) {
+    let mut enemy = FlowerEnemyBundle::from_assets(&assets);
+
+    {
+        let path = &mut enemy.enemy.path;
+        path.region = patrol_region;
+    }
+
+    {
+        let translation = &mut enemy.enemy.sprite_sheet.transform.translation;
+        *translation = coord::grid_coord_to_translation(
+            inst.grid, lvl_info.grid_size.as_ivec2()
+        ).extend(1.0);
+    }
+
+    commands.spawn(enemy);
+}
+
+pub fn spawn_pumpkin(
+    commands: &mut Commands,
+    inst: &EntityInstance,
+    patrol_region: PatrolRegion,
+    lvl_info: &Res<LevelInfo>,
+    assets: &Res<PumpkinEnemyAssets>
+) {
+    let mut enemy = PumpkinEnemyBundle::from_assets(&assets);
+
+    {
+        let path = &mut enemy.enemy.path;
+        path.region = patrol_region;
+    }
+
+    {
+        let translation = &mut enemy.enemy.sprite_sheet.transform.translation;
+        *translation = coord::grid_coord_to_translation(
+            inst.grid, lvl_info.grid_size.as_ivec2()
+        ).extend(1.0);
+    }
+
+    commands.spawn(enemy);
 }

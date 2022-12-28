@@ -1,6 +1,14 @@
 pub mod walk;
+pub mod melee;
+pub mod ranged;
+
+pub mod patrol;
 pub mod state_machine;
-mod ranged;
+
+pub use walk::*;
+pub use melee::*;
+pub use ranged::*;
+pub use patrol::*;
 
 use bevy::prelude::*;
 
@@ -8,41 +16,6 @@ use crate::state::GameState;
 use crate::player::Player;
 
 pub struct PathfindingPlugin;
-
-#[derive(Component, Debug, Default, Copy, Clone)]
-pub struct PatrolRegion {
-    pub tl: Vec2,
-    pub br: Vec2
-}
-
-impl PatrolRegion {
-    pub fn contains(&self, p: Vec2) -> bool {
-        p.x < self.br.x && p.x > self.tl.x && p.y < self.tl.y && p.y > self.br.y
-    }
-
-    pub fn expanded_by(&self, n: f32) -> Self {
-        let mut dup = self.clone();
-        dup.tl.x -= n;
-        dup.tl.y += n;
-        dup.br.x += n;
-        dup.br.y -= n;
-
-        dup
-    }
-}
-
-#[derive(Component, Debug, Default, Copy, Clone)]
-pub struct BoundingBox {
-    pub half_extents: Vec2
-}
-
-impl BoundingBox {
-    pub fn new(half_x: f32, half_y: f32) -> Self {
-        Self {
-            half_extents: Vec2::new(half_x, half_y)
-        }
-    }
-}
 
 #[derive(Component, Debug, Default, Clone)]
 pub struct Pathfinder {
@@ -82,7 +55,9 @@ impl Plugin for PathfindingPlugin {
             .add_event::<PathfinderStartChaseEvent>()
             .add_event::<PathfinderStopChaseEvent>();
 
-        walk::register_walk_pathfinders(app);
+        register_walk_pathfinders(app);
+        register_melee_pathfinders(app);
+        register_ranged_pathfinders(app);
 
         state_machine::register_triggers(app);
     }
@@ -106,7 +81,7 @@ pub fn pathfind_track_player(
             );
 
             // If the enemy is within its own region, do the whole patrolling business
-            let slightly_larger_region = pathfinder.region.expanded_by(2.0);
+            let slightly_larger_region = pathfinder.region.expanded_by(4.0);
 
             if slightly_larger_region.contains(enemy_pos)
                 && !pathfinder.region.contains(player_pos) {

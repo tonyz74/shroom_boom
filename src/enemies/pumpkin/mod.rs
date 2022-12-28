@@ -8,34 +8,35 @@ use rand::prelude::*;
 use crate::{
     common::AnimTimer,
     enemies::{EnemyBundle, Enemy},
-    assets::FlowerEnemyAssets,
+    assets::PumpkinEnemyAssets,
     attack::{CombatLayerMask, Health, HurtAbility, KnockbackResistance},
-    pathfind::{Pathfinder, BoundingBox, walk::WalkPathfinder, MeleePathfinder}
+    pathfind::{Pathfinder, BoundingBox, walk::WalkPathfinder, RangedPathfinder}
 };
+use crate::attack::{AttackStrength, ProjectileAttack, ProjectileAttackBundle};
 
-pub struct FlowerEnemyPlugin;
+pub struct PumpkinEnemyPlugin;
 
-impl Plugin for FlowerEnemyPlugin {
+impl Plugin for PumpkinEnemyPlugin {
     fn build(&self, app: &mut App) {
         let _ = app;
     }
 }
 
 #[derive(Component, Default, Debug)]
-pub struct FlowerEnemy;
+pub struct PumpkinEnemy;
 
 #[derive(Bundle)]
-pub struct FlowerEnemyBundle {
+pub struct PumpkinEnemyBundle {
     #[bundle]
     pub enemy: EnemyBundle,
-    pub flower: FlowerEnemy,
+    pub pumpkin: PumpkinEnemy,
     pub walk: WalkPathfinder,
-    pub melee_pathfinder: MeleePathfinder
+    pub ranged_pathfinder: RangedPathfinder
 }
 
-impl FlowerEnemyBundle {
-    pub fn from_assets(assets: &Res<FlowerEnemyAssets>) -> Self {
-        FlowerEnemyBundle {
+impl PumpkinEnemyBundle {
+    pub fn from_assets(assets: &Res<PumpkinEnemyAssets>) -> Self {
+        PumpkinEnemyBundle {
             enemy: EnemyBundle {
                 anim_timer: AnimTimer::from_seconds(assets.anims["IDLE"].speed),
 
@@ -51,7 +52,7 @@ impl FlowerEnemyBundle {
                     ..default()
                 },
 
-                state_machine: state_machine::flower_enemy_state_machine(),
+                state_machine: state_machine::pumpkin_enemy_state_machine(),
 
                 sprite_sheet: SpriteSheetBundle {
                     sprite: TextureAtlasSprite {
@@ -83,14 +84,46 @@ impl FlowerEnemyBundle {
                 health: Health::new(100),
             },
 
-            flower: FlowerEnemy,
+            pumpkin: PumpkinEnemy,
 
             walk: WalkPathfinder {
-                jump_speed: thread_rng().gen_range(7.0..9.0),
+                jump_speed: 8.0,
                 ..default()
             },
 
-            melee_pathfinder: MeleePathfinder,
+            ranged_pathfinder: RangedPathfinder {
+                shoot_startup: Timer::from_seconds(0.1, TimerMode::Once),
+                shoot_pause: Timer::from_seconds(0.5, TimerMode::Once),
+                shoot_cooldown: Timer::from_seconds(1.0, TimerMode::Once),
+
+                max_shoot_angle: 45.0 * (std::f32::consts::PI / 180.0),
+                max_shoot_distance: 320.0,
+
+                projectile: ProjectileAttackBundle {
+                    attack: ProjectileAttack {
+                        speed: 8.0,
+                        ..default()
+                    },
+
+                    anim_timer: AnimTimer::from_seconds(0.1),
+
+                    sprite_sheet: SpriteSheetBundle {
+                        sprite: TextureAtlasSprite {
+                            custom_size: Some(Vec2::new(16.0, 16.0)),
+                            ..default()
+                        },
+                        texture_atlas: assets.anims["IDLE"].clone().tex,
+                        ..default()
+                    },
+
+                    strength: AttackStrength::new(5),
+
+                    combat_layer: CombatLayerMask::ENEMY,
+
+                    ..ProjectileAttackBundle::from_size(Vec2::new(16.0, 16.0))
+                },
+                ..default()
+            }
         }
     }
 }

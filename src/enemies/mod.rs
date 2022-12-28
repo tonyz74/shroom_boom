@@ -9,6 +9,7 @@ use crate::pathfind::state_machine::Hurt;
 use crate::state::GameState;
 
 pub mod flower;
+pub mod pumpkin;
 
 #[derive(Default, Component)]
 pub struct Enemy {
@@ -78,7 +79,7 @@ fn handle_hits(
 
 fn handle_dead_enemies(
     mut commands: Commands,
-    mut enemies: Query<(Entity, &Health), With<Enemy>>
+    enemies: Query<(Entity, &Health), With<Enemy>>
 ) {
     for (entity, health) in enemies.iter() {
         if health.hp <= 0 {

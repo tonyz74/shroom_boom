@@ -15,7 +15,8 @@ pub fn register_triggers(app: &mut App) {
         .add_plugin(TP::<GroundedTrigger>::default())
         .add_plugin(TP::<NeedsJumpTrigger>::default())
         .add_plugin(TP::<StopHurtTrigger>::default())
-        .add_plugin(TP::<HurtTrigger>::default());
+        .add_plugin(TP::<HurtTrigger>::default())
+        .add_plugin(TP::<ShootTrigger>::default());
 }
 
 pub fn walk_pathfinder_state_machine() -> StateMachine {
@@ -32,4 +33,18 @@ pub fn walk_pathfinder_state_machine() -> StateMachine {
         .trans::<Fall>(HurtTrigger, Hurt)
 
         .trans::<Hurt>(StopHurtTrigger, Fall)
+}
+
+pub fn melee_pathfinder_state_machine() -> StateMachine {
+    walk_pathfinder_state_machine()
+}
+
+pub fn ranged_pathfinder_state_machine() -> StateMachine {
+    walk_pathfinder_state_machine()
+        .trans::<Shoot>(HurtTrigger, Hurt)
+
+        .trans::<Move>(ShootTrigger, Shoot)
+        .trans::<Fall>(ShootTrigger, Shoot)
+
+        .trans::<Shoot>(DoneTrigger::Success, Fall)
 }

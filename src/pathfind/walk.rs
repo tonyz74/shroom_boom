@@ -1,55 +1,46 @@
 use bevy::prelude::*;
+use bevy::ecs::query::ReadOnlyWorldQuery;
+
 use bevy_rapier2d::prelude::*;
 
 use crate::{
     enemies::Enemy,
     state::GameState,
-    attack::HurtAbility,
     level::consts::SCALE_FACTOR,
-    pathfind::{Pathfinder, state_machine as s},
+    pathfind::{
+        Pathfinder,
+        PathfinderStopChaseEvent,
+        WalkPathfinderPatrolPoint,
+        state_machine as s
+    },
+    common::PHYSICS_STEP_DELTA,
 };
-use crate::common::PHYSICS_STEP_DELTA;
-use crate::pathfind::PathfinderStopChaseEvent;
-use std::collections::HashSet;
-use crate::player::Player;
 
-#[derive(Copy, Clone, Debug)]
-pub enum WalkPathfinderPatrolPoint {
-    Left,
-    Right
-}
-
-impl WalkPathfinderPatrolPoint {
-    pub fn advance(&mut self) {
-        match self {
-            Self::Left => {
-                *self = Self::Right;
-            },
-            Self::Right => {
-                *self = Self::Left
-            },
-        }
-    }
-}
-
-impl Default for WalkPathfinderPatrolPoint {
-    fn default() -> Self {
-        Self::Left
-    }
-}
-
-#[derive(Component, Default)]
+#[derive(Component)]
 pub struct WalkPathfinder {
     pub jump_speed: f32,
     pub needs_jump: bool,
     pub grounded: bool,
+    pub can_patrol: bool,
     pub next_patrol_point: WalkPathfinderPatrolPoint,
+}
+
+impl Default for WalkPathfinder {
+    fn default() -> Self {
+        Self {
+            jump_speed: 0.0,
+            can_patrol: true,
+            needs_jump: false,
+            grounded: false,
+            next_patrol_point: WalkPathfinderPatrolPoint::default()
+        }
+    }
 }
 
 pub fn register_walk_pathfinders(app: &mut App) {
     app.add_system_set(
         SystemSet::on_update(GameState::Gameplay)
-            .with_system(walk_pathfinder_move)
+            .with_system(walk_pathfinder_patrol)
             .with_system(walk_pathfinder_fall)
             .with_system(walk_pathfinder_jump)
             .with_system(walk_pathfinder_hurt)
@@ -96,15 +87,13 @@ fn walk_pathfinder_hit_ground(
     }
 }
 
-fn jump_if_needed(
+pub fn walk_pathfinder_needs_jump(
     pos: Vec2,
     dir: Vec2,
     collider: &Collider,
-    enemy: &mut Enemy,
     pathfinder: &Pathfinder,
-    walk: &mut WalkPathfinder,
     rapier: &Res<RapierContext>
-) {
+) -> bool {
     let ix = rapier.cast_shape(
         pos.into(),
         Rot::default(),
@@ -117,7 +106,21 @@ fn jump_if_needed(
         }
     );
 
-    if ix.is_some() {
+    ix.is_some()
+}
+
+pub fn walk_pathfinder_jump_if_needed(
+    pos: Vec2,
+    dir: Vec2,
+    collider: &Collider,
+    enemy: &mut Enemy,
+    pathfinder: &Pathfinder,
+    walk: &mut WalkPathfinder,
+    rapier: &Res<RapierContext>
+) -> bool {
+    let needs_jump = walk_pathfinder_needs_jump(pos, dir, collider, pathfinder, rapier);
+
+    if needs_jump {
         enemy.vel.x = 0.0;
 
         if walk.grounded {
@@ -128,12 +131,14 @@ fn jump_if_needed(
     } else {
         walk.needs_jump = false;
     }
+
+    needs_jump
 }
 
 fn walk_pathfinder_got_hurt(
-    mut pathfinders: Query<(&mut Enemy, &HurtAbility), Added<s::Hurt>>
+    mut pathfinders: Query<&mut Enemy, (With<WalkPathfinder>, Added<s::Hurt>)>
 ) {
-    for (mut enemy, _hurt) in pathfinders.iter_mut() {
+    for mut enemy in pathfinders.iter_mut() {
         let hit_event = enemy.hit_event.take().unwrap();
         enemy.vel = hit_event.kb;
     }
@@ -149,13 +154,13 @@ fn walk_pathfinder_hurt(
     ), With<s::Hurt>>,
     rapier: Res<RapierContext>
 ) {
-   for (transform, collider, mut enemy, mut pathfinder, mut walk) in walks.iter_mut() {
+   for (transform, collider, mut enemy, pathfinder, mut walk) in walks.iter_mut() {
        let self_pos = Vec2::new(
            transform.translation().x,
            transform.translation().y
        );
 
-       jump_if_needed(
+       walk_pathfinder_jump_if_needed(
            Vec2::new(self_pos.x, self_pos.y),
            Vec2::new(enemy.vel.x, 0.0).normalize(),
            collider,
@@ -167,10 +172,44 @@ fn walk_pathfinder_hurt(
    }
 }
 
-fn walk_pathfinder_move(
-    transforms: Query<&GlobalTransform, With<Enemy>>,
+pub fn walk_pathfinder_stop_if_colliding_enemy_stopped<T: ReadOnlyWorldQuery>(
+    e1: Entity,
+    e2: Entity,
+    q: &mut Query<(
+        Entity,
+        &Collider,
+        &mut Enemy,
+        &mut Pathfinder,
+        &mut WalkPathfinder
+    ), T>
+) {
+    if !q.contains(e1) || !q.contains(e2) {
+        return;
+    }
+
+    let e1_stopped = {
+        let v = q.get(e1).unwrap().2.vel;
+        v.x == 0.0 && v.y == 0.0
+    };
+
+    let e2_stopped = {
+        let v = q.get(e2).unwrap().2.vel;
+        v.x == 0.0 && v.y == 0.0
+    };
+
+    if e1_stopped {
+        q.get_mut(e2).unwrap().2.vel.x = 0.0;
+    }
+
+    if e2_stopped {
+        q.get_mut(e1).unwrap().2.vel.x = 0.0;
+    }
+}
+
+fn walk_pathfinder_patrol(
     mut pathfinders: Query<(
         Entity,
+        &GlobalTransform,
         &Collider,
         &mut Enemy,
         &mut Pathfinder,
@@ -180,41 +219,15 @@ fn walk_pathfinder_move(
     mut ev_stop: EventWriter<PathfinderStopChaseEvent>
 ) {
     let mut all_should_start_patrolling = false;
-    let mut colliding_enemies: HashSet<(Entity, Entity)> = HashSet::new();
 
-    for (ent, collider, mut enemy, mut pathfinder, mut walk) in pathfinders.iter_mut() {
-        let self_transform = transforms.get(ent).unwrap();
+    for (ent, tf, collider, mut enemy, pathfinder, mut walk) in pathfinders.iter_mut() {
+        let self_pos = tf.translation();
 
-        let self_pos = Vec2::new(
-            self_transform.translation().x,
-            self_transform.translation().y,
-        );
+        if pathfinder.target.is_some() || !walk.can_patrol {
+            continue;
+        }
 
-        if let Some(target_pos) = pathfinder.target {
-
-            if (target_pos.x - self_pos.x).abs() <= 2.0 {
-                if pathfinder.lost_target {
-                    pathfinder.target = None;
-                }
-
-                enemy.vel.x = 0.0;
-                continue;
-            }
-
-            let dir = Vec2::new((target_pos - self_pos).x, 0.0).normalize();
-            enemy.vel.x = dir.x * pathfinder.speed;
-
-            jump_if_needed(
-                Vec2::new(self_pos.x, self_pos.y),
-                dir.into(),
-                collider,
-                &mut enemy,
-                &pathfinder,
-                &mut walk,
-                &rapier
-            );
-
-        } else if pathfinder.lose_notice_timer.just_finished() {
+        if pathfinder.lose_notice_timer.just_finished() {
             all_should_start_patrolling = true;
 
             // Enter patrolling state
@@ -240,7 +253,6 @@ fn walk_pathfinder_move(
             ev_stop.send(PathfinderStopChaseEvent {
                 pathfinder: ent
             });
-
         } else if pathfinder.lose_notice_timer.finished() {
             // Do the actual patrolling
             let target_x = match walk.next_patrol_point {
@@ -259,7 +271,7 @@ fn walk_pathfinder_move(
             let dir = Vec2::new(target_x - self_pos.x, 0.0).normalize();
             enemy.vel.x = dir.x * pathfinder.patrol_speed;
 
-            jump_if_needed(
+            walk_pathfinder_jump_if_needed(
                 Vec2::new(self_pos.x, self_pos.y),
                 dir.into(),
                 collider,
@@ -271,34 +283,10 @@ fn walk_pathfinder_move(
         } else {
             enemy.vel.x = 0.0;
         }
-
-        if pathfinder.target.is_some() {
-            rapier.intersections_with_shape(
-                self_pos,
-                Rot::default(),
-                collider,
-                QueryFilter {
-                    flags: QueryFilterFlags::ONLY_KINEMATIC,
-                    exclude_rigid_body: Some(ent),
-                    ..default()
-                },
-                |collision| {
-                    if transforms.contains(collision) {
-                        colliding_enemies.insert((ent, collision));
-                    }
-
-                    true
-                }
-            );
-        }
-    }
-
-    for (c1, c2) in colliding_enemies.iter() {
-        stop_if_other_stopped(*c1, *c2, &mut pathfinders);
     }
 
     if all_should_start_patrolling {
-        for (_, _, _, mut pathfinder, _) in pathfinders.iter_mut() {
+        for (_, _, _, _, mut pathfinder, _) in pathfinders.iter_mut() {
             pathfinder.target = None;
             let dur = pathfinder.lose_notice_timer.duration();
             pathfinder.lose_notice_timer.tick(dur - std::time::Duration::from_nanos(1));
@@ -306,43 +294,9 @@ fn walk_pathfinder_move(
     }
 }
 
-fn stop_if_other_stopped(
-    e1: Entity,
-    e2: Entity,
-    q: &mut Query<(
-        Entity,
-        &Collider,
-        &mut Enemy,
-        &mut Pathfinder,
-        &mut WalkPathfinder
-    ), Without<s::Hurt>>
-) {
-    if !q.contains(e1) || !q.contains(e2) {
-        return;
-    }
-
-    let e1_stopped = {
-        let v = q.get(e1).unwrap().2.vel;
-        v.x == 0.0 && v.y == 0.0
-    };
-
-    let e2_stopped = {
-        let v = q.get(e2).unwrap().2.vel;
-        v.x == 0.0 && v.y == 0.0
-    };
-
-    if e1_stopped {
-        q.get_mut(e2).unwrap().2.vel.x = 0.0;
-    }
-
-    if e2_stopped {
-        q.get_mut(e1).unwrap().2.vel.x = 0.0;
-    }
-}
-
 fn walk_pathfinder_lose_notice(
     time: Res<Time>,
-    mut pathfinders: Query<&mut Pathfinder>
+    mut pathfinders: Query<&mut Pathfinder, With<WalkPathfinder>>
 ) {
     for mut pathfinder in pathfinders.iter_mut() {
         if pathfinder.target.is_none() {

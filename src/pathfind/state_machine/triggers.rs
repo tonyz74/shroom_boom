@@ -7,6 +7,7 @@ use crate::{
     pathfind::{Pathfinder, walk::WalkPathfinder}
 };
 use crate::attack::HurtAbility;
+use crate::pathfind::{has_clear_line_of_sight, RangedPathfinder};
 
 #[derive(Copy, Clone, Reflect, FromReflect)]
 pub struct FallTrigger;
@@ -96,5 +97,29 @@ impl Trigger for StopHurtTrigger {
 
         let (walk, hurt) = walk.get(entity).unwrap();
         walk.grounded && hurt.can_stop_hurting()
+    }
+}
+
+#[derive(Copy, Clone, Reflect, FromReflect)]
+pub struct ShootTrigger;
+
+impl Trigger for ShootTrigger {
+    type Param<'w, 's> = (
+        Query<'w, 's, (&'static GlobalTransform, &'static Pathfinder, &'static RangedPathfinder)>,
+        Res<'w, RapierContext>
+    );
+
+    fn trigger(
+        &self,
+        entity: Entity,
+        (pathfinders, _rapier): &Self::Param<'_, '_>
+    ) -> bool {
+        if !pathfinders.contains(entity) {
+            return false;
+        }
+
+        let (_transform, _pathfinder, ranged) = pathfinders.get(entity).unwrap();
+
+        ranged.shoot_target.is_some() && ranged.shoot_cooldown.finished()
     }
 }

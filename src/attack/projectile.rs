@@ -1,14 +1,29 @@
+use std::collections::HashSet;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use crate::attack::{AttackStrength, CombatLayerMask, HitEvent};
 use crate::common::AnimTimer;
 
-#[derive(Component, Default)]
-pub struct ProjectileAttack {
-    pub vel: Vec2
+#[derive(Copy, Clone, Debug, Component, Resource)]
+pub enum ProjectileCollisionType {
+    SolidTile,
+    Entity
 }
 
-#[derive(Bundle, Default)]
+#[derive(Resource, Clone, Copy, Debug)]
+pub struct ProjectileCollisionEvent {
+    pub proj: Entity,
+    pub collision: Entity,
+    pub collision_type: ProjectileCollisionType
+}
+
+#[derive(Component, Default, Clone, Debug)]
+pub struct ProjectileAttack {
+    pub vel: Vec2,
+    pub speed: f32
+}
+
+#[derive(Bundle, Default, Clone)]
 pub struct ProjectileAttackBundle {
     pub anim_timer: AnimTimer,
     pub sprite_sheet: SpriteSheetBundle,
@@ -43,8 +58,7 @@ pub fn move_projectile_attacks(
     }
 }
 
-pub fn remove_projectiles_on_impact(
-    mut commands: Commands,
+pub fn projectile_hit_targets(
     projectiles: Query<(
         Entity,
         &GlobalTransform,
@@ -54,12 +68,11 @@ pub fn remove_projectiles_on_impact(
     rapier: Res<RapierContext>,
 
     combat_layers: Query<&CombatLayerMask>,
-    mut hit_events: EventWriter<HitEvent>
+    mut hit_events: EventWriter<HitEvent>,
+    mut proj_collision_events: EventWriter<ProjectileCollisionEvent>
 ) {
     for (entity, transform, collider, proj_combat_layer) in projectiles.iter() {
         let proj_pos = transform.translation();
-        // See if it has any intersections with walls
-        let mut should_despawn = false;
 
         rapier.intersections_with_shape(
             Vect::new(proj_pos.x, proj_pos.y),
@@ -70,8 +83,13 @@ pub fn remove_projectiles_on_impact(
                     | QueryFilterFlags::EXCLUDE_SENSORS,
                 ..default()
             },
-            |_| {
-                should_despawn = true;
+            |hit_entity| {
+                proj_collision_events.send(ProjectileCollisionEvent {
+                    proj: entity,
+                    collision: hit_entity,
+                    collision_type: ProjectileCollisionType::SolidTile
+                });
+
                 true
             }
         );
@@ -84,24 +102,48 @@ pub fn remove_projectiles_on_impact(
                 flags: QueryFilterFlags::ONLY_KINEMATIC,
                 ..default()
             },
-            |ent| {
-                if let Ok(layer) = combat_layers.get(ent) {
+            |hit_entity| {
+                if let Ok(layer) = combat_layers.get(hit_entity) {
                     if !layer.is_ally_with(*proj_combat_layer) {
                         hit_events.send(HitEvent {
-                            target: ent,
+                            target: hit_entity,
                             damage: 2,
                             kb: Vec2::new(4.0, 2.0)
                         });
-                        should_despawn = true;
+
+                        proj_collision_events.send(ProjectileCollisionEvent {
+                            proj: entity,
+                            collision: hit_entity,
+                            collision_type: ProjectileCollisionType::Entity
+                        });
                     }
                 }
 
                 true
             }
         );
-
-        if should_despawn {
-            commands.entity(entity).despawn();
-        }
    }
+}
+
+
+
+
+pub fn remove_projectiles_on_impact(
+    mut commands: Commands,
+    entities: Query<Entity>,
+    mut events: EventReader<ProjectileCollisionEvent>
+) {
+    let mut despawn_queue = HashSet::new();
+
+    for collision in events.iter() {
+        if !entities.contains(collision.proj) {
+            continue;
+        }
+
+        despawn_queue.insert(collision.proj);
+    }
+
+    for ent in despawn_queue.iter() {
+        commands.entity(*ent).despawn();
+    }
 }

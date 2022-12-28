@@ -27,14 +27,20 @@ impl Plugin for AttackPlugin {
            .add_system_set(
                SystemSet::on_update(GameState::Gameplay)
                    .with_system(resolve_melee_attacks)
+
                    .with_system(move_projectile_attacks)
+                   .with_system(projectile_hit_targets)
                    .with_system(remove_projectiles_on_impact)
+
                    .with_system(hurt_ability_trigger)
                    .with_system(hurt_ability_tick_immunity)
                    .with_system(stop_hurting)
                    .with_system(temp_shoot)
            )
+
            .add_event::<HitEvent>()
+           .add_event::<ProjectileCollisionEvent>()
+
            .register_type::<GridCoords>();
     }
 }
@@ -66,7 +72,8 @@ pub fn temp_shoot(
             },
 
             attack: ProjectileAttack {
-                vel: Vec2::new(12.0, 0.0)
+                vel: Vec2::new(12.0, 0.0),
+                speed: 12.0
             },
 
             strength: AttackStrength::new(2),

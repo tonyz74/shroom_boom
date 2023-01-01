@@ -1,7 +1,7 @@
+use rand::prelude::*;
 use bevy::prelude::*;
 use bevy::ecs::query::ReadOnlyWorldQuery;
 use bevy_rapier2d::prelude::*;
-
 
 use crate::{
     enemies::Enemy,
@@ -10,7 +10,6 @@ use crate::{
     pathfind::{
         Pathfinder,
         PathfinderStopChaseEvent,
-        WalkPathfinderPatrolPoint,
         knockbacks as kb,
         state_machine as s,
     },
@@ -22,18 +21,24 @@ pub struct WalkPathfinder {
     pub jump_speed: f32,
     pub needs_jump: bool,
     pub grounded: bool,
+
     pub can_patrol: bool,
-    pub next_patrol_point: WalkPathfinderPatrolPoint,
+    pub patrol_timer: Timer,
+    pub patrol_pause_timer: Timer,
+    pub patrol_target_x: f32,
 }
 
 impl Default for WalkPathfinder {
     fn default() -> Self {
         Self {
             jump_speed: 0.0,
-            can_patrol: true,
             needs_jump: false,
             grounded: false,
-            next_patrol_point: WalkPathfinderPatrolPoint::default()
+
+            can_patrol: true,
+            patrol_timer: Timer::from_seconds(12.0, TimerMode::Once),
+            patrol_pause_timer: Timer::from_seconds(2.0, TimerMode::Once),
+            patrol_target_x: 0.0
         }
     }
 }
@@ -123,12 +128,7 @@ pub fn walk_pathfinder_jump_if_needed(
 
     if needs_jump {
         enemy.vel.x = 0.0;
-
-        if walk.grounded {
-            walk.needs_jump = true;
-        } else {
-            walk.needs_jump = false;
-        }
+        walk.needs_jump = walk.grounded;
     } else {
         walk.needs_jump = false;
     }
@@ -234,48 +234,50 @@ fn walk_pathfinder_patrol(
             continue;
         }
 
-        if pathfinder.lose_notice_timer.just_finished() {
+        if pathfinder.lose_notice_timer.just_finished()
+            || walk.patrol_pause_timer.just_finished() {
+
             all_should_start_patrolling = true;
 
             // Enter patrolling state
 
-            // Decide the next patrol point to go to, which should be the
-            // point that is furthest from the current position (it goes away
-            // from the player)
+            let range = {
+                let dist_left = (self_pos.x - pathfinder.region.tl.x).abs();
+                let dist_right = (self_pos.x - pathfinder.region.br.x).abs();
 
-            let targets = [
-                (WalkPathfinderPatrolPoint::Left, pathfinder.region.tl.x),
-                (WalkPathfinderPatrolPoint::Right, pathfinder.region.br.x),
-            ];
+                let furthest = if dist_left < dist_right {
+                    pathfinder.region.br.x
+                } else {
+                    pathfinder.region.tl.x
+                };
 
-            let mut max_dist = 0.0;
-
-            for (point, target) in targets.iter() {
-                if (target - self_pos.x).abs() > max_dist {
-                    walk.next_patrol_point = *point;
-                    max_dist = (target - self_pos.x).abs();
+                if furthest < self_pos.x {
+                    furthest..self_pos.x
+                } else {
+                    self_pos.x..furthest
                 }
-            }
+            };
+
+            let mut rng = thread_rng();
+            walk.patrol_target_x = rng.gen_range(range);
+            walk.patrol_timer.reset();
 
             ev_stop.send(PathfinderStopChaseEvent {
                 pathfinder: ent
             });
-        } else if pathfinder.lose_notice_timer.finished() {
-            // Do the actual patrolling
-            let target_x = match walk.next_patrol_point {
-                WalkPathfinderPatrolPoint::Left => {
-                    pathfinder.region.tl.x
-                },
-                WalkPathfinderPatrolPoint::Right => {
-                    pathfinder.region.br.x
-                }
-            };
 
-            if (self_pos.x - target_x).abs() <= 1.0 {
-                walk.next_patrol_point.advance();
+        } else if walk.patrol_pause_timer.finished() && pathfinder.lose_notice_timer.finished() {
+            // Do the actual patrolling
+
+            if (self_pos.x - walk.patrol_target_x).abs() <= 2.0
+                || walk.patrol_timer.finished() {
+                // Wait on site for a short bit
+                walk.patrol_pause_timer.reset();
+                enemy.vel.x = 0.0;
+                continue;
             }
 
-            let dir = Vec2::new(target_x - self_pos.x, 0.0).normalize();
+            let dir = Vec2::new(walk.patrol_target_x - self_pos.x, 0.0).normalize();
             enemy.vel.x = dir.x * pathfinder.patrol_speed;
 
             walk_pathfinder_jump_if_needed(
@@ -289,6 +291,7 @@ fn walk_pathfinder_patrol(
             );
         } else {
             enemy.vel.x = 0.0;
+            continue;
         }
     }
 
@@ -303,11 +306,16 @@ fn walk_pathfinder_patrol(
 
 fn walk_pathfinder_lose_notice(
     time: Res<Time>,
-    mut pathfinders: Query<&mut Pathfinder, With<WalkPathfinder>>
+    mut pathfinders: Query<(&mut Pathfinder, &mut WalkPathfinder)>
 ) {
-    for mut pathfinder in pathfinders.iter_mut() {
+    for (mut pathfinder, mut walk) in pathfinders.iter_mut() {
         if pathfinder.target.is_none() {
             pathfinder.lose_notice_timer.tick(time.delta());
+
+            if pathfinder.lose_notice_timer.finished() {
+                walk.patrol_timer.tick(time.delta());
+                walk.patrol_pause_timer.tick(time.delta());
+            }
         }
     }
 }

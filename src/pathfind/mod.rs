@@ -29,7 +29,6 @@ pub struct Pathfinder {
     pub region: Region,
     pub within_region: bool,
 
-    pub start: Vec2,
     pub speed: f32,
     pub patrol_speed: f32,
     pub bb: BoundingBox,

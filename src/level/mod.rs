@@ -1,12 +1,12 @@
 pub mod coord;
 pub mod consts;
 
-mod solid;
-mod one_way;
-mod exit;
-mod transition;
-mod enemies;
-mod util;
+pub mod solid;
+pub mod one_way;
+pub mod exit;
+pub mod transition;
+pub mod enemies;
+pub mod util;
 
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -15,7 +15,7 @@ use crate::level::consts::TILE_SIZE;
 use crate::state::GameState;
 
 
-#[derive(Resource, Default)]
+#[derive(Resource, Default, Copy, Clone)]
 pub struct LevelInfo {
     pub cell_size: Vec2,
     pub grid_size: Vec2,

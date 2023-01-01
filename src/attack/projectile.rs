@@ -108,7 +108,7 @@ pub fn projectile_hit_targets(
                         hit_events.send(HitEvent {
                             target: hit_entity,
                             damage: 2,
-                            kb: Vec2::new(4.0, 2.0)
+                            kb: Vec2::new(4.0, 2.0).normalize()
                         });
 
                         proj_collision_events.send(ProjectileCollisionEvent {

@@ -1,41 +1,34 @@
 pub mod state_machine;
+use rand::prelude::*;
 
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use rand::prelude::*;
-
 use crate::{
-    common::AnimTimer,
-    enemies::{EnemyBundle, Enemy},
-    assets::FlowerEnemyAssets,
-    attack::{CombatLayerMask, Health, HurtAbility, KnockbackResistance},
-    pathfind::{Pathfinder, util::BoundingBox, walk::WalkPathfinder, MeleePathfinder}
+    enemies::EnemyBundle,
+    pathfind::FlyPathfinder
 };
+use crate::assets::DandelionEnemyAssets;
+use crate::attack::{CombatLayerMask, Health, HurtAbility, KnockbackResistance};
+use crate::common::AnimTimer;
+use crate::enemies::Enemy;
+use crate::pathfind::{util::BoundingBox, Pathfinder};
 
-pub struct FlowerEnemyPlugin;
 
-impl Plugin for FlowerEnemyPlugin {
-    fn build(&self, app: &mut App) {
-        let _ = app;
-    }
-}
-
-#[derive(Component, Default, Debug)]
-pub struct FlowerEnemy;
+#[derive(Component, Copy, Clone)]
+pub struct DandelionEnemy;
 
 #[derive(Bundle)]
-pub struct FlowerEnemyBundle {
+pub struct DandelionEnemyBundle {
     #[bundle]
     pub enemy: EnemyBundle,
-    pub flower: FlowerEnemy,
-    pub walk: WalkPathfinder,
-    pub melee_pathfinder: MeleePathfinder
+    pub dandelion: DandelionEnemy,
+    pub fly: FlyPathfinder
 }
 
-impl FlowerEnemyBundle {
-    pub fn from_assets(assets: &Res<FlowerEnemyAssets>) -> Self {
-        FlowerEnemyBundle {
+impl DandelionEnemyBundle {
+    pub fn from_assets(assets: &Res<DandelionEnemyAssets>) -> DandelionEnemyBundle {
+        DandelionEnemyBundle {
             enemy: EnemyBundle {
                 anim_timer: AnimTimer::from_seconds(assets.anims["IDLE"].speed),
 
@@ -45,13 +38,12 @@ impl FlowerEnemyBundle {
 
                 character_controller: KinematicCharacterController {
                     slide: true,
-                    snap_to_ground: Some(CharacterLength::Relative(0.2)),
                     offset: CharacterLength::Relative(0.02),
                     filter_flags: QueryFilterFlags::EXCLUDE_SENSORS,
                     ..default()
                 },
 
-                state_machine: state_machine::flower_enemy_state_machine(),
+                state_machine: state_machine::dandelion_enemy_state_machine(),
 
                 sprite_sheet: SpriteSheetBundle {
                     sprite: TextureAtlasSprite {
@@ -83,14 +75,12 @@ impl FlowerEnemyBundle {
                 health: Health::new(100),
             },
 
-            flower: FlowerEnemy,
+            dandelion: DandelionEnemy,
 
-            walk: WalkPathfinder {
-                jump_speed: thread_rng().gen_range(7.0..9.0),
+            fly: FlyPathfinder {
+                regain_control_timer: Timer::from_seconds(0.5, TimerMode::Once),
                 ..default()
-            },
-
-            melee_pathfinder: MeleePathfinder,
+            }
         }
     }
 }

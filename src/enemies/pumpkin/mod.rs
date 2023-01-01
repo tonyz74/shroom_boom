@@ -10,7 +10,7 @@ use crate::{
     enemies::{EnemyBundle, Enemy},
     assets::PumpkinEnemyAssets,
     attack::{CombatLayerMask, Health, HurtAbility, KnockbackResistance},
-    pathfind::{Pathfinder, BoundingBox, walk::WalkPathfinder, RangedPathfinder}
+    pathfind::{Pathfinder, util::BoundingBox, walk::WalkPathfinder, RangedPathfinder}
 };
 use crate::attack::{AttackStrength, ProjectileAttack, ProjectileAttackBundle};
 

@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use crate::pathfind::BoundingBox;
 
 #[derive(SystemLabel)]
 pub enum UpdateStage {

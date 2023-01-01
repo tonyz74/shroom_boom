@@ -20,12 +20,10 @@ pub fn grid_coord_to_translation(
 
 pub fn world_to_grid(
     world: Vec2,
-    lvl: Vec2,
-    lvl_grid_size: IVec2,
+    lvl_grid_size: Vec2,
 ) -> IVec2 {
-    let off = world - lvl;
-    let grid_x = (off.x / RENDERED_TILE_SIZE) as i32;
-    let grid_y = (off.y / RENDERED_TILE_SIZE) as i32;
+    let grid_x = (world.x / RENDERED_TILE_SIZE) as i32;
+    let grid_y = (world.y / RENDERED_TILE_SIZE) as i32;
 
-    IVec2::new(grid_x, lvl_grid_size.y - grid_y)
+    IVec2::new(grid_x, lvl_grid_size.y as i32 - grid_y - 1)
 }

@@ -91,27 +91,28 @@ impl Trigger for DashTrigger {
     }
 }
 
-// action_trigger!(
-//     With<Player>,
-//     JumpTrigger,
-//     [InputAction::Jump]
-// );
-#[derive(Copy, Clone, Reflect, FromReflect)]
-pub struct JumpTrigger;
+action_trigger!(
+    With<Player>,
+    JumpTrigger,
+    [InputAction::Jump]
+);
 
-impl Trigger for JumpTrigger {
-    type Param<'w, 's> = Query<'w, 's, &'static JumpAbility, With<Player>>;
-
-    fn trigger(&self, _: Entity, player_q: &Self::Param<'_, '_>) -> bool {
-        if player_q.is_empty() {
-            return false;
-        }
-
-        let jump = player_q.single();
-        let ok = !jump.coyote_time.finished() && !jump.jump_buffer.finished();
-        ok
-    }
-}
+// #[derive(Copy, Clone, Reflect, FromReflect)]
+// pub struct JumpTrigger;
+//
+// impl Trigger for JumpTrigger {
+//     type Param<'w, 's> = Query<'w, 's, &'static JumpAbility, With<Player>>;
+//
+//     fn trigger(&self, _: Entity, player_q: &Self::Param<'_, '_>) -> bool {
+//         if player_q.is_empty() {
+//             return false;
+//         }
+//
+//         let jump = player_q.single();
+//         let ok = !jump.coyote_time.finished() && !jump.jump_buffer.finished();
+//         ok
+//     }
+// }
 
 #[derive(Copy, Clone, Reflect, FromReflect)]
 pub struct SlashTrigger;

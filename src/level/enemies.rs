@@ -8,12 +8,14 @@ use crate::{
         pumpkin::PumpkinEnemyBundle,
         flower::FlowerEnemyBundle
     },
-    pathfind::PatrolRegion,
+    pathfind::util::Region,
     level::{util, coord, consts::TILE_SIZE},
 };
 
 use std::collections::HashMap;
-use crate::assets::PumpkinEnemyAssets;
+use crate::assets::{DandelionEnemyAssets, PumpkinEnemyAssets};
+use crate::enemies::dandelion::DandelionEnemyBundle;
+use crate::enemies::EnemyBundle;
 use crate::level::LevelInfo;
 
 #[derive(Component, Default)]
@@ -53,7 +55,8 @@ fn spawn_enemies(
     lvl_info: Res<LevelInfo>,
 
     flower_assets: Res<FlowerEnemyAssets>,
-    pumpkin_assets: Res<PumpkinEnemyAssets>
+    pumpkin_assets: Res<PumpkinEnemyAssets>,
+    dandelion_assets: Res<DandelionEnemyAssets>
 ) {
     let mut patrol_regions_map = HashMap::new();
 
@@ -66,7 +69,7 @@ fn spawn_enemies(
         let tl = GridCoords::new(inst.grid.x, inst.grid.y);
         let br = GridCoords::new(inst.grid.x + reg_dim.x, inst.grid.y + reg_dim.y);
 
-        let region = PatrolRegion {
+        let region = Region {
             tl: coord::grid_coord_to_translation(tl.into(), lvl_info.grid_size.as_ivec2()),
             br: coord::grid_coord_to_translation(br.into(), lvl_info.grid_size.as_ivec2()),
         };
@@ -84,33 +87,44 @@ fn spawn_enemies(
         };
 
         match enemy_type.as_str() {
-            "Flower" => spawn_flower(&mut commands, &inst, patrol_region, &lvl_info, &flower_assets),
-            "Pumpkin" => spawn_pumpkin(&mut commands, &inst, patrol_region, &lvl_info, &pumpkin_assets),
+            "Flower" => {
+                spawn_flower(&mut commands, &inst, patrol_region, &lvl_info, &flower_assets)
+            },
+            "Pumpkin" => {
+                spawn_pumpkin(&mut commands, &inst, patrol_region, &lvl_info, &pumpkin_assets)
+            },
+            "Dandelion" => {
+                spawn_dandelion(&mut commands, &inst, patrol_region, &lvl_info, &dandelion_assets)
+            },
             _ => panic!()
         }
     }
 }
 
+
+fn configure_enemy(
+    enemy: &mut EnemyBundle,
+    inst: &EntityInstance,
+    patrol_region: Region,
+    lvl_info: &Res<LevelInfo>
+) {
+    enemy.path.region = patrol_region;
+
+    enemy.sprite_sheet.transform.translation = coord::grid_coord_to_translation(
+        inst.grid,
+        lvl_info.grid_size.as_ivec2()
+    ).extend(1.0);
+}
+
 pub fn spawn_flower(
     commands: &mut Commands,
     inst: &EntityInstance,
-    patrol_region: PatrolRegion,
+    patrol_region: Region,
     lvl_info: &Res<LevelInfo>,
     assets: &Res<FlowerEnemyAssets>
 ) {
     let mut enemy = FlowerEnemyBundle::from_assets(&assets);
-
-    {
-        let path = &mut enemy.enemy.path;
-        path.region = patrol_region;
-    }
-
-    {
-        let translation = &mut enemy.enemy.sprite_sheet.transform.translation;
-        *translation = coord::grid_coord_to_translation(
-            inst.grid, lvl_info.grid_size.as_ivec2()
-        ).extend(1.0);
-    }
+    configure_enemy(&mut enemy.enemy, inst, patrol_region, lvl_info);
 
     commands.spawn(enemy);
 }
@@ -118,23 +132,25 @@ pub fn spawn_flower(
 pub fn spawn_pumpkin(
     commands: &mut Commands,
     inst: &EntityInstance,
-    patrol_region: PatrolRegion,
+    patrol_region: Region,
     lvl_info: &Res<LevelInfo>,
     assets: &Res<PumpkinEnemyAssets>
 ) {
     let mut enemy = PumpkinEnemyBundle::from_assets(&assets);
+    configure_enemy(&mut enemy.enemy, inst, patrol_region, lvl_info);
 
-    {
-        let path = &mut enemy.enemy.path;
-        path.region = patrol_region;
-    }
+    commands.spawn(enemy);
+}
 
-    {
-        let translation = &mut enemy.enemy.sprite_sheet.transform.translation;
-        *translation = coord::grid_coord_to_translation(
-            inst.grid, lvl_info.grid_size.as_ivec2()
-        ).extend(1.0);
-    }
+pub fn spawn_dandelion(
+    commands: &mut Commands,
+    inst: &EntityInstance,
+    patrol_region: Region,
+    lvl_info: &Res<LevelInfo>,
+    assets: &Res<DandelionEnemyAssets>
+) {
+    let mut enemy = DandelionEnemyBundle::from_assets(&assets);
+    configure_enemy(&mut enemy.enemy, inst, patrol_region, lvl_info);
 
     commands.spawn(enemy);
 }

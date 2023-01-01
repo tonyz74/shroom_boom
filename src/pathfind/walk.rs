@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::ecs::query::ReadOnlyWorldQuery;
-
 use bevy_rapier2d::prelude::*;
+
 
 use crate::{
     enemies::Enemy,
@@ -11,7 +11,8 @@ use crate::{
         Pathfinder,
         PathfinderStopChaseEvent,
         WalkPathfinderPatrolPoint,
-        state_machine as s
+        knockbacks as kb,
+        state_machine as s,
     },
     common::PHYSICS_STEP_DELTA,
 };
@@ -139,8 +140,14 @@ fn walk_pathfinder_got_hurt(
     mut pathfinders: Query<&mut Enemy, (With<WalkPathfinder>, Added<s::Hurt>)>
 ) {
     for mut enemy in pathfinders.iter_mut() {
-        let hit_event = enemy.hit_event.take().unwrap();
-        enemy.vel = hit_event.kb;
+        if enemy.hit_event.is_none() {
+            continue;
+        }
+
+        let hit_ev = enemy.hit_event.take().unwrap();
+        let kb = kb::randomize_knockback(kb::walk_pathfinder_knockback(hit_ev.kb));
+
+        enemy.vel = kb;
     }
 }
 

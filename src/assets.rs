@@ -115,6 +115,31 @@ impl PumpkinEnemyAssets {
     }
 }
 
+#[derive(Resource, Default, Debug)]
+pub struct DandelionEnemyAssets {
+    pub anims: HashMap<String, Anim>,
+}
+
+impl DandelionEnemyAssets {
+    pub fn load(
+        asset_server: Res<AssetServer>,
+        mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+        mut assets: ResMut<DandelionEnemyAssets>,
+    ) {
+        const SIZE: Vec2 = Vec2::new(16., 16.);
+        let sheet = asset_server.load("sprites/enemies/frown.png");
+
+        // IDLE
+
+        let idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
+
+        let idle_handle = texture_atlases.add(idle_atlas);
+
+        assets.anims = HashMap::from([("IDLE".to_string(), Anim::new(idle_handle, 0.1))]);
+    }
+}
+
+
 pub struct AssetLoaderPlugin;
 
 impl Plugin for AssetLoaderPlugin {
@@ -123,6 +148,8 @@ impl Plugin for AssetLoaderPlugin {
             .init_resource::<PlayerAssets>()
             .init_resource::<FlowerEnemyAssets>()
             .init_resource::<PumpkinEnemyAssets>()
+            .init_resource::<DandelionEnemyAssets>()
+
             .add_state(GameState::AssetLoading)
             .add_startup_system_set(
                 SystemSet::new()
@@ -130,6 +157,7 @@ impl Plugin for AssetLoaderPlugin {
                     .with_system(PlayerAssets::load)
                     .with_system(FlowerEnemyAssets::load)
                     .with_system(PumpkinEnemyAssets::load)
+                    .with_system(DandelionEnemyAssets::load)
             )
             .add_startup_system(enter_level_transition.after("assets"));
     }

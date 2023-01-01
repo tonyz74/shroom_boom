@@ -16,6 +16,7 @@ pub fn register_triggers(app: &mut App) {
         .add_plugin(TP::<NeedsJumpTrigger>::default())
         .add_plugin(TP::<StopHurtTrigger>::default())
         .add_plugin(TP::<HurtTrigger>::default())
+        .add_plugin(TP::<RegainFlyControlTrigger>::default())
         .add_plugin(TP::<ShootTrigger>::default());
 }
 
@@ -47,4 +48,10 @@ pub fn ranged_pathfinder_state_machine() -> StateMachine {
         .trans::<Fall>(ShootTrigger, Shoot)
 
         .trans::<Shoot>(DoneTrigger::Success, Fall)
+}
+
+pub fn fly_pathfinder_state_machine() -> StateMachine {
+    StateMachine::new(Move)
+        .trans::<Move>(HurtTrigger, Hurt)
+        .trans::<Hurt>(RegainFlyControlTrigger, Move)
 }

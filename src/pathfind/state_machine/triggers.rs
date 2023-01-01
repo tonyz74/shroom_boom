@@ -7,7 +7,7 @@ use crate::{
     pathfind::{Pathfinder, walk::WalkPathfinder}
 };
 use crate::attack::HurtAbility;
-use crate::pathfind::{has_clear_line_of_sight, RangedPathfinder};
+use crate::pathfind::{FlyPathfinder, RangedPathfinder};
 
 #[derive(Copy, Clone, Reflect, FromReflect)]
 pub struct FallTrigger;
@@ -104,22 +104,52 @@ impl Trigger for StopHurtTrigger {
 pub struct ShootTrigger;
 
 impl Trigger for ShootTrigger {
-    type Param<'w, 's> = (
-        Query<'w, 's, (&'static GlobalTransform, &'static Pathfinder, &'static RangedPathfinder)>,
-        Res<'w, RapierContext>
-    );
+    type Param<'w, 's> = Query<'w, 's, &'static RangedPathfinder>;
 
     fn trigger(
         &self,
         entity: Entity,
-        (pathfinders, _rapier): &Self::Param<'_, '_>
+        pathfinders: &Self::Param<'_, '_>
     ) -> bool {
         if !pathfinders.contains(entity) {
             return false;
         }
 
-        let (_transform, _pathfinder, ranged) = pathfinders.get(entity).unwrap();
+        let ranged = pathfinders.get(entity).unwrap();
 
         ranged.shoot_target.is_some() && ranged.shoot_cooldown.finished()
+    }
+}
+
+
+#[derive(Copy, Clone, Reflect, FromReflect)]
+pub struct RegainFlyControlTrigger;
+
+impl Trigger for RegainFlyControlTrigger {
+    type Param<'w, 's> = (
+        Query<'w, 's, (&'static Enemy, &'static FlyPathfinder)>,
+        Query<'w, 's, &'static KinematicCharacterControllerOutput>
+    );
+
+    fn trigger(
+        &self,
+        entity: Entity,
+        (flies, cc_outs): &Self::Param<'_, '_>
+    ) -> bool {
+        if !flies.contains(entity) {
+            return false;
+        }
+
+        let (enemy, fly) = flies.get(entity).unwrap();
+
+        if cc_outs.contains(entity) {
+            let out = cc_outs.get(entity).unwrap();
+            if out.desired_translation != Vec2::ZERO && out.effective_translation == Vec2::ZERO {
+                return true;
+            }
+        }
+
+        let ok = fly.regain_control_timer.finished() || enemy.vel.length() <= 1.0;
+        ok
     }
 }

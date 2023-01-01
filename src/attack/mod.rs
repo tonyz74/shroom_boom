@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_ecs_ldtk::GridCoords;
 
 mod melee;
 mod projectile;
@@ -13,6 +12,7 @@ pub use projectile::*;
 pub use components::*;
 pub use events::*;
 pub use hurt::*;
+
 use crate::assets::FlowerEnemyAssets;
 use crate::common::AnimTimer;
 use crate::player::Player;
@@ -39,9 +39,7 @@ impl Plugin for AttackPlugin {
            )
 
            .add_event::<HitEvent>()
-           .add_event::<ProjectileCollisionEvent>()
-
-           .register_type::<GridCoords>();
+           .add_event::<ProjectileCollisionEvent>();
     }
 }
 

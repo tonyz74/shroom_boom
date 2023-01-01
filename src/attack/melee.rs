@@ -4,8 +4,6 @@ use crate::attack::{AttackStrength, CombatLayerMask};
 use crate::attack::events::HitEvent;
 use crate::common::AnimTimer;
 
-use rand::prelude::*;
-
 #[derive(Bundle, Default)]
 pub struct MeleeAttackBundle {
     pub anim_timer: AnimTimer,
@@ -93,7 +91,7 @@ pub fn resolve_melee_attacks(
                     hit_events.send(HitEvent {
                         target: hit,
                         damage: atk.power,
-                        kb: Vec2::new(diff.x * 4.0, 4.0) * thread_rng().gen_range(0.6..1.2)
+                        kb: Vec2::new(diff.x, diff.y)
                     });
                 }
 

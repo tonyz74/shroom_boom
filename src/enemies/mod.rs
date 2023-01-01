@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_debug_text_overlay::screen_print;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
 use crate::attack::{CombatLayerMask, Health, HitEvent, HurtAbility, KnockbackResistance};
@@ -10,6 +11,7 @@ use crate::state::GameState;
 
 pub mod flower;
 pub mod pumpkin;
+pub mod dandelion;
 
 #[derive(Default, Component)]
 pub struct Enemy {
@@ -56,6 +58,7 @@ impl Plugin for EnemyPlugin {
 
 fn move_enemies(mut q: Query<(&Enemy, &mut KinematicCharacterController)>) {
     for (enemy, mut cc) in q.iter_mut() {
+        screen_print!("setting translation to {:?}", enemy.vel);
         cc.translation = Some(enemy.vel);
     }
 }

@@ -14,3 +14,4 @@ pub mod assets;
 pub mod entry;
 pub mod input;
 pub mod pathfind;
+pub mod util;

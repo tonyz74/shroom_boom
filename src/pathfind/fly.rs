@@ -3,23 +3,19 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_debug_text_overlay::screen_print;
 
-use crate::{
-    enemies::Enemy,
-    level::{coord, LevelInfo},
-    pathfind::{
-        Pathfinder,
-        util::GridRegion,
-        grid::{PathfindingGrid, PathfindingResult},
-        knockbacks as kb,
-        state_machine as s
-    },
-    state::GameState
-};
+use crate::{enemies::Enemy, level::{coord, LevelInfo}, pathfind::{
+    Pathfinder,
+    util::GridRegion,
+    grid::{PathfindingGrid, PathfindingResult},
+    knockbacks as kb,
+    state_machine as s
+}, state::GameState, util};
 
 #[derive(Component, Debug)]
 pub struct FlyPathfinder {
     pub regain_control_timer: Timer,
     pub path: PathfindingResult,
+    pub path_index: usize,
 
     pub patrol_timer: Timer,
     pub patrol_pause_timer: Timer,
@@ -31,6 +27,7 @@ impl Default for FlyPathfinder {
         Self {
             regain_control_timer: Timer::from_seconds(0.5, TimerMode::Once),
             path: PathfindingResult::default(),
+            path_index: 0,
 
             patrol_timer: Timer::from_seconds(12.0, TimerMode::Once),
             patrol_pause_timer: Timer::from_seconds(4.0, TimerMode::Once),
@@ -50,9 +47,80 @@ pub fn register_fly_pathfinders(app: &mut App) {
     );
 }
 
+pub fn fly_pathfinder_follow_path(
+    grid: &PathfindingGrid,
+    lvl_info: &LevelInfo,
+    pathfinder: &Pathfinder,
+    fly: &mut FlyPathfinder,
+    enemy: &mut Enemy,
+    self_pos: Vec2,
+    target: Vec2,
+    speed: f32
+) -> bool {
+    let patrol_region_grid = pathfinder.region.to_grid_region(&lvl_info);
+
+    let start = coord::world_to_grid(self_pos, lvl_info.grid_size);
+    let end = coord::world_to_grid(target, lvl_info.grid_size);
+
+    let pos_in_path = match fly.path.path.as_ref() {
+        Some(path) => path.iter().position(|&x| x == start),
+        None => None
+    };
+
+    let obj_size = pathfinder.bb.half_extents * 2.0;
+
+    let grid_half_y_span = (grid.grid_span_for_size(obj_size).y as f32 / 2.0).ceil() as i32;
+
+    if pos_in_path.is_none() || fly.path.end != end + IVec2::new(0, -grid_half_y_span) {
+        let region = if pathfinder.within_region {
+            Some(patrol_region_grid)
+        } else {
+            None
+        };
+
+        let new_path = grid.find_path(start, end, region, obj_size);
+
+        if let Some(p) = &new_path.path {
+            if let Some(q) = &fly.path.path {
+                if p.len() == 2 && q.len() == 2 && p[0] == q[1] && p[1] == q[0] {
+                    return true;
+                }
+            }
+        }
+
+        fly.path = new_path;
+        fly.path_index = 0;
+    }
+
+    if let Some(pos) = pos_in_path {
+        fly.path_index = pos;
+    }
+
+    if let Some(result) = &fly.path.path {
+        // Already there
+        if result.len() <= fly.path_index + 1 {
+            return true;
+        }
+
+        let dir = (result[fly.path_index + 1] - start)
+            .as_vec2()
+            .normalize()
+            * Vec2::new(1.0, -1.0);
+
+        enemy.vel = dir * speed;
+    } else {
+        // Effectively the same as "If the pathfinder just exited"
+        if !pathfinder.region.contains(self_pos) && pathfinder.within_region {
+            enemy.vel *= -1.0;
+        }
+    }
+
+    false
+}
+
 pub fn fly_pathfinder_chase(
     lvl_info: Res<LevelInfo>,
-    graph: Res<PathfindingGrid>,
+    grid: Res<PathfindingGrid>,
     mut fly: Query<(
         &GlobalTransform,
         &mut Enemy,
@@ -77,7 +145,6 @@ pub fn fly_pathfinder_chase(
 
             if slightly_above.distance(self_pos) <= 2.0 || target.distance(self_pos) <= 2.0 {
                 if pathfinder.lost_target {
-                    println!("i lost my target");
                     pathfinder.target = None;
                 }
 
@@ -101,39 +168,16 @@ pub fn fly_pathfinder_chase(
                 continue;
             }
 
-            let patrol_region_grid = pathfinder.region.to_grid_region(&lvl_info);
-
-            let start = coord::world_to_grid(self_pos, lvl_info.grid_size);
-            let end = coord::world_to_grid(target, lvl_info.grid_size);
-
-            // Recalculate!
-            if fly.path.start != start || fly.path.end != end {
-                let region = if pathfinder.within_region {
-                    Some(patrol_region_grid)
-                } else {
-                    None
-                };
-
-                fly.path = graph.find_path(start, end, region, pathfinder.bb.half_extents * 2.0);
-            }
-
-            if let Some(result) = &fly.path.path {
-                if result.len() <= 1 {
-                    continue;
-                }
-
-                let dir = (result[1] - start)
-                    .as_vec2()
-                    .normalize()
-                    * Vec2::new(1.0, -1.0);
-
-                enemy.vel = dir * pathfinder.speed;
-            } else {
-                // Effectively the same as "If the pathfinder just exited"
-                if !pathfinder.region.contains(self_pos) && pathfinder.within_region {
-                    enemy.vel *= -1.0;
-                }
-            }
+            fly_pathfinder_follow_path(
+                &grid,
+                &lvl_info,
+                &pathfinder,
+                &mut fly,
+                &mut enemy,
+                self_pos,
+                target,
+                pathfinder.speed
+            );
         }
     }
 }
@@ -152,6 +196,39 @@ pub fn fly_pathfinder_lose_notice(
             }
         }
     }
+}
+
+pub fn fly_pathfinder_pick_patrol_point(
+    grid: &PathfindingGrid,
+    lvl_info: &LevelInfo,
+    grid_region: GridRegion,
+    self_grid_pos: IVec2,
+    obj_size: Vec2
+) -> Vec2 {
+    let mut rng = thread_rng();
+    let mut tries = 0;
+    let mut sel = IVec2::ZERO;
+
+    const MAX_TRIES: usize = 50;
+
+    while tries <= MAX_TRIES {
+        tries += 1;
+
+        sel = IVec2::new(
+            rng.gen_range(grid_region.tl.x..grid_region.br.x),
+            rng.gen_range(grid_region.tl.y..grid_region.br.y)
+        );
+
+        if !grid_region.contains(sel)
+            || grid.solids.contains(&sel)
+            || grid.find_path(self_grid_pos, sel, Some(grid_region), obj_size).path.is_none() {
+            continue;
+        } else {
+            break;
+        }
+    }
+
+    coord::grid_coord_to_translation(sel, lvl_info.grid_size.as_ivec2())
 }
 
 pub fn fly_pathfinder_patrol(
@@ -181,65 +258,35 @@ pub fn fly_pathfinder_patrol(
             all_should_start_patrolling = true;
 
             fly.patrol_timer.reset();
+            util::timer_tick_to_finish(&mut fly.patrol_pause_timer);
 
-            let dur = fly.patrol_pause_timer.duration() + std::time::Duration::from_secs(1);
-            fly.patrol_pause_timer.set_elapsed(dur);
-
-            let mut rng = thread_rng();
-            let mut tries = 0;
-            let mut sel = IVec2::ZERO;
-
-            while tries <= 50 {
-                tries += 1;
-
-                sel = IVec2::new(
-                    rng.gen_range(grid_region.tl.x..grid_region.br.x),
-                    rng.gen_range(grid_region.tl.y..grid_region.br.y)
-                );
-
-                if !grid_region.contains(sel)
-                    || grid.solids.contains(&sel)
-                    || grid.find_path(self_grid_pos, sel, Some(grid_region), obj_size).path.is_none() {
-                    continue;
-                } else {
-                    break;
-                }
-            }
-
-            fly.patrol_target = coord::grid_coord_to_translation(sel, lvl_info.grid_size.as_ivec2());
+            fly.patrol_target = fly_pathfinder_pick_patrol_point(
+                &grid,
+                &lvl_info,
+                grid_region,
+                self_grid_pos,
+                obj_size
+            );
 
         } else if fly.patrol_pause_timer.finished() && pathfinder.lose_notice_timer.finished() {
-            let end = coord::world_to_grid(fly.patrol_target, lvl_info.grid_size);
 
-            if self_pos.distance(fly.patrol_target) <= 2.0
-                || fly.patrol_timer.finished()
-                || (fly.path.start == self_grid_pos
-                    && fly.path.end == end
-                    && fly.path.path.is_some()
-                    && fly.path.path.as_ref().unwrap().len() == 2
-            ) {
+            let target = fly.patrol_target;
+            let stop = fly_pathfinder_follow_path(
+                &grid,
+                &lvl_info,
+                &pathfinder,
+                &mut fly,
+                &mut enemy,
+                self_pos,
+                target,
+                pathfinder.patrol_speed
+            );
+
+            if self_pos.distance(fly.patrol_target) <= 2.0 || fly.patrol_timer.finished() || stop {
                 fly.patrol_pause_timer.reset();
                 enemy.vel = Vec2::ZERO;
+
                 continue;
-            }
-
-
-            // Calculate a path to get to the patrol target
-            if fly.path.start != self_grid_pos || fly.path.end != end {
-                fly.path = grid.find_path(self_grid_pos, end, Some(grid_region), obj_size);
-            }
-
-            if let Some(result) = &fly.path.path {
-                if result.len() <= 1 {
-                    continue;
-                }
-
-                let dir = (result[1] - self_grid_pos)
-                    .as_vec2()
-                    .normalize()
-                    * Vec2::new(1.0, -1.0);
-
-                enemy.vel = dir * pathfinder.patrol_speed;
             }
         }
     }
@@ -247,8 +294,7 @@ pub fn fly_pathfinder_patrol(
     if all_should_start_patrolling {
         for (_, _, mut pathfinder, _) in fly.iter_mut() {
             pathfinder.target = None;
-            let dur = pathfinder.lose_notice_timer.duration();
-            pathfinder.lose_notice_timer.tick(dur - std::time::Duration::from_nanos(1));
+            util::timer_tick_to_almost_finish(&mut pathfinder.lose_notice_timer);
         }
     }
 }

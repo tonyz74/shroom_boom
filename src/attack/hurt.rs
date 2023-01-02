@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use crate::pathfind::state_machine::Hurt;
+use crate::util;
 
 #[derive(Component, Clone, Debug)]
 pub struct HurtAbility {
@@ -11,7 +12,7 @@ pub struct HurtAbility {
 impl HurtAbility {
     pub fn new(timer_secs: f32) -> Self {
         let mut timer = Timer::from_seconds(timer_secs, TimerMode::Once);
-        timer.tick(timer.duration() + std::time::Duration::from_secs(1));
+        util::timer_tick_to_finish(&mut timer);
 
         Self {
             immunity_timer: timer,

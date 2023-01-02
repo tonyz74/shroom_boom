@@ -3,18 +3,12 @@ use bevy::prelude::*;
 use bevy::ecs::query::ReadOnlyWorldQuery;
 use bevy_rapier2d::prelude::*;
 
-use crate::{
-    enemies::Enemy,
-    state::GameState,
-    level::consts::SCALE_FACTOR,
-    pathfind::{
-        Pathfinder,
-        PathfinderStopChaseEvent,
-        knockbacks as kb,
-        state_machine as s,
-    },
-    common::PHYSICS_STEP_DELTA,
-};
+use crate::{enemies::Enemy, state::GameState, level::consts::SCALE_FACTOR, pathfind::{
+    Pathfinder,
+    PathfinderStopChaseEvent,
+    knockbacks as kb,
+    state_machine as s,
+}, common::PHYSICS_STEP_DELTA, util};
 
 #[derive(Component)]
 pub struct WalkPathfinder {
@@ -298,8 +292,7 @@ fn walk_pathfinder_patrol(
     if all_should_start_patrolling {
         for (_, _, _, _, mut pathfinder, _) in pathfinders.iter_mut() {
             pathfinder.target = None;
-            let dur = pathfinder.lose_notice_timer.duration();
-            pathfinder.lose_notice_timer.tick(dur - std::time::Duration::from_nanos(1));
+            util::timer_tick_to_almost_finish(&mut pathfinder.lose_notice_timer);
         }
     }
 }

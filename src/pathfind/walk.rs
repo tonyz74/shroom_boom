@@ -9,17 +9,13 @@ use crate::{enemies::Enemy, state::GameState, level::consts::SCALE_FACTOR, pathf
     knockbacks as kb,
     state_machine as s,
 }, common::PHYSICS_STEP_DELTA, util};
+use crate::pathfind::Patrol;
 
 #[derive(Component)]
 pub struct WalkPathfinder {
     pub jump_speed: f32,
     pub needs_jump: bool,
     pub grounded: bool,
-
-    pub can_patrol: bool,
-    pub patrol_timer: Timer,
-    pub patrol_pause_timer: Timer,
-    pub patrol_target_x: f32,
 }
 
 impl Default for WalkPathfinder {
@@ -28,11 +24,6 @@ impl Default for WalkPathfinder {
             jump_speed: 0.0,
             needs_jump: false,
             grounded: false,
-
-            can_patrol: true,
-            patrol_timer: Timer::from_seconds(12.0, TimerMode::Once),
-            patrol_pause_timer: Timer::from_seconds(2.0, TimerMode::Once),
-            patrol_target_x: 0.0
         }
     }
 }
@@ -181,7 +172,8 @@ pub fn walk_pathfinder_stop_if_colliding_enemy_stopped<T: ReadOnlyWorldQuery>(
         &Collider,
         &mut Enemy,
         &mut Pathfinder,
-        &mut WalkPathfinder
+        &mut WalkPathfinder,
+        &Patrol
     ), T>
 ) {
     if !q.contains(e1) || !q.contains(e2) {
@@ -209,105 +201,106 @@ pub fn walk_pathfinder_stop_if_colliding_enemy_stopped<T: ReadOnlyWorldQuery>(
 
 fn walk_pathfinder_patrol(
     mut pathfinders: Query<(
-        Entity,
         &GlobalTransform,
         &Collider,
         &mut Enemy,
         &mut Pathfinder,
-        &mut WalkPathfinder
+        &mut WalkPathfinder,
+        &mut Patrol
     ), Without<s::Hurt>>,
     rapier: Res<RapierContext>,
     mut ev_stop: EventWriter<PathfinderStopChaseEvent>
 ) {
     let mut all_should_start_patrolling = false;
 
-    for (ent, tf, collider, mut enemy, pathfinder, mut walk) in pathfinders.iter_mut() {
+    for (tf, collider, mut enemy, pathfinder, mut walk, mut patrol) in pathfinders.iter_mut() {
         let self_pos = tf.translation();
 
-        if pathfinder.target.is_some() || !walk.can_patrol {
+        if pathfinder.target.is_some() || !patrol.can_patrol {
             continue;
         }
 
-        if pathfinder.lose_notice_timer.just_finished()
-            || walk.patrol_pause_timer.just_finished() {
+        let mut stop_patroller = false;
 
-            all_should_start_patrolling = true;
+        patrol.patrol(
+            |p| {
+                all_should_start_patrolling = true;
 
-            // Enter patrolling state
+                // Enter patrolling state
 
-            let range = {
-                let dist_left = (self_pos.x - pathfinder.region.tl.x).abs();
-                let dist_right = (self_pos.x - pathfinder.region.br.x).abs();
+                let range = {
+                    let dist_left = (self_pos.x - pathfinder.region.tl.x).abs();
+                    let dist_right = (self_pos.x - pathfinder.region.br.x).abs();
 
-                let furthest = if dist_left < dist_right {
-                    pathfinder.region.br.x
-                } else {
-                    pathfinder.region.tl.x
+                    let furthest = if dist_left < dist_right {
+                        pathfinder.region.br.x
+                    } else {
+                        pathfinder.region.tl.x
+                    };
+
+                    if furthest < self_pos.x {
+                        furthest..self_pos.x
+                    } else {
+                        self_pos.x..furthest
+                    }
                 };
 
-                if furthest < self_pos.x {
-                    furthest..self_pos.x
-                } else {
-                    self_pos.x..furthest
+                let mut rng = thread_rng();
+                p.target = Vec2::new(rng.gen_range(range), 0.0);
+                p.patrol_timer.reset();
+            },
+
+            |p| {
+                if (self_pos.x - p.target.x).abs() <= 2.0 || p.patrol_timer.finished() {
+                    // Wait on site for a short bit
+                    p.patrol_pause_timer.reset();
+                    enemy.vel.x = 0.0;
+                    return;
                 }
-            };
 
-            let mut rng = thread_rng();
-            walk.patrol_target_x = rng.gen_range(range);
-            walk.patrol_timer.reset();
+                let dir = Vec2::new(p.target.x - self_pos.x, 0.0).normalize();
+                enemy.vel.x = dir.x * pathfinder.patrol_speed;
 
-            ev_stop.send(PathfinderStopChaseEvent {
-                pathfinder: ent
-            });
+                walk_pathfinder_jump_if_needed(
+                    Vec2::new(self_pos.x, self_pos.y),
+                    dir.into(),
+                    collider,
+                    &mut enemy,
+                    &pathfinder,
+                    &mut walk,
+                    &rapier
+                );
+            },
 
-        } else if walk.patrol_pause_timer.finished() && pathfinder.lose_notice_timer.finished() {
-            // Do the actual patrolling
-
-            if (self_pos.x - walk.patrol_target_x).abs() <= 2.0
-                || walk.patrol_timer.finished() {
-                // Wait on site for a short bit
-                walk.patrol_pause_timer.reset();
-                enemy.vel.x = 0.0;
-                continue;
+            |p| {
+                stop_patroller = true;
             }
+        );
 
-            let dir = Vec2::new(walk.patrol_target_x - self_pos.x, 0.0).normalize();
-            enemy.vel.x = dir.x * pathfinder.patrol_speed;
-
-            walk_pathfinder_jump_if_needed(
-                Vec2::new(self_pos.x, self_pos.y),
-                dir.into(),
-                collider,
-                &mut enemy,
-                &pathfinder,
-                &mut walk,
-                &rapier
-            );
-        } else {
-            enemy.vel.x = 0.0;
-            continue;
+        if stop_patroller {
+            enemy.vel = Vec2::ZERO;
         }
     }
 
     if all_should_start_patrolling {
-        for (_, _, _, _, mut pathfinder, _) in pathfinders.iter_mut() {
+        for (_, _, _, mut pathfinder, _, mut patrol) in pathfinders.iter_mut() {
             pathfinder.target = None;
-            util::timer_tick_to_almost_finish(&mut pathfinder.lose_notice_timer);
+            util::timer_tick_to_almost_finish(&mut patrol.lose_notice_timer);
         }
     }
 }
 
 fn walk_pathfinder_lose_notice(
     time: Res<Time>,
-    mut pathfinders: Query<(&mut Pathfinder, &mut WalkPathfinder)>
+    mut pathfinders: Query<(&mut Pathfinder, &mut WalkPathfinder, &mut Patrol)>
 ) {
-    for (mut pathfinder, mut walk) in pathfinders.iter_mut() {
+    for (mut pathfinder, mut walk, mut patrol) in pathfinders.iter_mut() {
         if pathfinder.target.is_none() {
-            pathfinder.lose_notice_timer.tick(time.delta());
+            patrol.lose_notice_timer.tick(time.delta());
 
-            if pathfinder.lose_notice_timer.finished() {
-                walk.patrol_timer.tick(time.delta());
-                walk.patrol_pause_timer.tick(time.delta());
+            if patrol.lose_notice_timer.finished() {
+                patrol.patrol_timer.tick(time.delta());
+                patrol.patrol_pause_timer.tick(time.delta());
             }
         }
     }

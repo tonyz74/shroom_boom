@@ -12,10 +12,7 @@ use crate::{
 };
 
 use std::collections::HashSet;
-use crate::pathfind::{
-    walk_pathfinder_jump_if_needed,
-    walk_pathfinder_stop_if_colliding_enemy_stopped
-};
+use crate::pathfind::{Patrol, walk_pathfinder_jump_if_needed, walk_pathfinder_stop_if_colliding_enemy_stopped};
 
 #[derive(Component, Default, Debug, Copy, Clone)]
 pub struct MeleePathfinder;
@@ -34,13 +31,14 @@ fn melee_pathfinder_move(
         &Collider,
         &mut Enemy,
         &mut Pathfinder,
-        &mut WalkPathfinder
+        &mut WalkPathfinder,
+        &Patrol
     ), (Without<s::Hurt>, With<MeleePathfinder>)>,
     rapier: Res<RapierContext>,
 ) {
     let mut colliding_enemies: HashSet<(Entity, Entity)> = HashSet::new();
 
-    for (ent, collider, mut enemy, mut pathfinder, mut walk) in pathfinders.iter_mut() {
+    for (ent, collider, mut enemy, mut pathfinder, mut walk, patrol) in pathfinders.iter_mut() {
         let self_transform = transforms.get(ent).unwrap();
 
         let self_pos = Vec2::new(
@@ -51,7 +49,7 @@ fn melee_pathfinder_move(
         if let Some(target_pos) = pathfinder.target {
 
             if (target_pos.x - self_pos.x).abs() <= 2.0 {
-                if pathfinder.lost_target {
+                if patrol.lost_target {
                     pathfinder.target = None;
                 }
 

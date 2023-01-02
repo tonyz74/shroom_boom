@@ -10,16 +10,13 @@ use crate::{enemies::Enemy, level::{coord, LevelInfo}, pathfind::{
     knockbacks as kb,
     state_machine as s
 }, state::GameState, util};
+use crate::pathfind::Patrol;
 
 #[derive(Component, Debug)]
 pub struct FlyPathfinder {
     pub regain_control_timer: Timer,
     pub path: PathfindingResult,
     pub path_index: usize,
-
-    pub patrol_timer: Timer,
-    pub patrol_pause_timer: Timer,
-    pub patrol_target: Vec2,
 }
 
 impl Default for FlyPathfinder {
@@ -28,10 +25,6 @@ impl Default for FlyPathfinder {
             regain_control_timer: Timer::from_seconds(0.5, TimerMode::Once),
             path: PathfindingResult::default(),
             path_index: 0,
-
-            patrol_timer: Timer::from_seconds(12.0, TimerMode::Once),
-            patrol_pause_timer: Timer::from_seconds(4.0, TimerMode::Once),
-            patrol_target: Vec2::ZERO
         }
     }
 }
@@ -127,10 +120,11 @@ pub fn fly_pathfinder_chase(
         &Collider,
         &mut Pathfinder,
         &mut FlyPathfinder,
+        &mut Patrol,
     ), Without<s::Hurt>>,
     rapier: Res<RapierContext>
 ) {
-    for (pos, mut enemy, collider, mut pathfinder, mut fly) in fly.iter_mut() {
+    for (pos, mut enemy, collider, mut pathfinder, mut fly, mut patrol) in fly.iter_mut() {
         let self_pos = Vec2::new(
             pos.translation().x,
             pos.translation().y
@@ -144,7 +138,7 @@ pub fn fly_pathfinder_chase(
             let slightly_above = target + Vec2::new(0.0, pathfinder.bb.half_extents.y);
 
             if slightly_above.distance(self_pos) <= 2.0 || target.distance(self_pos) <= 2.0 {
-                if pathfinder.lost_target {
+                if patrol.lost_target {
                     pathfinder.target = None;
                 }
 
@@ -184,15 +178,15 @@ pub fn fly_pathfinder_chase(
 
 pub fn fly_pathfinder_lose_notice(
     time: Res<Time>,
-    mut fly: Query<(&mut Pathfinder, &mut FlyPathfinder)>
+    mut fly: Query<(&mut Pathfinder, &mut FlyPathfinder, &mut Patrol)>
 ) {
-    for (mut pathfinder, mut fly) in fly.iter_mut() {
+    for (mut pathfinder, mut fly, mut patrol) in fly.iter_mut() {
         if pathfinder.target.is_none() {
-            pathfinder.lose_notice_timer.tick(time.delta());
+            patrol.lose_notice_timer.tick(time.delta());
 
-            if pathfinder.lose_notice_timer.finished() {
-                fly.patrol_timer.tick(time.delta());
-                fly.patrol_pause_timer.tick(time.delta());
+            if patrol.lose_notice_timer.finished() {
+                patrol.patrol_timer.tick(time.delta());
+                patrol.patrol_pause_timer.tick(time.delta());
             }
         }
     }
@@ -234,11 +228,17 @@ pub fn fly_pathfinder_pick_patrol_point(
 pub fn fly_pathfinder_patrol(
     lvl_info: Res<LevelInfo>,
     grid: Res<PathfindingGrid>,
-    mut fly: Query<(&GlobalTransform, &mut Enemy, &mut Pathfinder, &mut FlyPathfinder)>
+    mut fly: Query<(
+        &GlobalTransform,
+        &mut Enemy,
+        &mut Pathfinder,
+        &mut FlyPathfinder,
+        &mut Patrol
+    )>
 ) {
     let mut all_should_start_patrolling = false;
 
-    for (tf, mut enemy, pathfinder, mut fly) in fly.iter_mut() {
+    for (tf, mut enemy, pathfinder, mut fly, mut patrol) in fly.iter_mut() {
         let self_pos = Vec2::new(
             tf.translation().x,
             tf.translation().y
@@ -252,49 +252,51 @@ pub fn fly_pathfinder_patrol(
         let grid_region = pathfinder.region.to_grid_region(&lvl_info);
         let self_grid_pos = coord::world_to_grid(self_pos, lvl_info.grid_size);
 
-        if pathfinder.lose_notice_timer.just_finished()
-            || fly.patrol_pause_timer.just_finished() {
+        patrol.patrol(
+            |p| {
+                all_should_start_patrolling = true;
 
-            all_should_start_patrolling = true;
+                p.patrol_timer.reset();
+                util::timer_tick_to_finish(&mut p.patrol_pause_timer);
 
-            fly.patrol_timer.reset();
-            util::timer_tick_to_finish(&mut fly.patrol_pause_timer);
+                p.target = fly_pathfinder_pick_patrol_point(
+                    &grid,
+                    &lvl_info,
+                    grid_region,
+                    self_grid_pos,
+                    obj_size
+                );
+            },
+            |p| {
+                let target = p.target;
+                let stop = fly_pathfinder_follow_path(
+                    &grid,
+                    &lvl_info,
+                    &pathfinder,
+                    &mut fly,
+                    &mut enemy,
+                    self_pos,
+                    target,
+                    pathfinder.patrol_speed
+                );
 
-            fly.patrol_target = fly_pathfinder_pick_patrol_point(
-                &grid,
-                &lvl_info,
-                grid_region,
-                self_grid_pos,
-                obj_size
-            );
+                if self_pos.distance(p.target) <= 2.0 || p.patrol_timer.finished() || stop {
+                    p.patrol_pause_timer.reset();
+                    enemy.vel = Vec2::ZERO;
 
-        } else if fly.patrol_pause_timer.finished() && pathfinder.lose_notice_timer.finished() {
+                    return;
+                }
+            },
 
-            let target = fly.patrol_target;
-            let stop = fly_pathfinder_follow_path(
-                &grid,
-                &lvl_info,
-                &pathfinder,
-                &mut fly,
-                &mut enemy,
-                self_pos,
-                target,
-                pathfinder.patrol_speed
-            );
+            |_| {}
+        );
 
-            if self_pos.distance(fly.patrol_target) <= 2.0 || fly.patrol_timer.finished() || stop {
-                fly.patrol_pause_timer.reset();
-                enemy.vel = Vec2::ZERO;
-
-                continue;
-            }
-        }
     }
 
     if all_should_start_patrolling {
-        for (_, _, mut pathfinder, _) in fly.iter_mut() {
+        for (_, _, mut pathfinder, _, mut patrol) in fly.iter_mut() {
             pathfinder.target = None;
-            util::timer_tick_to_almost_finish(&mut pathfinder.lose_notice_timer);
+            util::timer_tick_to_almost_finish(&mut patrol.lose_notice_timer);
         }
     }
 }

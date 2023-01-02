@@ -108,7 +108,7 @@ fn configure_enemy(
     patrol_region: Region,
     lvl_info: &Res<LevelInfo>
 ) {
-    enemy.path.region = patrol_region;
+    enemy.path.pathfinder.region = patrol_region;
 
     enemy.sprite_sheet.transform.translation = coord::grid_coord_to_translation(
         inst.grid,

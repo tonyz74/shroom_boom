@@ -31,15 +31,22 @@ impl Patrol {
         self.lose_notice_timer.reset();
     }
 
-    pub fn patrol<PickTarget: FnMut(&mut Patrol), Move: FnMut(&mut Patrol)>(
+    pub fn patrol<
+        PickTarget: FnMut(&mut Patrol),
+        Move: FnMut(&mut Patrol),
+        NoTarget: FnMut(&mut Patrol)
+    >(
         &mut self,
         mut pick_target_fn: PickTarget,
-        mut move_fn: Move
+        mut move_fn: Move,
+        mut no_target_fn: NoTarget
     ) {
         if self.lose_notice_timer.just_finished() || self.patrol_pause_timer.just_finished() {
             pick_target_fn(self);
         } else if self.patrol_pause_timer.finished() && self.lose_notice_timer.finished() {
             move_fn(self);
+        } else {
+            no_target_fn(self);
         }
     }
 }

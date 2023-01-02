@@ -10,7 +10,7 @@ use crate::{
     enemies::{EnemyBundle, Enemy},
     assets::FlowerEnemyAssets,
     attack::{CombatLayerMask, Health, HurtAbility, KnockbackResistance},
-    pathfind::{Pathfinder, util::BoundingBox, walk::WalkPathfinder, MeleePathfinder}
+    pathfind::{Pathfinder, PathfinderBundle, util::BoundingBox, walk::WalkPathfinder, MeleePathfinder}
 };
 
 pub struct FlowerEnemyPlugin;
@@ -67,11 +67,13 @@ impl FlowerEnemyBundle {
 
                 sensor: Sensor,
 
-                path: Pathfinder {
-                    speed: thread_rng().gen_range(1.5..2.5),
-                    patrol_speed: thread_rng().gen_range(0.8..1.2),
-                    bb: BoundingBox::new(24.0, 24.0),
-                    lose_notice_timer: Timer::from_seconds(1.0, TimerMode::Once),
+                path: PathfinderBundle {
+                    pathfinder: Pathfinder {
+                        speed: thread_rng().gen_range(1.5..2.5),
+                        patrol_speed: thread_rng().gen_range(0.8..1.2),
+                        bb: BoundingBox::new(24.0, 24.0),
+                        ..default()
+                    },
                     ..default()
                 },
 

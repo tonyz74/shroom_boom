@@ -10,7 +10,7 @@ use crate::{
     enemies::{EnemyBundle, Enemy},
     assets::PumpkinEnemyAssets,
     attack::{CombatLayerMask, Health, HurtAbility, KnockbackResistance},
-    pathfind::{Pathfinder, util::BoundingBox, walk::WalkPathfinder, RangedPathfinder}
+    pathfind::{Pathfinder, PathfinderBundle, util::BoundingBox, walk::WalkPathfinder, RangedPathfinder}
 };
 use crate::attack::{AttackStrength, ProjectileAttack, ProjectileAttackBundle};
 
@@ -68,11 +68,13 @@ impl PumpkinEnemyBundle {
 
                 sensor: Sensor,
 
-                path: Pathfinder {
-                    speed: thread_rng().gen_range(1.5..2.5),
-                    patrol_speed: thread_rng().gen_range(0.8..1.2),
-                    bb: BoundingBox::new(24.0, 24.0),
-                    lose_notice_timer: Timer::from_seconds(1.0, TimerMode::Once),
+                path: PathfinderBundle {
+                    pathfinder: Pathfinder {
+                        speed: thread_rng().gen_range(1.5..2.5),
+                        patrol_speed: thread_rng().gen_range(0.8..1.2),
+                        bb: BoundingBox::new(24.0, 24.0),
+                        ..default()
+                    },
                     ..default()
                 },
 
@@ -81,7 +83,7 @@ impl PumpkinEnemyBundle {
 
                 hurt_ability: HurtAbility::new(0.5),
 
-                health: Health::new(100),
+                health: Health::new(10),
             },
 
             pumpkin: PumpkinEnemy,

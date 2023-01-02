@@ -4,7 +4,7 @@ use seldom_state::prelude::Done;
 
 use crate::attack::{CombatLayerMask, ProjectileAttackBundle};
 use crate::state::GameState;
-use crate::pathfind::{Pathfinder, WalkPathfinder, state_machine as s, walk_pathfinder_jump_if_needed};
+use crate::pathfind::{Pathfinder, WalkPathfinder, state_machine as s, walk_pathfinder_jump_if_needed, Patrol};
 use crate::enemies::Enemy;
 
 #[derive(Component, Default, Clone)]
@@ -80,14 +80,15 @@ pub fn ranged_pathfinder_move(
         &Collider,
         &mut Enemy,
         &mut Pathfinder,
-        &mut WalkPathfinder
+        &mut WalkPathfinder,
+        &mut Patrol
     ), (Without<s::Hurt>, Without<s::Shoot>, With<RangedPathfinder>)>,
     rapier: Res<RapierContext>
 ) {
     let _ = rapier;
 
-    for (ent, collider, mut enemy, mut pathfinder, mut walk) in pathfinders.iter_mut() {
-        walk.can_patrol = true;
+    for (ent, collider, mut enemy, mut pathfinder, mut walk, mut patrol) in pathfinders.iter_mut() {
+        patrol.can_patrol = true;
         walk.needs_jump = false;
 
         let transform = transforms.get(ent).unwrap();
@@ -105,7 +106,7 @@ pub fn ranged_pathfinder_move(
             let is_valid_shot = is_valid_shot(self_pos, target, &ranged, &rapier);
 
             if (target.x - self_pos.x).abs() <= 2.0 {
-                if pathfinder.lost_target {
+                if patrol.lost_target {
                     pathfinder.target = None;
                 }
 
@@ -113,7 +114,7 @@ pub fn ranged_pathfinder_move(
                 continue;
             }
 
-            if pathfinder.lost_target || !is_valid_shot || jumping.contains(ent) {
+            if patrol.lost_target || !is_valid_shot || jumping.contains(ent) {
                 let diff = target - self_pos;
                 let dir = Vec2::new(diff.x, 0.0).normalize();
 
@@ -165,7 +166,7 @@ pub fn ranged_pathfinder_move(
 
                 if is_valid_shot(self_pos, opposition_pos, &ranged, &rapier) {
                     ranged.shoot_target = Some(opposition_pos);
-                    walk.can_patrol = false;
+                    patrol.can_patrol = false;
                 }
             }
         }

@@ -12,7 +12,7 @@ use crate::assets::DandelionEnemyAssets;
 use crate::attack::{CombatLayerMask, Health, HurtAbility, KnockbackResistance};
 use crate::common::AnimTimer;
 use crate::enemies::Enemy;
-use crate::pathfind::{util::BoundingBox, Pathfinder};
+use crate::pathfind::{util::BoundingBox, Pathfinder, PathfinderBundle};
 
 
 #[derive(Component, Copy, Clone)]
@@ -59,11 +59,13 @@ impl DandelionEnemyBundle {
 
                 sensor: Sensor,
 
-                path: Pathfinder {
-                    speed: thread_rng().gen_range(1.5..2.5),
-                    patrol_speed: thread_rng().gen_range(0.8..1.2),
-                    bb: BoundingBox::new(24.0, 24.0),
-                    lose_notice_timer: Timer::from_seconds(1.0, TimerMode::Once),
+                path: PathfinderBundle {
+                    pathfinder: Pathfinder {
+                        speed: thread_rng().gen_range(1.5..2.5),
+                        patrol_speed: thread_rng().gen_range(0.8..1.2),
+                        bb: BoundingBox::new(24.0, 24.0),
+                        ..default()
+                    },
                     ..default()
                 },
 

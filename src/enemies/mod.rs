@@ -5,7 +5,7 @@ use bevy_rapier2d::prelude::*;
 use crate::attack::{CombatLayerMask, Health, HitEvent, HurtAbility, KnockbackResistance};
 
 use crate::common::{AnimTimer, UpdateStage};
-use crate::pathfind::Pathfinder;
+use crate::pathfind::PathfinderBundle;
 use crate::pathfind::state_machine::Hurt;
 use crate::state::GameState;
 
@@ -23,7 +23,6 @@ pub struct Enemy {
 pub struct EnemyBundle {
     pub enemy: Enemy,
     pub sensor: Sensor,
-    pub path: Pathfinder,
     pub anim_timer: AnimTimer,
     pub collider: Collider,
     pub rigid_body: RigidBody,
@@ -38,6 +37,9 @@ pub struct EnemyBundle {
 
     #[bundle]
     pub sprite_sheet: SpriteSheetBundle,
+
+    #[bundle]
+    pub path: PathfinderBundle
 }
 
 pub struct EnemyPlugin;
@@ -58,7 +60,6 @@ impl Plugin for EnemyPlugin {
 
 fn move_enemies(mut q: Query<(&Enemy, &mut KinematicCharacterController)>) {
     for (enemy, mut cc) in q.iter_mut() {
-        screen_print!("setting translation to {:?}", enemy.vel);
         cc.translation = Some(enemy.vel);
     }
 }

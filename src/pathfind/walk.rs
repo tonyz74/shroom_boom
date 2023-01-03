@@ -53,6 +53,7 @@ fn walk_pathfinder_fall(
             continue;
         }
 
+
         enemy.vel.y += PHYSICS_STEP_DELTA * -40.0;
 
         if enemy.vel.y <= -20.0 {
@@ -209,7 +210,7 @@ fn walk_pathfinder_patrol(
         &mut Patrol
     ), Without<s::Hurt>>,
     rapier: Res<RapierContext>,
-    mut ev_stop: EventWriter<PathfinderStopChaseEvent>
+    _ev_stop: EventWriter<PathfinderStopChaseEvent>
 ) {
     let mut all_should_start_patrolling = false;
 
@@ -272,13 +273,13 @@ fn walk_pathfinder_patrol(
                 );
             },
 
-            |p| {
+            |_| {
                 stop_patroller = true;
             }
         );
 
         if stop_patroller {
-            enemy.vel = Vec2::ZERO;
+            enemy.vel.x = 0.0;
         }
     }
 
@@ -292,9 +293,9 @@ fn walk_pathfinder_patrol(
 
 fn walk_pathfinder_lose_notice(
     time: Res<Time>,
-    mut pathfinders: Query<(&mut Pathfinder, &mut WalkPathfinder, &mut Patrol)>
+    mut pathfinders: Query<(&mut Pathfinder, &mut Patrol)>
 ) {
-    for (mut pathfinder, mut walk, mut patrol) in pathfinders.iter_mut() {
+    for (pathfinder, mut patrol) in pathfinders.iter_mut() {
         if pathfinder.target.is_none() {
             patrol.lose_notice_timer.tick(time.delta());
 
@@ -314,6 +315,6 @@ fn walk_pathfinder_set_grounded(
     )>,
 ) {
    for (mut walk, out) in walk_pathfinders.iter_mut() {
-        walk.grounded = out.grounded;
+       walk.grounded = out.grounded;
    }
 }

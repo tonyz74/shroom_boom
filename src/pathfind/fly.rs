@@ -1,7 +1,6 @@
 use rand::prelude::*;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use bevy_debug_text_overlay::screen_print;
 
 use crate::{enemies::Enemy, level::{coord, LevelInfo}, pathfind::{
     Pathfinder,
@@ -124,7 +123,7 @@ pub fn fly_pathfinder_chase(
     ), Without<s::Hurt>>,
     rapier: Res<RapierContext>
 ) {
-    for (pos, mut enemy, collider, mut pathfinder, mut fly, mut patrol) in fly.iter_mut() {
+    for (pos, mut enemy, collider, mut pathfinder, mut fly, patrol) in fly.iter_mut() {
         let self_pos = Vec2::new(
             pos.translation().x,
             pos.translation().y
@@ -178,9 +177,9 @@ pub fn fly_pathfinder_chase(
 
 pub fn fly_pathfinder_lose_notice(
     time: Res<Time>,
-    mut fly: Query<(&mut Pathfinder, &mut FlyPathfinder, &mut Patrol)>
+    mut fly: Query<(&mut Pathfinder, &mut Patrol)>
 ) {
-    for (mut pathfinder, mut fly, mut patrol) in fly.iter_mut() {
+    for (pathfinder, mut patrol) in fly.iter_mut() {
         if pathfinder.target.is_none() {
             patrol.lose_notice_timer.tick(time.delta());
 

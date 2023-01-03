@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 
 use std::collections::HashSet;
-use bevy_egui::egui::Shape::Path;
 
 use crate::{
     level::{LevelInfo, solid::SolidTileSpawnMarker},
@@ -11,7 +10,7 @@ use crate::{
 };
 
 use pathfinding::prelude::bfs;
-use crate::level::consts::{RENDERED_TILE_SIZE, TILE_SIZE};
+use crate::level::consts::RENDERED_TILE_SIZE;
 
 #[derive(Default, Debug)]
 pub struct PathfindingResult {

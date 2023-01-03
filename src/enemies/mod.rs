@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_debug_text_overlay::screen_print;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
 use crate::attack::{CombatLayerMask, Health, HitEvent, HurtAbility, KnockbackResistance};

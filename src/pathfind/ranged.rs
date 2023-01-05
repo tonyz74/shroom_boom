@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::Done;
 
-use crate::attack::{CombatLayerMask, ProjectileAttackBundle};
+use crate::combat::{CombatLayerMask, ProjectileAttackBundle};
 use crate::state::GameState;
 use crate::pathfind::{Pathfinder, WalkPathfinder, state_machine as s, walk_pathfinder_jump_if_needed, Patrol};
 use crate::enemies::Enemy;

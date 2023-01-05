@@ -1,12 +1,11 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
+pub use crate::pathfind::state_machine::{Hurt, HurtTrigger, StopHurtTrigger};
 
 // STATES
 
 #[derive(Component, Reflect, Copy, Clone)]
-pub struct Slash {
-    pub midair: bool
-}
+pub struct Slash;
 
 #[derive(Component, Reflect, Copy, Clone)]
 pub struct Dash;
@@ -55,10 +54,10 @@ pub fn player_state_machine() -> StateMachine {
         .trans::<Dash>(DoneTrigger::Success, Fall)
 
         // To Slashing
-        .trans::<Idle>(tg::SlashTrigger, Slash { midair: false })
-        .trans::<Run>(tg::SlashTrigger, Slash { midair: false })
-        .trans::<Jump>(tg::SlashTrigger, Slash { midair: true })
-        .trans::<Fall>(tg::SlashTrigger, Slash { midair: true })
+        .trans::<Idle>(tg::SlashTrigger, Slash)
+        .trans::<Run>(tg::SlashTrigger, Slash)
+        .trans::<Jump>(tg::SlashTrigger, Slash)
+        .trans::<Fall>(tg::SlashTrigger, Slash)
 
         // To Jumping
         .trans::<Idle>(tg::JumpTrigger, Jump)
@@ -75,4 +74,15 @@ pub fn player_state_machine() -> StateMachine {
         .trans::<Slash>(tg::DashTrigger, Dash)
         .trans::<Crouch>(tg::DashTrigger, Dash)
 
+        .trans::<Hurt>(DoneTrigger::Success, Fall)
+        .trans::<Hurt>(tg::HitHeadTrigger, Fall)
+        .trans::<Hurt>(tg::StopHurtTrigger, Fall)
+        .trans::<Hurt>(tg::HitWallTrigger, Fall)
+
+        .trans::<Idle>(HurtTrigger, Hurt)
+        .trans::<Fall>(HurtTrigger, Hurt)
+        .trans::<Run>(HurtTrigger, Hurt)
+        .trans::<Jump>(HurtTrigger, Hurt)
+        .trans::<Slash>(HurtTrigger, Hurt)
+        .trans::<Crouch>(HurtTrigger, Hurt)
 }

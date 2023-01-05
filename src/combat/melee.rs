@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use crate::attack::{AttackStrength, CombatLayerMask};
-use crate::attack::events::HitEvent;
+use crate::combat::{AttackStrength, CombatLayerMask};
+use crate::combat::events::HitEvent;
 use crate::common::AnimTimer;
 
 #[derive(Bundle, Default)]

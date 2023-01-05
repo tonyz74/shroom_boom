@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use crate::attack::{AttackStrength, CombatLayerMask, HitEvent};
+use crate::combat::{AttackStrength, CombatLayerMask, HitEvent, Immunity};
 use crate::common::AnimTimer;
 
 #[derive(Copy, Clone, Debug, Component, Resource)]
@@ -59,19 +59,25 @@ pub fn move_projectile_attacks(
 }
 
 pub fn projectile_hit_targets(
+    immunities: Query<&Immunity>,
+    transforms: Query<&GlobalTransform>,
     projectiles: Query<(
         Entity,
-        &GlobalTransform,
         &Collider,
         &CombatLayerMask,
-    ), With<ProjectileAttack>>,
+        &AttackStrength,
+        &ProjectileAttack
+    )>,
     rapier: Res<RapierContext>,
 
     combat_layers: Query<&CombatLayerMask>,
     mut hit_events: EventWriter<HitEvent>,
     mut proj_collision_events: EventWriter<ProjectileCollisionEvent>
 ) {
-    for (entity, transform, collider, proj_combat_layer) in projectiles.iter() {
+    for (entity, collider, proj_combat_layer, strength, proj) in projectiles.iter() {
+        let _ = proj;
+
+        let transform = transforms.get(entity).unwrap();
         let proj_pos = transform.translation();
 
         rapier.intersections_with_shape(
@@ -79,8 +85,7 @@ pub fn projectile_hit_targets(
             Rot::default(),
             collider,
             QueryFilter {
-                flags: QueryFilterFlags::ONLY_FIXED
-                    | QueryFilterFlags::EXCLUDE_SENSORS,
+                flags: QueryFilterFlags::ONLY_FIXED | QueryFilterFlags::EXCLUDE_SENSORS,
                 ..default()
             },
             |hit_entity| {
@@ -104,19 +109,24 @@ pub fn projectile_hit_targets(
             },
             |hit_entity| {
                 if let Ok(layer) = combat_layers.get(hit_entity) {
-                    if !layer.is_ally_with(*proj_combat_layer) {
-                        hit_events.send(HitEvent {
-                            target: hit_entity,
-                            damage: 2,
-                            kb: Vec2::new(4.0, 2.0).normalize()
-                        });
-
-                        proj_collision_events.send(ProjectileCollisionEvent {
-                            proj: entity,
-                            collision: hit_entity,
-                            collision_type: ProjectileCollisionType::Entity
-                        });
+                    if layer.is_ally_with(*proj_combat_layer) || immunities.contains(hit_entity) {
+                        return true;
                     }
+
+                    let hit_pos = transforms.get(hit_entity).unwrap().translation();
+                    let dir = (hit_pos - proj_pos).normalize();
+
+                    hit_events.send(HitEvent {
+                        target: hit_entity,
+                        damage: strength.power,
+                        kb: Vec2::new(dir.x, dir.y)
+                    });
+
+                    proj_collision_events.send(ProjectileCollisionEvent {
+                        proj: entity,
+                        collision: hit_entity,
+                        collision_type: ProjectileCollisionType::Entity
+                    });
                 }
 
                 true

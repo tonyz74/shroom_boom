@@ -1,6 +1,6 @@
 pub mod common;
 
-pub mod attack;
+pub mod combat;
 
 // Gameplay
 pub mod player;

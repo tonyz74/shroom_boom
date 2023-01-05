@@ -6,8 +6,8 @@ use crate::{
     enemies::Enemy,
     pathfind::{Pathfinder, walk::WalkPathfinder}
 };
-use crate::attack::HurtAbility;
-use crate::pathfind::{FlyPathfinder, RangedPathfinder};
+use crate::combat::HurtAbility;
+use crate::pathfind::RangedPathfinder;
 
 #[derive(Copy, Clone, Reflect, FromReflect)]
 pub struct FallTrigger;
@@ -69,15 +69,15 @@ impl Trigger for NeedsJumpTrigger {
 pub struct HurtTrigger;
 
 impl Trigger for HurtTrigger {
-    type Param<'w, 's> = Query<'w, 's, &'static Enemy>;
+    type Param<'w, 's> = Query<'w, 's, &'static HurtAbility>;
 
-    fn trigger(&self, entity: Entity, walks: &Self::Param<'_, '_>) -> bool {
-        if !walks.contains(entity) {
+    fn trigger(&self, entity: Entity, q: &Self::Param<'_, '_>) -> bool {
+        if !q.contains(entity) {
             return false;
         }
 
-        let enemy = walks.get(entity).unwrap();
-        let ok = enemy.hit_event.is_some();
+        let hurt = q.get(entity).unwrap();
+        let ok = hurt.hit_event.is_some();
 
         ok
     }
@@ -123,24 +123,24 @@ impl Trigger for ShootTrigger {
 
 
 #[derive(Copy, Clone, Reflect, FromReflect)]
-pub struct RegainFlyControlTrigger;
+pub struct HitWallTrigger;
 
-impl Trigger for RegainFlyControlTrigger {
+impl Trigger for HitWallTrigger {
     type Param<'w, 's> = (
-        Query<'w, 's, (&'static Enemy, &'static FlyPathfinder)>,
+        Query<'w, 's, &'static Enemy>,
         Query<'w, 's, &'static KinematicCharacterControllerOutput>
     );
 
     fn trigger(
         &self,
         entity: Entity,
-        (flies, cc_outs): &Self::Param<'_, '_>
+        (enemies, cc_outs): &Self::Param<'_, '_>
     ) -> bool {
-        if !flies.contains(entity) {
+        if !enemies.contains(entity) {
             return false;
         }
 
-        let (enemy, fly) = flies.get(entity).unwrap();
+        let enemy = enemies.get(entity).unwrap();
 
         if cc_outs.contains(entity) {
             let out = cc_outs.get(entity).unwrap();
@@ -149,7 +149,7 @@ impl Trigger for RegainFlyControlTrigger {
             }
         }
 
-        let ok = fly.regain_control_timer.finished() || enemy.vel.length() <= 1.0;
+        let ok = enemy.vel.length() <= 1.0;
         ok
     }
 }

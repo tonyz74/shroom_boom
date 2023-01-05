@@ -9,7 +9,7 @@ use crate::{
     pathfind::FlyPathfinder
 };
 use crate::assets::DandelionEnemyAssets;
-use crate::attack::{CombatLayerMask, Health, HurtAbility, KnockbackResistance};
+use crate::combat::{CombatLayerMask, Health, HurtAbility, KnockbackResistance};
 use crate::common::AnimTimer;
 use crate::enemies::Enemy;
 use crate::pathfind::{util::BoundingBox, Pathfinder, PathfinderBundle};
@@ -72,17 +72,14 @@ impl DandelionEnemyBundle {
                 kb_res: KnockbackResistance::new(1.0),
                 combat_layer: CombatLayerMask::ENEMY,
 
-                hurt_ability: HurtAbility::new(0.5),
+                hurt_ability: HurtAbility::new(0.5, Some(0.5)),
 
                 health: Health::new(100),
             },
 
             dandelion: DandelionEnemy,
 
-            fly: FlyPathfinder {
-                regain_control_timer: Timer::from_seconds(0.5, TimerMode::Once),
-                ..default()
-            }
+            fly: FlyPathfinder::default()
         }
     }
 }

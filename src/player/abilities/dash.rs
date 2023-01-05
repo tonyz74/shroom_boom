@@ -14,6 +14,8 @@ use crate::{
         state_machine as s
     }
 };
+use crate::combat::Immunity;
+use crate::util::Facing;
 
 // Ability
 
@@ -47,14 +49,20 @@ pub fn register_dash_ability(app: &mut App) {
 fn dash_ability_trigger(
     mut q: Query<(
         &mut Player,
-        &TextureAtlasSprite,
         &mut DashAbility
     ), Added<s::Dash>>
 ) {
-    for (mut player, spr, mut dash) in q.iter_mut() {
+    for (mut player, mut dash) in q.iter_mut() {
         dash.dur.reset();
         player.vel.y = 0.0;
-        player.vel.x = PLAYER_DASH_SPEED * (if spr.flip_x { -1.0 } else { 1.0 });
+
+
+        let dir = match player.facing {
+            Facing::Left => -1.0,
+            Facing::Right => 1.0,
+        };
+
+        player.vel.x = dir * PLAYER_DASH_SPEED;
     }
 }
 
@@ -69,13 +77,15 @@ fn dash_ability_update(
 ) {
     for (e, player, mut dash) in q.iter_mut() {
         let _ = player;
-        dash.dur.tick(time.delta());
 
-        // If the dash naturally ends (timer runs out):
+        dash.dur.tick(time.delta());
+        commands.entity(e).insert(Immunity);
+
         if dash.dur.just_finished() {
             // Transition out of the dashing state
             commands.entity(e)
-                .insert(Done::Success);
+                .insert(Done::Success)
+                .remove::<Immunity>();
 
             dash.cd.reset();
         }

@@ -9,6 +9,7 @@ use crate::{enemies::Enemy, state::GameState, level::consts::SCALE_FACTOR, pathf
     knockbacks as kb,
     state_machine as s,
 }, common::PHYSICS_STEP_DELTA, util};
+use crate::combat::HurtAbility;
 use crate::pathfind::Patrol;
 
 #[derive(Component)]
@@ -123,14 +124,17 @@ pub fn walk_pathfinder_jump_if_needed(
 }
 
 fn walk_pathfinder_got_hurt(
-    mut pathfinders: Query<&mut Enemy, (With<WalkPathfinder>, Added<s::Hurt>)>
+    mut pathfinders: Query<(
+        &mut Enemy,
+        &mut HurtAbility
+    ), (With<WalkPathfinder>, Added<s::Hurt>)>
 ) {
-    for mut enemy in pathfinders.iter_mut() {
-        if enemy.hit_event.is_none() {
+    for (mut enemy, mut hurt) in pathfinders.iter_mut() {
+        if hurt.hit_event.is_none() {
             continue;
         }
 
-        let hit_ev = enemy.hit_event.take().unwrap();
+        let hit_ev = hurt.hit_event.take().unwrap();
         let kb = kb::randomize_knockback(kb::walk_pathfinder_knockback(hit_ev.kb));
 
         enemy.vel = kb;

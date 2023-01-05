@@ -12,6 +12,8 @@ use crate::{
 };
 
 use std::time::Duration;
+use crate::player::state_machine::Hurt;
+use crate::util::Facing;
 
 pub fn player_setup_anim(app: &mut App) {
     app.add_system_set(
@@ -21,8 +23,7 @@ pub fn player_setup_anim(app: &mut App) {
             .with_system(anim_idle)
             .with_system(anim_crouch)
             .with_system(flip_sprite_on_direction)
-            .with_system(crate::attack::animate_melee)
-            // .with_system(crate::attack::track_source_entity)
+            .with_system(crate::combat::animate_melee)
     );
 }
 
@@ -117,16 +118,17 @@ fn anim_crouch(
 
 // GENERAL ANIMATIONS
 
-fn flip_sprite_on_direction(mut q: Query<(&mut TextureAtlasSprite, &Player)>) {
+fn flip_sprite_on_direction(mut q: Query<
+    (&mut TextureAtlasSprite, &Player),
+>) {
     if q.is_empty() {
         return;
     }
 
     let (mut sprite, player) = q.single_mut();
 
-    if player.vel.x < 0.0 {
-        sprite.flip_x = true;
-    } else if player.vel.x > 0.0 {
-        sprite.flip_x = false;
-    }
+    match player.facing {
+        Facing::Left => sprite.flip_x = true,
+        Facing::Right => sprite.flip_x = false
+    };
 }

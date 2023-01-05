@@ -9,10 +9,10 @@ use crate::{
     common::AnimTimer,
     enemies::{EnemyBundle, Enemy},
     assets::PumpkinEnemyAssets,
-    attack::{CombatLayerMask, Health, HurtAbility, KnockbackResistance},
+    combat::{CombatLayerMask, Health, HurtAbility, KnockbackResistance},
     pathfind::{Pathfinder, PathfinderBundle, util::BoundingBox, walk::WalkPathfinder, RangedPathfinder}
 };
-use crate::attack::{AttackStrength, ProjectileAttack, ProjectileAttackBundle};
+use crate::combat::{AttackStrength, ProjectileAttack, ProjectileAttackBundle};
 
 pub struct PumpkinEnemyPlugin;
 
@@ -81,7 +81,7 @@ impl PumpkinEnemyBundle {
                 kb_res: KnockbackResistance::new(1.0),
                 combat_layer: CombatLayerMask::ENEMY,
 
-                hurt_ability: HurtAbility::new(0.5),
+                hurt_ability: HurtAbility::new(0.5, None),
 
                 health: Health::new(10),
             },
@@ -95,7 +95,7 @@ impl PumpkinEnemyBundle {
 
             ranged_pathfinder: RangedPathfinder {
                 shoot_startup: Timer::from_seconds(0.1, TimerMode::Once),
-                shoot_pause: Timer::from_seconds(0.5, TimerMode::Once),
+                shoot_pause: Timer::from_seconds(0.1, TimerMode::Once),
                 shoot_cooldown: Timer::from_seconds(1.0, TimerMode::Once),
 
                 max_shoot_angle: 45.0 * (std::f32::consts::PI / 180.0),

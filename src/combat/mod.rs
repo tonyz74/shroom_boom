@@ -35,6 +35,8 @@ impl Plugin for AttackPlugin {
                    .with_system(hurt_ability_trigger)
                    .with_system(hurt_ability_tick_immunity)
                    .with_system(stop_hurting)
+                   .with_system(remove_immunity)
+                   .with_system(add_immunity_while_hurting)
                    .with_system(temp_shoot)
            )
 

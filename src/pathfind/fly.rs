@@ -9,11 +9,11 @@ use crate::{enemies::Enemy, level::{coord, LevelInfo}, pathfind::{
     knockbacks as kb,
     state_machine as s
 }, state::GameState, util};
+use crate::combat::HurtAbility;
 use crate::pathfind::Patrol;
 
 #[derive(Component, Debug)]
 pub struct FlyPathfinder {
-    pub regain_control_timer: Timer,
     pub path: PathfindingResult,
     pub path_index: usize,
 }
@@ -21,7 +21,6 @@ pub struct FlyPathfinder {
 impl Default for FlyPathfinder {
     fn default() -> Self {
         Self {
-            regain_control_timer: Timer::from_seconds(0.5, TimerMode::Once),
             path: PathfindingResult::default(),
             path_index: 0,
         }
@@ -301,27 +300,20 @@ pub fn fly_pathfinder_patrol(
 }
 
 pub fn fly_pathfinder_got_hurt(
-    mut fly: Query<(&mut Enemy, &mut FlyPathfinder), Added<s::Hurt>>
+    mut fly: Query<(&mut Enemy, &mut HurtAbility), (With<FlyPathfinder>, Added<s::Hurt>)>
 ) {
-    for (mut enemy, mut fly) in fly.iter_mut() {
-        if enemy.hit_event.is_none() {
+    for (mut enemy, mut hurt) in fly.iter_mut() {
+        if hurt.hit_event.is_none() {
             continue;
         }
 
-        let hit_ev = enemy.hit_event.take().unwrap();
+        let hit_ev = hurt.hit_event.take().unwrap();
         enemy.vel = kb::randomize_knockback(kb::fly_pathfinder_knockback(hit_ev.kb));
-
-        fly.regain_control_timer.reset();
     }
 }
 
-pub fn fly_pathfinder_hurt(
-    time: Res<Time>,
-    mut fly: Query<(&mut Enemy, &mut FlyPathfinder), With<s::Hurt>>,
-) {
-    for (mut enemy, mut fly) in fly.iter_mut() {
-        fly.regain_control_timer.tick(time.delta());
-
+pub fn fly_pathfinder_hurt(mut fly: Query<&mut Enemy, With<s::Hurt>>) {
+    for mut enemy in fly.iter_mut() {
         let opp = {
             let opp_x = -Vec2::new(enemy.vel.x, 0.0).normalize_or_zero().x;
             let opp_y = -Vec2::new(0.0, enemy.vel.y).normalize_or_zero().y;

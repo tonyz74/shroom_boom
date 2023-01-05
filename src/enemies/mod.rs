@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
-use crate::attack::{CombatLayerMask, Health, HitEvent, HurtAbility, KnockbackResistance};
+use crate::combat::{CombatLayerMask, Health, HitEvent, HurtAbility, Immunity, KnockbackResistance};
 
 use crate::common::{AnimTimer, UpdateStage};
 use crate::pathfind::PathfinderBundle;
@@ -15,7 +15,6 @@ pub mod dandelion;
 #[derive(Default, Component)]
 pub struct Enemy {
     pub vel: Vec2,
-    pub hit_event: Option<HitEvent>,
 }
 
 #[derive(Bundle)]
@@ -64,18 +63,20 @@ fn move_enemies(mut q: Query<(&Enemy, &mut KinematicCharacterController)>) {
 }
 
 fn handle_hits(
-    mut q: Query<(&mut Enemy, &HurtAbility, &mut Health), Without<Hurt>>,
+    immune: Query<&Immunity>,
+    mut q: Query<(Entity, &mut HurtAbility, &mut Health), Without<Hurt>>,
     mut hit_events: EventReader<HitEvent>
 ) {
     for hit in hit_events.iter() {
-        if let Ok((mut target, hurt, mut health)) = q.get_mut(hit.target) {
-            if hurt.is_immune() {
-                target.hit_event = None;
+        if let Ok((entity, mut hurt, mut health)) = q.get_mut(hit.target) {
+
+            if immune.contains(entity) {
+                hurt.hit_event = None;
                 continue;
             }
 
             health.hp -= hit.damage;
-            target.hit_event = Some(*hit);
+            hurt.hit_event = Some(*hit);
         }
     }
 }

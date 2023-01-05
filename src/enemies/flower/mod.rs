@@ -9,7 +9,7 @@ use crate::{
     common::AnimTimer,
     enemies::{EnemyBundle, Enemy},
     assets::FlowerEnemyAssets,
-    attack::{CombatLayerMask, Health, HurtAbility, KnockbackResistance},
+    combat::{CombatLayerMask, Health, HurtAbility, KnockbackResistance},
     pathfind::{Pathfinder, PathfinderBundle, util::BoundingBox, walk::WalkPathfinder, MeleePathfinder}
 };
 
@@ -80,7 +80,7 @@ impl FlowerEnemyBundle {
                 kb_res: KnockbackResistance::new(1.0),
                 combat_layer: CombatLayerMask::ENEMY,
 
-                hurt_ability: HurtAbility::new(0.5),
+                hurt_ability: HurtAbility::new(0.5, None),
 
                 health: Health::new(100),
             },

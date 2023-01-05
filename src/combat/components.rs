@@ -66,3 +66,6 @@ impl Health {
         Health { hp }
     }
 }
+
+#[derive(Component, Debug, Copy, Clone, Default)]
+pub struct Immunity;

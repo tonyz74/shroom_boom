@@ -18,7 +18,9 @@ use crate::{
     common::{UpdateStage, PHYSICS_STEPS_PER_SEC},
     level::consts::SOLIDS_INTERACTION_GROUP
 };
+use crate::combat::HurtAbility;
 use crate::common::PHYSICS_STEP_DELTA;
+use crate::util::Facing;
 
 pub fn player_setup_logic(app: &mut App) {
     use crate::player::abilities::{dash, slash, jump};
@@ -27,11 +29,12 @@ pub fn player_setup_logic(app: &mut App) {
         SystemSet::on_update(GameState::Gameplay)
             .label(UpdateStage::GameLogic)
             .with_system(idle)
-            .with_system(run_grounded)
-            .with_system(run_air)
+            .with_system(run)
             .with_system(enter_fall)
             .with_system(crouch)
             .with_system(crouch_update)
+            .with_system(hit_ground)
+            .with_system(got_hurt)
     );
 
     dash::register_dash_ability(app);
@@ -60,17 +63,20 @@ pub fn idle(mut q: Query<&mut Player, With<ps::Idle>>) {
 }
 
 // HELPER
-fn run_common(entity: Entity,
-              action: &ActionState<InputAction>,
-              player: &mut Player,
-              tf: &GlobalTransform,
-              ctx: &mut RapierContext) {
-
+fn run_common(
+    entity: Entity,
+    action: &ActionState<InputAction>,
+    player: &mut Player,
+    tf: &GlobalTransform,
+    ctx: &mut RapierContext
+) {
     use crate::player::consts::PLAYER_COLLIDER_CAPSULE;
 
     let vel_x = if action.pressed(InputAction::RunLeft) {
+        player.facing = Facing::Left;
         -PLAYER_RUN_SPEED
     } else if action.pressed(InputAction::RunRight) {
+        player.facing = Facing::Right;
         PLAYER_RUN_SPEED
     } else {
         0.0
@@ -112,36 +118,39 @@ fn run_common(entity: Entity,
     player.vel.x = vel_x;
 }
 
-pub fn run_grounded(
-    mut q: Query<(Entity,
-                  &ActionState<InputAction>,
-                  &GlobalTransform,
-                  &mut Player),
-                  With<ps::Run>>,
-    mut rapier: ResMut<RapierContext>
-) {
+pub fn got_hurt(mut q: Query<(&mut Player, &mut HurtAbility), Added<ps::Hurt>>) {
     if q.is_empty() {
         return;
     }
 
-    let (e, action, tf, mut player) = q.single_mut();
-    player.vel.y = 0.0;
+    let (mut player, mut hurt) = q.single_mut();
 
-    run_common(e, &action, &mut player, tf, &mut rapier);
+    if hurt.hit_event.is_none() {
+        return;
+    }
+
+    let hit_event = hurt.hit_event.take().unwrap();
+    let kb = Vec2::new(hit_event.kb.x * 4.0, hit_event.kb.y + 4.0);
+
+    player.vel = kb;
 }
 
-pub fn run_air(
+pub fn hit_ground(mut q: Query<&mut Player, Added<ps::Run>>) {
+    if q.is_empty() {
+        return;
+    }
+
+    let mut player = q.single_mut();
+    player.vel.y = 0.0;
+}
+
+pub fn run(
     mut q: Query<(
         Entity,
         &ActionState<InputAction>,
         &GlobalTransform,
         &mut Player
-    ), Or<(
-        With<ps::Jump>,
-        With<ps::Fall>,
-        With<ps::Slash>,
-        With<ps::Crouch>
-    )>>,
+    ), (Without<ps::Hurt>, Without<ps::Dash>)>,
     mut rapier: ResMut<RapierContext>
 ) {
     if q.is_empty() {
@@ -160,22 +169,12 @@ pub fn enter_fall(mut q: Query<&mut Player, Added<ps::Fall>>) {
     }
 }
 
-pub fn fall(
-    mut q: Query<
-        (&mut Player, Option<&ps::Slash>),
-        Or<(
-            With<ps::Jump>,
-            With<ps::Fall>,
-            With<ps::Slash>,
-            With<ps::Crouch>,
-        )>
-    >
-) {
+pub fn fall(mut q: Query<&mut Player, Without<ps::Dash>>) {
     if q.is_empty() {
         return;
     }
 
-    let (mut player, _s) = q.single_mut();
+    let mut player = q.single_mut();
 
     if player.grounded {
         return;

@@ -887,7 +887,7 @@
 									"entityIid": "6acffeb0-7820-11ed-927c-718d6e7b53f5",
 									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
 									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
-									"worldIid": "dd2a03a0-7820-11ed-88c8-8d34a783fc6c"
+									"worldIid": "0d8f1410-7820-11ed-9997-7939b29eea9c"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["6acffeb0-7820-11ed-927c-718d6e7b53f5"]
@@ -922,6 +922,49 @@
 							"defUid": 33,
 							"px": [68,164],
 							"fieldInstances": [{ "__identifier": "EntryPoint_ID", "__value": 0, "__type": "Int", "__tile": null, "defUid": 50, "realEditorValues": [] }]
+						},
+						{
+							"__identifier": "PatrolRegion",
+							"__grid": [14,4],
+							"__pivot": [0,0],
+							"__tags": ["region"],
+							"__tile": null,
+							"__smartColor": "#E86E6E",
+							"iid": "17ded950-7820-11ed-9997-0d8e4f18263e",
+							"width": 56,
+							"height": 24,
+							"defUid": 64,
+							"px": [112,32],
+							"fieldInstances": []
+						},
+						{
+							"__identifier": "EnemySpawnpoint",
+							"__grid": [17,6],
+							"__pivot": [0.5,0.5],
+							"__tags": [],
+							"__tile": { "tilesetUid": 65, "x": 96, "y": 0, "w": 16, "h": 16 },
+							"__smartColor": "#33A164",
+							"iid": "832453a0-7820-11ed-9997-ab4eb7fc4512",
+							"width": 8,
+							"height": 8,
+							"defUid": 51,
+							"px": [140,52],
+							"fieldInstances": [
+								{ "__identifier": "EnemyType", "__value": "Pumpkin", "__type": "LocalEnum.EnemyType", "__tile": null, "defUid": 54, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Pumpkin"]
+								}] },
+								{ "__identifier": "Entity_ref", "__value": {
+									"entityIid": "17ded950-7820-11ed-9997-0d8e4f18263e",
+									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
+									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
+									"worldIid": "0d8f1410-7820-11ed-9997-7939b29eea9c"
+								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["17ded950-7820-11ed-9997-0d8e4f18263e"]
+								}] },
+								{ "__identifier": "Coins", "__value": 0, "__type": "Int", "__tile": null, "defUid": 68, "realEditorValues": [] }
+							]
 						}
 					]
 				},

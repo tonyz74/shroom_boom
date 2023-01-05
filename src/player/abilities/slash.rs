@@ -5,7 +5,7 @@ use crate::{
     state::GameState,
     common::UpdateStage,
     assets::PlayerAssets,
-    attack::{MeleeAttack, MeleeAttackBundle},
+    combat::{MeleeAttack, MeleeAttackBundle},
     common::AnimTimer,
     player::{
         Player,
@@ -13,7 +13,8 @@ use crate::{
         state_machine as s
     }
 };
-use crate::attack::{AttackStrength, CombatLayerMask};
+use crate::combat::{AttackStrength, CombatLayerMask};
+use crate::player::state_machine::Slash;
 
 // HELPER FUNCTIONS
 fn deg_to_rad(deg: f32) -> f32 {
@@ -163,6 +164,7 @@ fn slash_ability_trigger(
 pub fn slash_ability_update(
     mut commands: Commands,
     time: Res<Time>,
+    slashing: Query<&Slash>,
     mut player_query: Query<(Entity, &mut SlashAbility)>,
     melees: Query<Entity, With<MeleeAttack>>
 ) {
@@ -170,12 +172,15 @@ pub fn slash_ability_update(
         return;
     }
 
-    for (p_ent, mut slash) in player_query.iter_mut() {
+    for (entity, mut slash) in player_query.iter_mut() {
         slash.dur.tick(time.delta());
 
         if slash.dur.just_finished() {
             commands.entity(melees.single()).despawn();
-            commands.entity(p_ent).insert(Done::Success);
+
+            if slashing.contains(entity) {
+                commands.entity(entity).insert(Done::Success);
+            }
         }
     }
 }

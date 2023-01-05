@@ -15,7 +15,7 @@ use crate::{
     enemies::EnemyPlugin,
     camera::CameraPlugin,
     pathfind::PathfindingPlugin,
-    attack::AttackPlugin
+    combat::AttackPlugin
 };
 
 pub struct ShadePlugin;

@@ -15,6 +15,7 @@ use crate::{
     },
     input::InputAction
 };
+use crate::combat::HurtAbility;
 use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 use crate::player::consts::PLAYER_COLLIDER_CAPSULE;
 
@@ -31,8 +32,10 @@ pub fn player_setup_triggers(app: &mut App) {
 
         // Environment triggers
         .add_plugin(TP::<FallTrigger>::default())
+        .add_plugin(TP::<HitWallTrigger>::default())
         .add_plugin(TP::<HitHeadTrigger>::default())
-        .add_plugin(TP::<GroundedTrigger>::default());
+        .add_plugin(TP::<GroundedTrigger>::default())
+        .add_plugin(TP::<StopHurtTrigger>::default());
 }
 
 
@@ -201,17 +204,67 @@ impl Trigger for HitHeadTrigger {
 pub struct GroundedTrigger;
 
 impl Trigger for GroundedTrigger {
-    type Param<'w, 's> = Query<'w, 's,
-                               &'static KinematicCharacterControllerOutput,
-                               With<Player>>;
+    type Param<'w, 's> = Query<'w, 's, &'static Player>;
 
     fn trigger(&self, _: Entity, player_q: &Self::Param<'_, '_>) -> bool {
         if player_q.is_empty() {
             return false;
         }
 
-        let out = player_q.single();
-        return out.grounded;
+        let p = player_q.single();
+        p.grounded
+    }
+}
+
+#[derive(Copy, Clone, Reflect, FromReflect)]
+pub struct StopHurtTrigger;
+
+impl Trigger for StopHurtTrigger {
+    type Param<'w, 's> = Query<'w, 's, (&'static Player, &'static HurtAbility)>;
+
+    fn trigger(&self, _: Entity, player_q: &Self::Param<'_, '_>) -> bool {
+        if player_q.is_empty() {
+            return false;
+        }
+
+        let (player, hurt) = player_q.single();
+        player.grounded && hurt.can_stop_hurting()
+    }
+}
+
+
+
+
+
+
+
+#[derive(Copy, Clone, Reflect, FromReflect)]
+pub struct HitWallTrigger;
+
+impl Trigger for HitWallTrigger {
+    type Param<'w, 's> = (
+        Query<'w, 's, &'static Player>,
+        Query<'w, 's, &'static KinematicCharacterControllerOutput>
+    );
+
+    fn trigger(
+        &self,
+        entity: Entity,
+        (player, cc_outs): &Self::Param<'_, '_>
+    ) -> bool {
+        if player.is_empty() { return false; }
+
+        let player = player.single();
+
+        if cc_outs.contains(entity) {
+            let out = cc_outs.get(entity).unwrap();
+            if out.desired_translation != Vec2::ZERO && out.effective_translation == Vec2::ZERO {
+                return true;
+            }
+        }
+
+        let ok = player.vel.length() <= 1.0;
+        ok
     }
 }
 

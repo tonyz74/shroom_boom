@@ -18,17 +18,21 @@ pub mod state_machine;
 pub mod abilities;
 
 use abilities::dash::DashAbility;
-use crate::attack::{CombatLayerMask, KnockbackResistance};
+use crate::combat::{CombatLayerMask, Health, HurtAbility, KnockbackResistance};
 use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 use crate::player::abilities::slash::SlashAbility;
 use crate::player::abilities::jump::JumpAbility;
+use crate::util::Facing;
 
 #[derive(Bundle)]
 pub struct PlayerBundle {
     pub player: Player,
+
     pub slash: SlashAbility,
     pub dash: DashAbility,
     pub jump: JumpAbility,
+    pub hurt: HurtAbility,
+
     pub character_controller: KinematicCharacterController,
     pub rigid_body: RigidBody,
     pub sensor: Sensor,
@@ -38,6 +42,7 @@ pub struct PlayerBundle {
 
     pub kb_res: KnockbackResistance,
     pub combat_layer: CombatLayerMask,
+    pub health: Health,
 
     #[bundle]
     pub input: InputManagerBundle<InputAction>,
@@ -45,10 +50,11 @@ pub struct PlayerBundle {
     pub sprite_sheet: SpriteSheetBundle
 }
 
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct Player {
     pub vel: Vec2,
     pub grounded: bool,
+    pub facing: Facing
 }
 
 #[derive(Component, Deref, DerefMut)]
@@ -62,6 +68,8 @@ impl Plugin for PlayerPlugin {
             SystemSet::on_enter(GameState::LevelTransition)
                 .with_system(setup_player)
         );
+
+        app.add_system(player_print_health);
 
         anim::player_setup_anim(app);
         logic::player_setup_logic(app);
@@ -97,9 +105,11 @@ fn setup_player(
 
             anim_timer: AnimTimer::from_seconds(anim.speed),
 
-            collider: Collider::capsule(PLAYER_COLLIDER_CAPSULE.segment.a.into(),
-                                        PLAYER_COLLIDER_CAPSULE.segment.b.into(),
-                                        PLAYER_COLLIDER_CAPSULE.radius),
+            collider: Collider::capsule(
+                PLAYER_COLLIDER_CAPSULE.segment.a.into(),
+                PLAYER_COLLIDER_CAPSULE.segment.b.into(),
+                PLAYER_COLLIDER_CAPSULE.radius
+            ),
 
             rigid_body: RigidBody::KinematicPositionBased,
 
@@ -112,23 +122,28 @@ fn setup_player(
                 ..default()
             },
 
-            player: Player {
-                grounded: false,
-                vel: Vec2::ZERO
-            },
+            player: Player::default(),
 
             sensor: Sensor,
 
             dash: DashAbility::default(),
             slash: SlashAbility::default(),
             jump: JumpAbility::default(),
+            hurt: HurtAbility::new(1.5, Some(0.4)),
 
             input: InputAction::input_manager_bundle(),
 
             state_machine: state_machine::player_state_machine(),
 
             kb_res: KnockbackResistance::new(1.0),
-            combat_layer: CombatLayerMask::PLAYER
+            combat_layer: CombatLayerMask::PLAYER,
+            health: Health::new(100)
         }
     );
+}
+
+pub fn player_print_health(p: Query<&Health, (With<Player>, Changed<Health>)>) {
+    for hp in p.iter() {
+        println!("hp changed: {:?}", hp);
+    }
 }

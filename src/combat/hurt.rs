@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
-use crate::combat::{HitEvent, Immunity};
+use crate::combat::{CombatEvent, Immunity};
 use crate::pathfind::state_machine::Hurt;
 use crate::util;
 
@@ -9,7 +9,7 @@ pub struct HurtAbility {
     pub immunity_timer: Timer,
     pub initial_stun_timer: Timer,
     pub regain_control_timer: Option<Timer>,
-    pub hit_event: Option<HitEvent>
+    pub hit_event: Option<CombatEvent>
 }
 
 impl HurtAbility {

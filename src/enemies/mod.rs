@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
-use crate::combat::{CombatLayerMask, Health, HitEvent, HurtAbility, Immunity, KnockbackResistance};
+use crate::combat::{CombatLayerMask, Health, CombatEvent, HurtAbility, Immunity, KnockbackResistance};
 
 use crate::common::{AnimTimer, UpdateStage};
 use crate::pathfind::PathfinderBundle;
@@ -50,7 +50,6 @@ impl Plugin for EnemyPlugin {
                 SystemSet::on_update(GameState::Gameplay)
                     .label(UpdateStage::Physics)
                     .with_system(move_enemies)
-                    .with_system(handle_hits)
                     .with_system(handle_dead_enemies)
             );
     }
@@ -59,25 +58,6 @@ impl Plugin for EnemyPlugin {
 fn move_enemies(mut q: Query<(&Enemy, &mut KinematicCharacterController)>) {
     for (enemy, mut cc) in q.iter_mut() {
         cc.translation = Some(enemy.vel);
-    }
-}
-
-fn handle_hits(
-    immune: Query<&Immunity>,
-    mut q: Query<(Entity, &mut HurtAbility, &mut Health), Without<Hurt>>,
-    mut hit_events: EventReader<HitEvent>
-) {
-    for hit in hit_events.iter() {
-        if let Ok((entity, mut hurt, mut health)) = q.get_mut(hit.target) {
-
-            if immune.contains(entity) {
-                hurt.hit_event = None;
-                continue;
-            }
-
-            health.hp -= hit.damage;
-            hurt.hit_event = Some(*hit);
-        }
     }
 }
 

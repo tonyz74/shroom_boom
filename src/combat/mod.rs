@@ -15,6 +15,7 @@ pub use hurt::*;
 
 use crate::assets::FlowerEnemyAssets;
 use crate::common::AnimTimer;
+use crate::pathfind::state_machine::Hurt;
 use crate::player::Player;
 
 use crate::state::GameState;
@@ -38,11 +39,32 @@ impl Plugin for AttackPlugin {
                     .with_system(remove_immunity)
                     .with_system(add_immunity_while_hurting)
                     .with_system(temp_shoot)
+
+                    .with_system(handle_hits)
             )
 
-            .add_event::<HitEvent>();
+            .add_event::<CombatEvent>();
 
         register_projectile_attacks(app);
+    }
+}
+
+fn handle_hits(
+    immune: Query<&Immunity>,
+    mut q: Query<(Entity, &mut HurtAbility, &mut Health), Without<Hurt>>,
+    mut hit_events: EventReader<CombatEvent>
+) {
+    for hit in hit_events.iter() {
+        if let Ok((entity, mut hurt, mut health)) = q.get_mut(hit.target) {
+
+            if immune.contains(entity) {
+                hurt.hit_event = None;
+                continue;
+            }
+
+            health.hp -= hit.damage;
+            hurt.hit_event = Some(*hit);
+        }
     }
 }
 

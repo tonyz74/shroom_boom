@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::StateMachine;
-use crate::combat::{AttackStrength, CombatLayerMask, HitEvent, Immunity};
+use crate::combat::{AttackStrength, CombatLayerMask, CombatEvent, Immunity};
 use crate::common::AnimTimer;
 
 
@@ -125,7 +125,7 @@ pub fn projectile_hit_targets(
     rapier: Res<RapierContext>,
 
     combat_layers: Query<&CombatLayerMask>,
-    mut hit_events: EventWriter<HitEvent>,
+    mut hit_events: EventWriter<CombatEvent>,
 ) {
     for (entity, collider, proj_combat_layer, strength, mut proj) in projectiles.iter_mut() {
         let transform = transforms.get(entity).unwrap();
@@ -166,7 +166,7 @@ pub fn projectile_hit_targets(
                         dir.x *= -1.0;
                     }
 
-                    hit_events.send(HitEvent {
+                    hit_events.send(CombatEvent {
                         target: hit_entity,
                         damage: strength.power,
                         kb: Vec2::new(dir.x, dir.y)

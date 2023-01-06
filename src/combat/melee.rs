@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use crate::combat::{AttackStrength, CombatLayerMask};
-use crate::combat::events::HitEvent;
+use crate::combat::events::CombatEvent;
 use crate::common::AnimTimer;
 
 #[derive(Bundle, Default)]
@@ -60,7 +60,7 @@ pub fn resolve_melee_attacks(
         &MeleeAttack
     )>,
     rapier: Res<RapierContext>,
-    mut hit_events: EventWriter<HitEvent>
+    mut hit_events: EventWriter<CombatEvent>
 ) {
     for (transform, collider, combat_layer, atk, melee) in melees.iter() {
         let atk_pos = if let Some(source) = melee.source {
@@ -88,7 +88,7 @@ pub fn resolve_melee_attacks(
                     let diff = (hit_pos - atk_pos).normalize();
 
                     // Only accept hits that have occurred between enemies
-                    hit_events.send(HitEvent {
+                    hit_events.send(CombatEvent {
                         target: hit,
                         damage: atk.power,
                         kb: Vec2::new(diff.x, diff.y)

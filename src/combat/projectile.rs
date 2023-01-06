@@ -75,8 +75,6 @@ pub fn projectile_hit_targets(
     mut proj_collision_events: EventWriter<ProjectileCollisionEvent>
 ) {
     for (entity, collider, proj_combat_layer, strength, proj) in projectiles.iter() {
-        let _ = proj;
-
         let transform = transforms.get(entity).unwrap();
         let proj_pos = transform.translation();
 
@@ -114,7 +112,11 @@ pub fn projectile_hit_targets(
                     }
 
                     let hit_pos = transforms.get(hit_entity).unwrap().translation();
-                    let dir = (hit_pos - proj_pos).normalize();
+                    let mut dir = (hit_pos - proj_pos).normalize();
+
+                    if (dir.x < 0.0 && proj.vel.x > 0.0) || (dir.x > 0.0 && proj.vel.x < 0.0) {
+                        dir.x *= -1.0;
+                    }
 
                     hit_events.send(HitEvent {
                         target: hit_entity,

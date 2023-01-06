@@ -129,7 +129,7 @@ fn setup_player(
             dash: DashAbility::default(),
             slash: SlashAbility::default(),
             jump: JumpAbility::default(),
-            hurt: HurtAbility::new(1.5, Some(0.4)),
+            hurt: HurtAbility::new(2.0, Some(0.4)),
 
             input: InputAction::input_manager_bundle(),
 

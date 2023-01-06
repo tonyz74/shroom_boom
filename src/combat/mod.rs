@@ -23,25 +23,26 @@ pub struct AttackPlugin;
 
 impl Plugin for AttackPlugin {
     fn build(&self, app: &mut App) {
-       app
-           .add_system_set(
-               SystemSet::on_update(GameState::Gameplay)
-                   .with_system(resolve_melee_attacks)
 
-                   .with_system(move_projectile_attacks)
-                   .with_system(projectile_hit_targets)
-                   .with_system(remove_projectiles_on_impact)
+        app
+            .add_system_set(
+                SystemSet::on_update(GameState::Gameplay)
+                    .with_system(resolve_melee_attacks)
+                    .with_system(move_projectile_attacks)
+                    .with_system(projectile_hit_targets)
+                    .with_system(remove_projectiles_on_impact)
 
-                   .with_system(hurt_ability_trigger)
-                   .with_system(hurt_ability_tick_immunity)
-                   .with_system(stop_hurting)
-                   .with_system(remove_immunity)
-                   .with_system(add_immunity_while_hurting)
-                   .with_system(temp_shoot)
-           )
+                    .with_system(hurt_ability_trigger)
+                    .with_system(hurt_ability_tick_immunity)
+                    .with_system(stop_hurting)
+                    .with_system(remove_immunity)
+                    .with_system(add_immunity_while_hurting)
+                    .with_system(temp_shoot)
+            )
 
-           .add_event::<HitEvent>()
-           .add_event::<ProjectileCollisionEvent>();
+            .add_event::<HitEvent>();
+
+        register_projectile_attacks(app);
     }
 }
 
@@ -73,7 +74,8 @@ pub fn temp_shoot(
 
             attack: ProjectileAttack {
                 vel: Vec2::new(12.0, 0.0),
-                speed: 12.0
+                speed: 12.0,
+                ..default()
             },
 
             strength: AttackStrength::new(2),

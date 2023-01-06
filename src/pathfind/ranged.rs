@@ -7,7 +7,7 @@ use crate::state::GameState;
 use crate::pathfind::{Pathfinder, WalkPathfinder, state_machine as s, walk_pathfinder_jump_if_needed, Patrol};
 use crate::enemies::Enemy;
 
-#[derive(Component, Default, Clone)]
+#[derive(Component, Clone)]
 pub struct RangedPathfinder {
     pub shoot_pause: Timer,
     pub shoot_startup: Timer,
@@ -18,7 +18,23 @@ pub struct RangedPathfinder {
     /// Maximum angle accepted (relative to the the UP vector) for a shot, in radians.
     pub max_shoot_angle: f32,
     pub max_shoot_distance: f32,
-    pub projectile: ProjectileAttackBundle
+    pub projectile: ProjectileAttackBundle,
+    pub extra_spawn: fn(&mut Commands, Entity)
+}
+
+impl Default for RangedPathfinder {
+    fn default() -> Self {
+        Self {
+            shoot_pause: Default::default(),
+            shoot_startup: Default::default(),
+            shoot_cooldown: Default::default(),
+            shoot_target: None,
+            max_shoot_angle: 360.0,
+            max_shoot_distance: 256.0,
+            projectile: Default::default(),
+            extra_spawn: |_, _| {}
+        }
+    }
 }
 
 pub fn register_ranged_pathfinders(app: &mut App) {
@@ -223,7 +239,8 @@ pub fn ranged_pathfinder_shoot(
                 proj.attack.vel = (target - pos).normalize() * proj.attack.speed;
                 proj.sprite_sheet.transform.translation = Vec3::new(pos.x, pos.y, 5.0);
 
-                commands.spawn(proj);
+                let eid = commands.spawn(proj).id();
+                (ranged.extra_spawn)(&mut commands, eid);
             }
 
         } else if ranged.shoot_startup.finished() {

@@ -14,6 +14,10 @@ use crate::{
 };
 use crate::combat::{AttackStrength, ProjectileAttack, ProjectileAttackBundle};
 
+
+#[derive(Component, Copy, Clone, Debug)]
+pub struct PumpkinProjectileAttack;
+
 pub struct PumpkinEnemyPlugin;
 
 impl Plugin for PumpkinEnemyPlugin {
@@ -101,6 +105,8 @@ impl PumpkinEnemyBundle {
                 max_shoot_angle: 45.0 * (std::f32::consts::PI / 180.0),
                 max_shoot_distance: 320.0,
 
+                extra_spawn: |cmd, e| { cmd.entity(e).insert(PumpkinProjectileAttack); },
+
                 projectile: ProjectileAttackBundle {
                     attack: ProjectileAttack {
                         speed: 8.0,
@@ -124,8 +130,9 @@ impl PumpkinEnemyBundle {
 
                     ..ProjectileAttackBundle::from_size(Vec2::new(16.0, 16.0))
                 },
+
                 ..default()
-            }
+            },
         }
     }
 }

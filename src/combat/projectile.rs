@@ -1,29 +1,66 @@
 use std::collections::HashSet;
+
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
+use seldom_state::prelude::StateMachine;
 use crate::combat::{AttackStrength, CombatLayerMask, HitEvent, Immunity};
 use crate::common::AnimTimer;
 
-#[derive(Copy, Clone, Debug, Component, Resource)]
-pub enum ProjectileCollisionType {
-    SolidTile,
-    Entity
+
+
+mod state {
+    use bevy::prelude::*;
+    use seldom_state::prelude::*;
+
+    #[derive(Component, Copy, Clone, Default, Reflect, FromReflect)]
+    pub struct Impact;
+
+    #[derive(Component, Copy, Clone, Default, Reflect, FromReflect)]
+    pub struct Travel;
+
+
+
+    #[derive(Copy, Clone, Reflect, FromReflect)]
+    pub struct CollidedTrigger;
+
+    impl Trigger for CollidedTrigger {
+        type Param<'w, 's> = Query<'w, 's, &'static super::ProjectileAttack>;
+
+        fn trigger(&self, entity: Entity, projs: &Self::Param<'_, '_>) -> bool {
+            if !projs.contains(entity) {
+                return false;
+            }
+
+            projs.get(entity).unwrap().collided
+        }
+    }
+
+
+    pub fn projectile_state_machine() -> StateMachine {
+        StateMachine::new(Travel)
+            .trans::<Travel>(CollidedTrigger, Impact)
+            .trans::<Impact>(NotTrigger(AlwaysTrigger), Impact)
+    }
+
+    pub fn projectile_register_triggers(app: &mut App) {
+        app.add_plugin(TriggerPlugin::<CollidedTrigger>::default());
+    }
 }
 
-#[derive(Resource, Clone, Copy, Debug)]
-pub struct ProjectileCollisionEvent {
-    pub proj: Entity,
-    pub collision: Entity,
-    pub collision_type: ProjectileCollisionType
+pub fn register_projectile_attacks(app: &mut App) {
+    state::projectile_register_triggers(app);
 }
+
+
 
 #[derive(Component, Default, Clone, Debug)]
 pub struct ProjectileAttack {
     pub vel: Vec2,
-    pub speed: f32
+    pub speed: f32,
+    pub collided: bool
 }
 
-#[derive(Bundle, Default, Clone)]
+#[derive(Bundle, Clone)]
 pub struct ProjectileAttackBundle {
     pub anim_timer: AnimTimer,
     pub sprite_sheet: SpriteSheetBundle,
@@ -32,7 +69,24 @@ pub struct ProjectileAttackBundle {
     pub attack: ProjectileAttack,
     pub strength: AttackStrength,
     pub combat_layer: CombatLayerMask,
-    pub controller: KinematicCharacterController
+    pub controller: KinematicCharacterController,
+    pub state_machine: StateMachine
+}
+
+impl Default for ProjectileAttackBundle {
+    fn default() -> Self {
+       Self {
+           anim_timer: Default::default(),
+           sprite_sheet: Default::default(),
+           collider: Default::default(),
+           sensor: Default::default(),
+           attack: Default::default(),
+           strength: Default::default(),
+           combat_layer: Default::default(),
+           controller: Default::default(),
+           state_machine: state::projectile_state_machine()
+       }
+    }
 }
 
 impl ProjectileAttackBundle {
@@ -61,20 +115,19 @@ pub fn move_projectile_attacks(
 pub fn projectile_hit_targets(
     immunities: Query<&Immunity>,
     transforms: Query<&GlobalTransform>,
-    projectiles: Query<(
+    mut projectiles: Query<(
         Entity,
         &Collider,
         &CombatLayerMask,
         &AttackStrength,
-        &ProjectileAttack
+        &mut ProjectileAttack
     )>,
     rapier: Res<RapierContext>,
 
     combat_layers: Query<&CombatLayerMask>,
     mut hit_events: EventWriter<HitEvent>,
-    mut proj_collision_events: EventWriter<ProjectileCollisionEvent>
 ) {
-    for (entity, collider, proj_combat_layer, strength, proj) in projectiles.iter() {
+    for (entity, collider, proj_combat_layer, strength, mut proj) in projectiles.iter_mut() {
         let transform = transforms.get(entity).unwrap();
         let proj_pos = transform.translation();
 
@@ -87,12 +140,7 @@ pub fn projectile_hit_targets(
                 ..default()
             },
             |hit_entity| {
-                proj_collision_events.send(ProjectileCollisionEvent {
-                    proj: entity,
-                    collision: hit_entity,
-                    collision_type: ProjectileCollisionType::SolidTile
-                });
-
+                proj.collided = true;
                 true
             }
         );
@@ -124,11 +172,7 @@ pub fn projectile_hit_targets(
                         kb: Vec2::new(dir.x, dir.y)
                     });
 
-                    proj_collision_events.send(ProjectileCollisionEvent {
-                        proj: entity,
-                        collision: hit_entity,
-                        collision_type: ProjectileCollisionType::Entity
-                    });
+                    proj.collided = true;
                 }
 
                 true
@@ -142,20 +186,11 @@ pub fn projectile_hit_targets(
 
 pub fn remove_projectiles_on_impact(
     mut commands: Commands,
-    entities: Query<Entity>,
-    mut events: EventReader<ProjectileCollisionEvent>
+    impacted: Query<Entity, Added<state::Impact>>,
 ) {
-    let mut despawn_queue = HashSet::new();
-
-    for collision in events.iter() {
-        if !entities.contains(collision.proj) {
-            continue;
+    for entity in impacted.iter() {
+        if let Some(mut cmd) = commands.get_entity(entity) {
+            cmd.despawn();
         }
-
-        despawn_queue.insert(collision.proj);
-    }
-
-    for ent in despawn_queue.iter() {
-        commands.entity(*ent).despawn();
     }
 }

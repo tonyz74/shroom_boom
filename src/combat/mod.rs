@@ -15,7 +15,7 @@ pub use hurt::*;
 
 use crate::assets::FlowerEnemyAssets;
 use crate::common::AnimTimer;
-use crate::pathfind::state_machine::Hurt;
+use crate::entity_states::*;
 use crate::player::Player;
 
 use crate::state::GameState;
@@ -33,19 +33,14 @@ impl Plugin for AttackPlugin {
                     .with_system(projectile_hit_targets)
                     .with_system(remove_projectiles_on_impact)
 
-                    .with_system(hurt_ability_trigger)
-                    .with_system(hurt_ability_tick_immunity)
-                    .with_system(stop_hurting)
-                    .with_system(remove_immunity)
-                    .with_system(add_immunity_while_hurting)
                     .with_system(temp_shoot)
-
                     .with_system(handle_hits)
             )
 
             .add_event::<CombatEvent>();
 
         register_projectile_attacks(app);
+        register_hurt_ability(app);
     }
 }
 

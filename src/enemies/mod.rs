@@ -1,11 +1,10 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
-use crate::combat::{CombatLayerMask, Health, CombatEvent, HurtAbility, Immunity, KnockbackResistance};
+use crate::combat::{CombatLayerMask, Health, HurtAbility, KnockbackResistance};
 
 use crate::common::{AnimTimer, UpdateStage};
 use crate::pathfind::PathfinderBundle;
-use crate::pathfind::state_machine::Hurt;
 use crate::state::GameState;
 
 pub mod flower;

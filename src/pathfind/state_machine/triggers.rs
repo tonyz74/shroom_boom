@@ -64,26 +64,6 @@ impl Trigger for NeedsJumpTrigger {
     }
 }
 
-
-#[derive(Copy, Clone, Reflect, FromReflect)]
-pub struct HurtTrigger;
-
-impl Trigger for HurtTrigger {
-    type Param<'w, 's> = Query<'w, 's, &'static HurtAbility>;
-
-    fn trigger(&self, entity: Entity, q: &Self::Param<'_, '_>) -> bool {
-        if !q.contains(entity) {
-            return false;
-        }
-
-        let hurt = q.get(entity).unwrap();
-        let ok = hurt.hit_event.is_some();
-
-        ok
-    }
-}
-
-
 #[derive(Copy, Clone, Reflect, FromReflect)]
 pub struct StopHurtTrigger;
 

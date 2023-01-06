@@ -4,8 +4,9 @@ use seldom_state::prelude::Done;
 
 use crate::combat::{CombatLayerMask, ProjectileAttackBundle};
 use crate::state::GameState;
-use crate::pathfind::{Pathfinder, WalkPathfinder, state_machine as s, walk_pathfinder_jump_if_needed, Patrol};
+use crate::pathfind::{Pathfinder, WalkPathfinder, walk_pathfinder_jump_if_needed, Patrol};
 use crate::enemies::Enemy;
+use crate::entity_states::*;
 
 #[derive(Component, Clone)]
 pub struct RangedPathfinder {
@@ -90,7 +91,7 @@ pub fn ranged_pathfinder_move(
     transforms: Query<&GlobalTransform>,
     combat_layers: Query<&CombatLayerMask>,
     mut ranged_pathfinders: Query<&mut RangedPathfinder>,
-    jumping: Query<&s::Jump>,
+    jumping: Query<&Jump>,
     mut pathfinders: Query<(
         Entity,
         &Collider,
@@ -98,7 +99,7 @@ pub fn ranged_pathfinder_move(
         &mut Pathfinder,
         &mut WalkPathfinder,
         &mut Patrol
-    ), (Without<s::Hurt>, Without<s::Shoot>, With<RangedPathfinder>)>,
+    ), (Without<Hurt>, Without<Shoot>, With<RangedPathfinder>)>,
     rapier: Res<RapierContext>
 ) {
     let _ = rapier;
@@ -200,7 +201,7 @@ pub fn ranged_pathfinder_tick_shoot_cooldown(
 }
 
 pub fn ranged_pathfinder_add_shoot(
-    mut q: Query<(&mut Enemy, &mut RangedPathfinder), Added<s::Shoot>>
+    mut q: Query<(&mut Enemy, &mut RangedPathfinder), Added<Shoot>>
 ) {
     for (mut enemy, mut ranged) in q.iter_mut() {
         enemy.vel.x = 0.0;
@@ -216,7 +217,7 @@ pub fn ranged_pathfinder_shoot(
         &GlobalTransform,
         &mut Enemy,
         &mut RangedPathfinder
-    ), With<s::Shoot>>
+    ), With<Shoot>>
 ) {
     for (entity, tf, mut enemy, mut ranged) in q.iter_mut() {
         ranged.shoot_startup.tick(time.delta());

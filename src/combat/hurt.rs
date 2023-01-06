@@ -1,8 +1,47 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use crate::combat::{CombatEvent, Immunity};
-use crate::pathfind::state_machine::Hurt;
+use crate::entity_states::*;
+use crate::state::GameState;
 use crate::util;
+
+
+
+
+#[derive(Copy, Clone, Reflect, FromReflect)]
+pub struct HurtTrigger;
+
+impl Trigger for HurtTrigger {
+    type Param<'w, 's> = Query<'w, 's, &'static HurtAbility>;
+
+    fn trigger(&self, entity: Entity, q: &Self::Param<'_, '_>) -> bool {
+        if !q.contains(entity) {
+            return false;
+        }
+
+        let hurt = q.get(entity).unwrap();
+        let ok = hurt.hit_event.is_some();
+
+        ok
+    }
+}
+
+
+pub fn register_hurt_ability(app: &mut App) {
+    app.add_plugin(TriggerPlugin::<HurtTrigger>::default());
+
+    app.add_system_set(
+        SystemSet::on_update(GameState::Gameplay)
+            .with_system(hurt_ability_trigger)
+            .with_system(hurt_ability_tick_immunity)
+            .with_system(stop_hurting)
+            .with_system(remove_immunity)
+            .with_system(add_immunity_while_hurting)
+    );
+}
+
+
+
 
 #[derive(Component, Clone, Debug)]
 pub struct HurtAbility {

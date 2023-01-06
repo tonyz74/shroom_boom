@@ -2,13 +2,19 @@ use rand::prelude::*;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
-use crate::{enemies::Enemy, level::{coord, LevelInfo}, pathfind::{
-    Pathfinder,
-    util::GridRegion,
-    grid::{PathfindingGrid, PathfindingResult},
-    knockbacks as kb,
-    state_machine as s
-}, state::GameState, util};
+use crate::{
+    enemies::Enemy, level::{coord, LevelInfo},
+    pathfind::{
+        Pathfinder,
+        util::GridRegion,
+        grid::{PathfindingGrid, PathfindingResult},
+        knockbacks as kb,
+    },
+    state::GameState,
+    entity_states::*,
+    util
+};
+
 use crate::combat::HurtAbility;
 use crate::pathfind::Patrol;
 
@@ -119,7 +125,7 @@ pub fn fly_pathfinder_chase(
         &mut Pathfinder,
         &mut FlyPathfinder,
         &mut Patrol,
-    ), Without<s::Hurt>>,
+    ), Without<Hurt>>,
     rapier: Res<RapierContext>
 ) {
     for (pos, mut enemy, collider, mut pathfinder, mut fly, patrol) in fly.iter_mut() {
@@ -300,7 +306,7 @@ pub fn fly_pathfinder_patrol(
 }
 
 pub fn fly_pathfinder_got_hurt(
-    mut fly: Query<(&mut Enemy, &mut HurtAbility), (With<FlyPathfinder>, Added<s::Hurt>)>
+    mut fly: Query<(&mut Enemy, &mut HurtAbility), (With<FlyPathfinder>, Added<Hurt>)>
 ) {
     for (mut enemy, mut hurt) in fly.iter_mut() {
         if hurt.hit_event.is_none() {
@@ -312,7 +318,7 @@ pub fn fly_pathfinder_got_hurt(
     }
 }
 
-pub fn fly_pathfinder_hurt(mut fly: Query<&mut Enemy, With<s::Hurt>>) {
+pub fn fly_pathfinder_hurt(mut fly: Query<&mut Enemy, With<Hurt>>) {
     for mut enemy in fly.iter_mut() {
         let opp = {
             let opp_x = -Vec2::new(enemy.vel.x, 0.0).normalize_or_zero().x;

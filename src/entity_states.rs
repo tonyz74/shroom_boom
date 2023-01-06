@@ -16,6 +16,9 @@ pub struct Move;
 pub struct Hurt;
 
 #[derive(Copy, Clone, Component, Reflect)]
-pub struct Dead;
+pub struct Idle;
+
+#[derive(Copy, Clone, Component, Reflect)]
+pub struct Die;
 
 

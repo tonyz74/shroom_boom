@@ -7,7 +7,7 @@ use crate::{
     input::InputAction,
     player::{
         Player,
-        state_machine as ps,
+        state_machine::*,
         consts::{
             PLAYER_FALL_GRAVITY,
             PLAYER_TERMINAL_VELOCITY,
@@ -16,7 +16,8 @@ use crate::{
     },
     state::GameState,
     common::{UpdateStage, PHYSICS_STEPS_PER_SEC},
-    level::consts::SOLIDS_INTERACTION_GROUP
+    level::consts::SOLIDS_INTERACTION_GROUP,
+    entity_states::*
 };
 use crate::combat::HurtAbility;
 use crate::common::PHYSICS_STEP_DELTA;
@@ -52,7 +53,7 @@ pub fn player_setup_logic(app: &mut App) {
     );
 }
 
-pub fn idle(mut q: Query<&mut Player, With<ps::Idle>>) {
+pub fn idle(mut q: Query<&mut Player, With<Idle>>) {
     if q.is_empty() {
         return;
     }
@@ -118,7 +119,7 @@ fn run_common(
     player.vel.x = vel_x;
 }
 
-pub fn got_hurt(mut q: Query<(&mut Player, &mut HurtAbility), Added<ps::Hurt>>) {
+pub fn got_hurt(mut q: Query<(&mut Player, &mut HurtAbility), Added<Hurt>>) {
     if q.is_empty() {
         return;
     }
@@ -135,7 +136,7 @@ pub fn got_hurt(mut q: Query<(&mut Player, &mut HurtAbility), Added<ps::Hurt>>) 
     player.vel = kb;
 }
 
-pub fn hit_ground(mut q: Query<&mut Player, Added<ps::Run>>) {
+pub fn hit_ground(mut q: Query<&mut Player, Added<Move>>) {
     if q.is_empty() {
         return;
     }
@@ -150,7 +151,7 @@ pub fn run(
         &ActionState<InputAction>,
         &GlobalTransform,
         &mut Player
-    ), (Without<ps::Hurt>, Without<ps::Dash>)>,
+    ), (Without<Hurt>, Without<Dash>)>,
     mut rapier: ResMut<RapierContext>
 ) {
     if q.is_empty() {
@@ -161,7 +162,7 @@ pub fn run(
     run_common(e, &action, &mut player, tf, &mut rapier);
 }
 
-pub fn enter_fall(mut q: Query<&mut Player, Added<ps::Fall>>) {
+pub fn enter_fall(mut q: Query<&mut Player, Added<Fall>>) {
     for mut p in q.iter_mut() {
         if p.vel.y > 0.0 {
             p.vel.y = 0.0;
@@ -169,7 +170,7 @@ pub fn enter_fall(mut q: Query<&mut Player, Added<ps::Fall>>) {
     }
 }
 
-pub fn fall(mut q: Query<&mut Player, Without<ps::Dash>>) {
+pub fn fall(mut q: Query<&mut Player, Without<Dash>>) {
     if q.is_empty() {
         return;
     }
@@ -207,12 +208,12 @@ pub fn update_grounded(mut q: Query<(&mut Player, &KinematicCharacterControllerO
     }
 }
 
-pub fn crouch(q: Query<&Player, Added<ps::Crouch>>) {
+pub fn crouch(q: Query<&Player, Added<Crouch>>) {
     for _ in q.iter() {
     }
 }
 
-pub fn crouch_update(mut q: Query<&mut Player, With<ps::Crouch>>) {
+pub fn crouch_update(mut q: Query<&mut Player, With<Crouch>>) {
     for mut player in q.iter_mut() {
         if player.grounded {
             player.vel.y = 0.0;

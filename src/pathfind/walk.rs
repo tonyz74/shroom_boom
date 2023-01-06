@@ -3,12 +3,20 @@ use bevy::prelude::*;
 use bevy::ecs::query::ReadOnlyWorldQuery;
 use bevy_rapier2d::prelude::*;
 
-use crate::{enemies::Enemy, state::GameState, level::consts::SCALE_FACTOR, pathfind::{
-    Pathfinder,
-    PathfinderStopChaseEvent,
-    knockbacks as kb,
-    state_machine as s,
-}, common::PHYSICS_STEP_DELTA, util};
+use crate::{
+    enemies::Enemy,
+    state::GameState,
+    level::consts::SCALE_FACTOR,
+    pathfind::{
+        Pathfinder,
+        PathfinderStopChaseEvent,
+        knockbacks as kb,
+    },
+    common::PHYSICS_STEP_DELTA,
+    util,
+    entity_states::*
+};
+
 use crate::combat::HurtAbility;
 use crate::pathfind::Patrol;
 
@@ -64,7 +72,7 @@ fn walk_pathfinder_fall(
 }
 
 fn walk_pathfinder_jump(
-   mut q: Query<(&mut Enemy, &WalkPathfinder), Added<s::Jump>>
+   mut q: Query<(&mut Enemy, &WalkPathfinder), Added<Jump>>
 ) {
     for (mut enemy, walk) in q.iter_mut() {
         enemy.vel.y = walk.jump_speed;
@@ -72,7 +80,7 @@ fn walk_pathfinder_jump(
 }
 
 fn walk_pathfinder_hit_ground(
-    mut q: Query<&mut Enemy, (With<WalkPathfinder>, Added<s::Move>)>
+    mut q: Query<&mut Enemy, (With<WalkPathfinder>, Added<Move>)>
 ) {
     for mut enemy in q.iter_mut() {
         enemy.vel.x = 0.0;
@@ -127,7 +135,7 @@ fn walk_pathfinder_got_hurt(
     mut pathfinders: Query<(
         &mut Enemy,
         &mut HurtAbility
-    ), (With<WalkPathfinder>, Added<s::Hurt>)>
+    ), (With<WalkPathfinder>, Added<Hurt>)>
 ) {
     for (mut enemy, mut hurt) in pathfinders.iter_mut() {
         if hurt.hit_event.is_none() {
@@ -148,7 +156,7 @@ fn walk_pathfinder_hurt(
         &mut Enemy,
         &mut Pathfinder,
         &mut WalkPathfinder
-    ), With<s::Hurt>>,
+    ), With<Hurt>>,
     rapier: Res<RapierContext>
 ) {
    for (transform, collider, mut enemy, pathfinder, mut walk) in walks.iter_mut() {
@@ -212,7 +220,7 @@ fn walk_pathfinder_patrol(
         &mut Pathfinder,
         &mut WalkPathfinder,
         &mut Patrol
-    ), Without<s::Hurt>>,
+    ), Without<Hurt>>,
     rapier: Res<RapierContext>,
     _ev_stop: EventWriter<PathfinderStopChaseEvent>
 ) {

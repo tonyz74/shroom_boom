@@ -13,8 +13,9 @@ use crate::{
             PLAYER_COYOTE_TIME,
             PLAYER_JUMP_BUFFER_TIME
         },
-        state_machine as s
-    }
+    },
+    entity_states::Jump,
+    util
 };
 
 #[derive(Component)]
@@ -65,7 +66,7 @@ pub fn jump_ability_reset_coyote_time(
     mut q: Query<(
         &Player,
         &mut JumpAbility
-    ), Without<s::Jump>>
+    ), Without<Jump>>
 ) {
     for (player, mut jump) in q.iter_mut() {
         if player.grounded {
@@ -100,12 +101,10 @@ pub fn jump_ability_trigger(
     mut q: Query<(
         &mut Player,
         &mut JumpAbility
-    ), Added<s::Jump>>
+    ), Added<Jump>>
 ) {
     for (mut player, mut jump) in q.iter_mut() {
         player.vel.y = PLAYER_JUMP_SPEED;
-
-        let dur = jump.coyote_time.duration();
-        jump.coyote_time.tick(dur + Duration::from_secs(1));
+        util::timer_tick_to_finish(&mut jump.coyote_time);
     }
 }

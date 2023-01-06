@@ -7,12 +7,12 @@ use crate::{
     assets::PlayerAssets,
     player::{
         Player,
-        state_machine::{Idle, Run, Jump, Fall, Dash, Slash, Crouch}
-    }
+        state_machine::{Dash, Slash, Crouch}
+    },
+    entity_states::*
 };
 
 use std::time::Duration;
-use crate::player::state_machine::Hurt;
 use crate::util::Facing;
 
 pub fn player_setup_anim(app: &mut App) {
@@ -75,7 +75,7 @@ fn anim_run(
         &mut AnimTimer
     ), (
         With<Player>,
-        Added<Run>
+        Added<Move>
     )>
 ) {
     if q.is_empty() {

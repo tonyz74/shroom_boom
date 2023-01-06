@@ -4,10 +4,10 @@ use bevy_rapier2d::prelude::*;
 use crate::{
     state::GameState,
     enemies::Enemy,
+    entity_states::*,
     pathfind::{
         Pathfinder,
         walk::WalkPathfinder,
-        state_machine as s
     }
 };
 
@@ -33,7 +33,7 @@ fn melee_pathfinder_move(
         &mut Pathfinder,
         &mut WalkPathfinder,
         &Patrol
-    ), (Without<s::Hurt>, With<MeleePathfinder>)>,
+    ), (Without<Hurt>, With<MeleePathfinder>)>,
     rapier: Res<RapierContext>,
 ) {
     let mut colliding_enemies: HashSet<(Entity, Entity)> = HashSet::new();

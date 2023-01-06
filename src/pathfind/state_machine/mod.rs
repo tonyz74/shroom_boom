@@ -1,11 +1,10 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 
-mod states;
 mod triggers;
-
-pub use states::*;
-pub use triggers::*;
+use crate::entity_states::*;
+use triggers::*;
+use crate::combat::HurtTrigger;
 
 pub fn register_triggers(app: &mut App) {
     use TriggerPlugin as TP;
@@ -15,7 +14,6 @@ pub fn register_triggers(app: &mut App) {
         .add_plugin(TP::<GroundedTrigger>::default())
         .add_plugin(TP::<NeedsJumpTrigger>::default())
         .add_plugin(TP::<StopHurtTrigger>::default())
-        .add_plugin(TP::<HurtTrigger>::default())
         .add_plugin(TP::<HitWallTrigger>::default())
         .add_plugin(TP::<ShootTrigger>::default());
 }

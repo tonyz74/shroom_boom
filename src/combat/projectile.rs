@@ -1,54 +1,38 @@
-use std::collections::HashSet;
-
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use seldom_state::prelude::StateMachine;
+use seldom_state::prelude::*;
 use crate::combat::{AttackStrength, CombatLayerMask, CombatEvent, Immunity};
 use crate::common::AnimTimer;
+use crate::entity_states::*;
 
+#[derive(Copy, Clone, Reflect, FromReflect)]
+pub struct CollidedTrigger;
 
+impl Trigger for CollidedTrigger {
+    type Param<'w, 's> = Query<'w, 's, &'static super::ProjectileAttack>;
 
-mod state {
-    use bevy::prelude::*;
-    use seldom_state::prelude::*;
-
-    #[derive(Component, Copy, Clone, Default, Reflect, FromReflect)]
-    pub struct Impact;
-
-    #[derive(Component, Copy, Clone, Default, Reflect, FromReflect)]
-    pub struct Travel;
-
-
-
-    #[derive(Copy, Clone, Reflect, FromReflect)]
-    pub struct CollidedTrigger;
-
-    impl Trigger for CollidedTrigger {
-        type Param<'w, 's> = Query<'w, 's, &'static super::ProjectileAttack>;
-
-        fn trigger(&self, entity: Entity, projs: &Self::Param<'_, '_>) -> bool {
-            if !projs.contains(entity) {
-                return false;
-            }
-
-            projs.get(entity).unwrap().collided
+    fn trigger(&self, entity: Entity, projs: &Self::Param<'_, '_>) -> bool {
+        if !projs.contains(entity) {
+            return false;
         }
-    }
 
-
-    pub fn projectile_state_machine() -> StateMachine {
-        StateMachine::new(Travel)
-            .trans::<Travel>(CollidedTrigger, Impact)
-            .trans::<Impact>(NotTrigger(AlwaysTrigger), Impact)
-    }
-
-    pub fn projectile_register_triggers(app: &mut App) {
-        app.add_plugin(TriggerPlugin::<CollidedTrigger>::default());
+        projs.get(entity).unwrap().collided
     }
 }
 
+
+fn projectile_state_machine() -> StateMachine {
+    StateMachine::new(Move)
+        .trans::<Move>(CollidedTrigger, Die)
+        .trans::<Die>(NotTrigger(AlwaysTrigger), Die)
+}
+
+fn projectile_register_triggers(app: &mut App) {
+    app.add_plugin(TriggerPlugin::<CollidedTrigger>::default());
+}
+
 pub fn register_projectile_attacks(app: &mut App) {
-    state::projectile_register_triggers(app);
+    projectile_register_triggers(app);
 }
 
 
@@ -84,7 +68,7 @@ impl Default for ProjectileAttackBundle {
            strength: Default::default(),
            combat_layer: Default::default(),
            controller: Default::default(),
-           state_machine: state::projectile_state_machine()
+           state_machine: projectile_state_machine()
        }
     }
 }
@@ -131,7 +115,8 @@ pub fn projectile_hit_targets(
         let transform = transforms.get(entity).unwrap();
         let proj_pos = transform.translation();
 
-        rapier.intersections_with_shape(
+        // If hit a wall
+        if rapier.intersection_with_shape(
             Vect::new(proj_pos.x, proj_pos.y),
             Rot::default(),
             collider,
@@ -139,11 +124,9 @@ pub fn projectile_hit_targets(
                 flags: QueryFilterFlags::ONLY_FIXED | QueryFilterFlags::EXCLUDE_SENSORS,
                 ..default()
             },
-            |hit_entity| {
-                proj.collided = true;
-                true
-            }
-        );
+        ).is_some() {
+            proj.collided = true;
+        };
 
         rapier.intersections_with_shape(
             Vect::new(proj_pos.x, proj_pos.y),
@@ -186,7 +169,7 @@ pub fn projectile_hit_targets(
 
 pub fn remove_projectiles_on_impact(
     mut commands: Commands,
-    impacted: Query<Entity, Added<state::Impact>>,
+    impacted: Query<Entity, (Added<Die>, With<ProjectileAttack>)>,
 ) {
     for entity in impacted.iter() {
         if let Some(mut cmd) = commands.get_entity(entity) {

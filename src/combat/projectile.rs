@@ -4,6 +4,7 @@ use seldom_state::prelude::*;
 use crate::combat::{AttackStrength, CombatLayerMask, CombatEvent, Immunity};
 use crate::common::AnimTimer;
 use crate::entity_states::*;
+use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 
 #[derive(Copy, Clone, Reflect, FromReflect)]
 pub struct CollidedTrigger;
@@ -122,6 +123,7 @@ pub fn projectile_hit_targets(
             collider,
             QueryFilter {
                 flags: QueryFilterFlags::ONLY_FIXED | QueryFilterFlags::EXCLUDE_SENSORS,
+                groups: Some(SOLIDS_INTERACTION_GROUP),
                 ..default()
             },
         ).is_some() {

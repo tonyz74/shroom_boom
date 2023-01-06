@@ -108,11 +108,14 @@ pub fn pathfind_track_player(
                 if pathfinder.target.is_some() {
                     patrol.lose_notice_timer.reset();
                 }
+                patrol.lost_target = true;
 
                 continue;
+            } else {
+                patrol.lost_target = false;
             }
+
         } else {
-            patrol.lost_target = true;
             pathfinder.within_region = false;
         }
 

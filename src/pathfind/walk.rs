@@ -20,21 +20,11 @@ use crate::{
 use crate::combat::HurtAbility;
 use crate::pathfind::Patrol;
 
-#[derive(Component)]
+#[derive(Component, Default)]
 pub struct WalkPathfinder {
     pub jump_speed: f32,
     pub needs_jump: bool,
     pub grounded: bool,
-}
-
-impl Default for WalkPathfinder {
-    fn default() -> Self {
-        Self {
-            jump_speed: 0.0,
-            needs_jump: false,
-            grounded: false,
-        }
-    }
 }
 
 pub fn register_walk_pathfinders(app: &mut App) {

@@ -3,7 +3,7 @@ use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
 use crate::combat::{CombatLayerMask, Health, HurtAbility, KnockbackResistance};
 
-use crate::common::{AnimTimer, UpdateStage};
+use crate::common::AnimTimer;
 use crate::pathfind::PathfinderBundle;
 use crate::state::GameState;
 
@@ -47,7 +47,6 @@ impl Plugin for EnemyPlugin {
             .add_plugin(flower::FlowerEnemyPlugin)
             .add_system_set(
                 SystemSet::on_update(GameState::Gameplay)
-                    .label(UpdateStage::Physics)
                     .with_system(move_enemies)
                     .with_system(handle_dead_enemies)
             );

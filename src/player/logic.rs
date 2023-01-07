@@ -15,7 +15,7 @@ use crate::{
         }
     },
     state::GameState,
-    common::{UpdateStage, PHYSICS_STEPS_PER_SEC},
+    common::PHYSICS_STEPS_PER_SEC,
     level::consts::SOLIDS_INTERACTION_GROUP,
     entity_states::*
 };
@@ -28,7 +28,6 @@ pub fn player_setup_logic(app: &mut App) {
 
     app.add_system_set(
         SystemSet::on_update(GameState::Gameplay)
-            .label(UpdateStage::GameLogic)
             .with_system(idle)
             .with_system(run)
             .with_system(enter_fall)
@@ -44,8 +43,6 @@ pub fn player_setup_logic(app: &mut App) {
 
     app.add_system_set(
         SystemSet::on_update(GameState::Gameplay)
-            .label(UpdateStage::Physics)
-            .after(UpdateStage::GameLogic)
             .with_run_criteria(FixedTimestep::steps_per_second(PHYSICS_STEPS_PER_SEC))
             .with_system(fall.before(physics_update))
             .with_system(physics_update)

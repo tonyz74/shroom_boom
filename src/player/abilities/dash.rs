@@ -3,7 +3,6 @@ use seldom_state::prelude::*;
 
 use crate::{
     state::GameState,
-    common::UpdateStage,
     player::{
         Player,
         consts::{
@@ -37,7 +36,6 @@ impl Default for DashAbility {
 pub fn register_dash_ability(app: &mut App) {
     app.add_system_set(
         SystemSet::on_update(GameState::Gameplay)
-            .label(UpdateStage::GameLogic)
             .with_system(dash_ability_trigger)
             .with_system(dash_ability_update)
             .with_system(dash_ability_cooldown_update)

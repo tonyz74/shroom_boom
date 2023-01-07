@@ -5,7 +5,6 @@ use std::time::Duration;
 use crate::{
     input::InputAction,
     state::GameState,
-    common::UpdateStage,
     player::{
         Player,
         consts::{
@@ -41,7 +40,6 @@ impl Default for JumpAbility {
 pub fn register_jump_ability(app: &mut App) {
     app.add_system_set(
         SystemSet::on_update(GameState::Gameplay)
-            .label(UpdateStage::GameLogic)
             .with_system(jump_ability_trigger)
             .with_system(jump_ability_request)
             .with_system(jump_ability_tick_buffer)

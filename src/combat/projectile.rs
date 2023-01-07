@@ -5,12 +5,13 @@ use crate::combat::{AttackStrength, CombatLayerMask, CombatEvent, Immunity};
 use crate::common::AnimTimer;
 use crate::entity_states::*;
 use crate::level::consts::SOLIDS_INTERACTION_GROUP;
+use crate::state::GameState;
 
 #[derive(Copy, Clone, Reflect, FromReflect)]
 pub struct CollidedTrigger;
 
 impl Trigger for CollidedTrigger {
-    type Param<'w, 's> = Query<'w, 's, &'static super::ProjectileAttack>;
+    type Param<'w, 's> = Query<'w, 's, &'static ProjectileAttack>;
 
     fn trigger(&self, entity: Entity, projs: &Self::Param<'_, '_>) -> bool {
         if !projs.contains(entity) {
@@ -22,18 +23,50 @@ impl Trigger for CollidedTrigger {
 }
 
 
+#[derive(Copy, Clone, Reflect, FromReflect)]
+pub struct ExpirationTrigger;
+
+impl Trigger for ExpirationTrigger {
+    type Param<'w, 's> = Query<'w, 's, &'static ProjectileAttack>;
+
+    fn trigger(&self, entity: Entity, projs: &Self::Param<'_, '_>) -> bool {
+        if !projs.contains(entity) {
+            return false;
+        }
+
+        let proj = projs.get(entity).unwrap();
+
+        if let Some(expiration) = &proj.expiration {
+            expiration.finished()
+        } else {
+            false
+        }
+    }
+}
+
+
 fn projectile_state_machine() -> StateMachine {
     StateMachine::new(Move)
         .trans::<Move>(CollidedTrigger, Die)
+        .trans::<Move>(ExpirationTrigger, Die)
         .trans::<Die>(NotTrigger(AlwaysTrigger), Die)
 }
 
 fn projectile_register_triggers(app: &mut App) {
     app.add_plugin(TriggerPlugin::<CollidedTrigger>::default());
+    app.add_plugin(TriggerPlugin::<ExpirationTrigger>::default());
 }
 
 pub fn register_projectile_attacks(app: &mut App) {
     projectile_register_triggers(app);
+
+    app.add_system_set(
+        SystemSet::on_update(GameState::Gameplay)
+            .with_system(move_projectile_attacks)
+            .with_system(projectile_hit_targets)
+            .with_system(despawn_projectiles)
+            .with_system(tick_proj_expirations)
+    );
 }
 
 
@@ -42,7 +75,8 @@ pub fn register_projectile_attacks(app: &mut App) {
 pub struct ProjectileAttack {
     pub vel: Vec2,
     pub speed: f32,
-    pub collided: bool
+    pub collided: bool,
+    pub expiration: Option<Timer>
 }
 
 #[derive(Bundle, Clone)]
@@ -94,6 +128,17 @@ pub fn move_projectile_attacks(
 ) {
     for (proj, mut cc) in proj.iter_mut() {
         cc.translation = Some(proj.vel);
+    }
+}
+
+pub fn tick_proj_expirations(
+    time: Res<Time>,
+    mut proj: Query<&mut ProjectileAttack>
+) {
+    for mut proj in proj.iter_mut() {
+        if let Some(expiration) = &mut proj.expiration {
+            expiration.tick(time.delta());
+        }
     }
 }
 
@@ -169,7 +214,7 @@ pub fn projectile_hit_targets(
 
 
 
-pub fn remove_projectiles_on_impact(
+pub fn despawn_projectiles(
     mut commands: Commands,
     impacted: Query<Entity, (Added<Die>, With<ProjectileAttack>)>,
 ) {

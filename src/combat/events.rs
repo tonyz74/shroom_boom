@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Resource, Copy, Clone, Debug)]
+#[derive(Component, Resource, Copy, Clone, Debug, Reflect, FromReflect)]
 pub struct CombatEvent {
     pub target: Entity,
     pub damage: i32,

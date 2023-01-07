@@ -3,7 +3,6 @@ use seldom_state::prelude::*;
 
 use crate::{
     state::GameState,
-    common::UpdateStage,
     assets::PlayerAssets,
     combat::{MeleeAttack, MeleeAttackBundle},
     common::AnimTimer,
@@ -47,7 +46,6 @@ impl Default for SlashAbility {
 pub fn register_slash_ability(app: &mut App) {
     app.add_system_set(
         SystemSet::on_update(GameState::Gameplay)
-            .label(UpdateStage::GameLogic)
             .with_system(slash_ability_trigger)
             .with_system(slash_ability_update)
             .with_system(slash_ability_cooldown_update)

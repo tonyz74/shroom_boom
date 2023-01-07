@@ -26,6 +26,19 @@ impl Trigger for HurtTrigger {
     }
 }
 
+pub fn print_immunity_timers(
+    keys: Res<Input<KeyCode>>,
+    q: Query<(Entity, &HurtAbility), With<Immunity>>
+) {
+    if !keys.just_pressed(KeyCode::L) {
+        return;
+    }
+
+    for (ent, hurt) in q.iter() {
+        println!("{:?}: {:?} / {:?}", ent, hurt.immunity_timer.elapsed(), hurt.immunity_timer.duration());
+    }
+}
+
 
 pub fn register_hurt_ability(app: &mut App) {
     app.add_plugin(TriggerPlugin::<HurtTrigger>::default());
@@ -37,13 +50,15 @@ pub fn register_hurt_ability(app: &mut App) {
             .with_system(stop_hurting)
             .with_system(remove_immunity)
             .with_system(add_immunity_while_hurting)
+
+            .with_system(print_immunity_timers)
     );
 }
 
 
 
 
-#[derive(Component, Clone, Debug)]
+#[derive(Component, Clone, Debug, Reflect)]
 pub struct HurtAbility {
     pub immunity_timer: Timer,
     pub initial_stun_timer: Timer,

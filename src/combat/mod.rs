@@ -7,6 +7,7 @@ mod components;
 mod events;
 mod hurt;
 mod collision;
+mod death;
 
 pub use melee::*;
 pub use projectile::*;
@@ -14,6 +15,7 @@ pub use components::*;
 pub use events::*;
 pub use hurt::*;
 pub use collision::*;
+pub use death::*;
 
 use crate::assets::FlowerEnemyAssets;
 use crate::combat::collision::register_collider_attacks;

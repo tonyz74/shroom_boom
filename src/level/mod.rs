@@ -7,13 +7,13 @@ pub mod exit;
 pub mod transition;
 pub mod enemies;
 pub mod util;
+pub mod door;
 
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use crate::level::consts::TILE_SIZE;
 use crate::state::GameState;
-
 
 #[derive(Resource, Default, Copy, Clone)]
 pub struct LevelInfo {
@@ -41,6 +41,7 @@ impl Plugin for LevelLoaderPlugin {
         app
             .add_plugin(LdtkPlugin)
             .insert_resource(LdtkSettings {
+                int_grid_rendering: IntGridRendering::Invisible,
                 level_background: LevelBackground::Nonexistent,
                 ..default()
             })
@@ -53,6 +54,7 @@ impl Plugin for LevelLoaderPlugin {
         exit::register_exit_entity(app);
         transition::register_transition_systems(app);
         enemies::register_enemy_spawnpoints(app);
+        door::register_doors(app);
 
         app.add_system_set(
             SystemSet::on_enter(GameState::LevelTransition)

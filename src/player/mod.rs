@@ -150,7 +150,7 @@ fn setup_player(
     });
 }
 
-pub fn player_print_health(p: Query<&Health, (With<Player>, Changed<Health>)>) {
+pub fn player_print_health(p: Query<&Health, Changed<Health>>) {
     for hp in p.iter() {
         println!("hp changed: {:?}", hp);
     }

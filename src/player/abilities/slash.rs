@@ -9,7 +9,6 @@ use crate::{
     player::{
         Player,
         consts::PLAYER_ATTACK_COOLDOWN,
-        state_machine as s
     }
 };
 use crate::combat::{AttackStrength, CombatLayerMask};
@@ -25,6 +24,9 @@ fn quat_rot2d(deg: f32) -> Quat {
 }
 
 // MAIN
+
+#[derive(Component)]
+pub struct PlayerMeleeAttack;
 
 #[derive(Component)]
 pub struct SlashAbility {
@@ -123,37 +125,41 @@ fn slash_ability_trigger(
         let (tf, flip) = transform_for_direction(direction);
 
         commands.entity(entity).with_children(|parent| {
-            parent.spawn(MeleeAttackBundle {
-                sprite_sheet: SpriteSheetBundle {
-                    sprite: TextureAtlasSprite {
-                        flip_x: flip.x,
-                        flip_y: flip.y,
-                        custom_size: Some(Vec2::new(72.0, 48.0)),
+            parent.spawn((
+                PlayerMeleeAttack,
+
+                MeleeAttackBundle {
+                    sprite_sheet: SpriteSheetBundle {
+                        sprite: TextureAtlasSprite {
+                            flip_x: flip.x,
+                            flip_y: flip.y,
+                            custom_size: Some(Vec2::new(72.0, 48.0)),
+                            ..default()
+                        },
+
+                        transform: tf,
+
+                        texture_atlas: assets.slash_anim.tex.clone(),
+
                         ..default()
                     },
 
-                    transform: tf,
+                    attack: MeleeAttack {
+                        source: Some(entity),
+                        ..default()
+                    },
 
-                    texture_atlas: assets.slash_anim.tex.clone(),
+                    strength: AttackStrength {
+                        power: slash.damage as i32
+                    },
 
-                    ..default()
-                },
+                    combat_layer: CombatLayerMask::PLAYER,
 
-                attack: MeleeAttack {
-                    source: Some(entity),
-                    ..default()
-                },
+                    anim_timer: AnimTimer::from_seconds(assets.slash_anim.speed),
 
-                strength: AttackStrength {
-                    power: slash.damage as i32
-                },
-
-                combat_layer: CombatLayerMask::PLAYER,
-
-                anim_timer: AnimTimer::from_seconds(assets.slash_anim.speed),
-
-                ..MeleeAttackBundle::from_size(Vec2::new(72.0, 48.0))
-            });
+                    ..MeleeAttackBundle::from_size(Vec2::new(72.0, 48.0))
+                }
+            ));
         });
     }
 }
@@ -164,7 +170,7 @@ pub fn slash_ability_update(
     time: Res<Time>,
     slashing: Query<&Slash>,
     mut player_query: Query<(Entity, &mut SlashAbility)>,
-    melees: Query<Entity, With<MeleeAttack>>
+    melees: Query<Entity, (With<MeleeAttack>, With<PlayerMeleeAttack>)>
 ) {
     if player_query.is_empty() || melees.is_empty() {
         return;

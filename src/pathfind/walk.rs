@@ -38,7 +38,19 @@ pub fn register_walk_pathfinders(app: &mut App) {
             .with_system(walk_pathfinder_hit_ground)
             .with_system(walk_pathfinder_lose_notice)
             .with_system(walk_pathfinder_set_grounded)
+            .with_system(walk_pathfinder_just_died)
     );
+}
+
+fn walk_pathfinder_just_died(
+    mut walk: Query<
+        &mut Enemy,
+        (With<WalkPathfinder>, Added<Die>)
+    >
+) {
+    for mut enemy in walk.iter_mut() {
+        enemy.vel = Vec2::ZERO;
+    }
 }
 
 fn walk_pathfinder_fall(
@@ -62,7 +74,7 @@ fn walk_pathfinder_fall(
 }
 
 fn walk_pathfinder_jump(
-   mut q: Query<(&mut Enemy, &WalkPathfinder), Added<Jump>>
+   mut q: Query<(&mut Enemy, &WalkPathfinder), (Added<Jump>, Without<Die>)>
 ) {
     for (mut enemy, walk) in q.iter_mut() {
         enemy.vel.y = walk.jump_speed;
@@ -70,7 +82,7 @@ fn walk_pathfinder_jump(
 }
 
 fn walk_pathfinder_hit_ground(
-    mut q: Query<&mut Enemy, (With<WalkPathfinder>, Added<Move>)>
+    mut q: Query<&mut Enemy, (With<WalkPathfinder>, Added<Move>, Without<Die>)>
 ) {
     for mut enemy in q.iter_mut() {
         enemy.vel.x = 0.0;
@@ -125,7 +137,7 @@ fn walk_pathfinder_got_hurt(
     mut pathfinders: Query<(
         &mut Enemy,
         &mut HurtAbility
-    ), (With<WalkPathfinder>, Added<Hurt>)>
+    ), (With<WalkPathfinder>, Added<Hurt>, Without<Die>)>
 ) {
     for (mut enemy, mut hurt) in pathfinders.iter_mut() {
         if hurt.hit_event.is_none() {
@@ -146,7 +158,7 @@ fn walk_pathfinder_hurt(
         &mut Enemy,
         &mut Pathfinder,
         &mut WalkPathfinder
-    ), With<Hurt>>,
+    ), (With<Hurt>, Without<Die>)>,
     rapier: Res<RapierContext>
 ) {
    for (transform, collider, mut enemy, pathfinder, mut walk) in walks.iter_mut() {
@@ -222,7 +234,7 @@ fn walk_pathfinder_patrol(
         &mut Pathfinder,
         &mut WalkPathfinder,
         &mut Patrol
-    ), Without<Hurt>>,
+    ), (Without<Hurt>, Without<Die>)>,
     rapier: Res<RapierContext>,
     _ev_stop: EventWriter<PathfinderStopChaseEvent>
 ) {
@@ -307,7 +319,7 @@ fn walk_pathfinder_patrol(
 
 fn walk_pathfinder_lose_notice(
     time: Res<Time>,
-    mut pathfinders: Query<(&mut Pathfinder, &mut Patrol)>
+    mut pathfinders: Query<(&mut Pathfinder, &mut Patrol), Without<Die>>
 ) {
     for (pathfinder, mut patrol) in pathfinders.iter_mut() {
         if pathfinder.target.is_none() {
@@ -320,7 +332,6 @@ fn walk_pathfinder_lose_notice(
         }
     }
 }
-
 
 fn walk_pathfinder_set_grounded(
     mut walk_pathfinders: Query<(

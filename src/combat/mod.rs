@@ -34,7 +34,6 @@ impl Plugin for AttackPlugin {
             .add_system_set(
                 SystemSet::on_update(GameState::Gameplay)
                     .with_system(resolve_melee_attacks)
-
                     .with_system(temp_shoot)
                     .with_system(handle_hits)
             )
@@ -42,6 +41,7 @@ impl Plugin for AttackPlugin {
             .add_event::<CombatEvent>()
             .register_type::<HurtAbility>();
 
+        register_death(app);
         register_projectile_attacks(app);
         register_hurt_ability(app);
         register_collider_attacks(app);
@@ -50,7 +50,7 @@ impl Plugin for AttackPlugin {
 
 fn handle_hits(
     immune: Query<&Immunity>,
-    mut q: Query<(Entity, &mut HurtAbility, &mut Health), Without<Hurt>>,
+    mut q: Query<(Entity, &mut HurtAbility, &mut Health), (Without<Hurt>, Without<Die>)>,
     mut hit_events: EventReader<CombatEvent>
 ) {
     for hit in hit_events.iter() {

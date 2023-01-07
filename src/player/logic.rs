@@ -31,10 +31,9 @@ pub fn player_setup_logic(app: &mut App) {
             .with_system(idle)
             .with_system(run)
             .with_system(enter_fall)
-            .with_system(crouch)
-            .with_system(crouch_update)
             .with_system(hit_ground)
             .with_system(got_hurt)
+            .with_system(player_died)
     );
 
     dash::register_dash_ability(app);
@@ -50,7 +49,16 @@ pub fn player_setup_logic(app: &mut App) {
     );
 }
 
-pub fn idle(mut q: Query<&mut Player, With<Idle>>) {
+pub fn player_died(mut q: Query<&mut Player, Added<Die>>) {
+    if q.is_empty() {
+        return;
+    }
+
+    let mut player = q.single_mut();
+    player.vel.x = 0.0;
+}
+
+pub fn idle(mut q: Query<&mut Player, (With<Idle>, Without<Die>)>) {
     if q.is_empty() {
         return;
     }
@@ -116,7 +124,7 @@ fn run_common(
     player.vel.x = vel_x;
 }
 
-pub fn got_hurt(mut q: Query<(&mut Player, &mut HurtAbility), Added<Hurt>>) {
+pub fn got_hurt(mut q: Query<(&mut Player, &mut HurtAbility), (Added<Hurt>, Without<Die>)>) {
     if q.is_empty() {
         return;
     }
@@ -133,7 +141,7 @@ pub fn got_hurt(mut q: Query<(&mut Player, &mut HurtAbility), Added<Hurt>>) {
     player.vel = kb;
 }
 
-pub fn hit_ground(mut q: Query<&mut Player, Added<Move>>) {
+pub fn hit_ground(mut q: Query<&mut Player, (Added<Move>, Without<Die>)>) {
     if q.is_empty() {
         return;
     }
@@ -148,7 +156,7 @@ pub fn run(
         &ActionState<InputAction>,
         &GlobalTransform,
         &mut Player
-    ), (Without<Hurt>, Without<Dash>)>,
+    ), (Without<Hurt>, Without<Dash>, Without<Die>)>,
     mut rapier: ResMut<RapierContext>
 ) {
     if q.is_empty() {
@@ -202,18 +210,5 @@ pub fn physics_update(
 pub fn update_grounded(mut q: Query<(&mut Player, &KinematicCharacterControllerOutput)>) {
     for (mut player, out) in q.iter_mut() {
         player.grounded = out.grounded;
-    }
-}
-
-pub fn crouch(q: Query<&Player, Added<Crouch>>) {
-    for _ in q.iter() {
-    }
-}
-
-pub fn crouch_update(mut q: Query<&mut Player, With<Crouch>>) {
-    for mut player in q.iter_mut() {
-        if player.grounded {
-            player.vel.y = 0.0;
-        }
     }
 }

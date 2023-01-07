@@ -1,9 +1,10 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
-use crate::combat::{CombatLayerMask, Health, HurtAbility, KnockbackResistance};
+use crate::combat::{ColliderAttack, CombatLayerMask, Health, HurtAbility, KnockbackResistance};
 
 use crate::common::AnimTimer;
+use crate::entity_states::Die;
 use crate::pathfind::PathfinderBundle;
 use crate::state::GameState;
 
@@ -48,7 +49,7 @@ impl Plugin for EnemyPlugin {
             .add_system_set(
                 SystemSet::on_update(GameState::Gameplay)
                     .with_system(move_enemies)
-                    .with_system(handle_dead_enemies)
+                    .with_system(enemies_died)
             );
     }
 }
@@ -59,13 +60,17 @@ fn move_enemies(mut q: Query<(&Enemy, &mut KinematicCharacterController)>) {
     }
 }
 
-fn handle_dead_enemies(
-    mut commands: Commands,
-    enemies: Query<(Entity, &Health), With<Enemy>>
+fn enemies_died(
+    mut collider_attacks: Query<&mut ColliderAttack>,
+    mut enemies: Query<(&Children, &mut Die), (With<Enemy>, Added<Die>)>
 ) {
-    for (entity, health) in enemies.iter() {
-        if health.hp <= 0 {
-            commands.entity(entity).despawn_recursive();
+    for (children, mut death) in enemies.iter_mut() {
+        for child in children.iter() {
+            if let Ok(mut collider_attacks) = collider_attacks.get_mut(*child) {
+                collider_attacks.enabled = false;
+            }
         }
+
+        death.should_despawn = true;
     }
 }

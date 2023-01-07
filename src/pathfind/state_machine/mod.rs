@@ -4,7 +4,7 @@ use seldom_state::prelude::*;
 mod triggers;
 use crate::entity_states::*;
 use triggers::*;
-use crate::combat::HurtTrigger;
+use crate::combat::{DeathTrigger, HurtTrigger};
 
 pub fn register_triggers(app: &mut App) {
     use TriggerPlugin as TP;
@@ -33,6 +33,12 @@ pub fn walk_pathfinder_state_machine() -> StateMachine {
 
         .trans::<Hurt>(StopHurtTrigger, Fall)
         .trans::<Hurt>(DoneTrigger::Success, Fall)
+
+        .trans::<Move>(DeathTrigger, Die::default())
+        .trans::<Jump>(DeathTrigger, Die::default())
+        .trans::<Fall>(DeathTrigger, Die::default())
+        .trans::<Hurt>(DeathTrigger, Die::default())
+        .trans::<Die>(NotTrigger(AlwaysTrigger), Hurt)
 }
 
 pub fn melee_pathfinder_state_machine() -> StateMachine {
@@ -47,6 +53,7 @@ pub fn ranged_pathfinder_state_machine() -> StateMachine {
         .trans::<Fall>(ShootTrigger, Shoot)
 
         .trans::<Shoot>(DoneTrigger::Success, Fall)
+        .trans::<Shoot>(DeathTrigger, Die::default())
 }
 
 pub fn fly_pathfinder_state_machine() -> StateMachine {
@@ -56,4 +63,8 @@ pub fn fly_pathfinder_state_machine() -> StateMachine {
         .trans::<Hurt>(HitWallTrigger, Move)
         .trans::<Hurt>(GroundedTrigger, Move)
         .trans::<Hurt>(DoneTrigger::Success, Move)
+
+        .trans::<Move>(DeathTrigger, Die::default())
+        .trans::<Hurt>(DeathTrigger, Die::default())
+        .trans::<Die>(NotTrigger(AlwaysTrigger), Hurt)
 }

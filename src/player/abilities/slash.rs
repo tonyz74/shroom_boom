@@ -12,6 +12,7 @@ use crate::{
     }
 };
 use crate::combat::{AttackStrength, CombatLayerMask};
+use crate::entity_states::Die;
 use crate::player::state_machine::Slash;
 
 // HELPER FUNCTIONS
@@ -102,7 +103,7 @@ fn slash_ability_trigger(
         &mut Player,
         &TextureAtlasSprite,
         &mut SlashAbility
-    ), Added<Slash>>
+    ), (Added<Slash>, Without<Die>)>
 ) {
     for (entity, player, spr, mut slash) in q.iter_mut() {
         slash.cd.reset();
@@ -169,7 +170,7 @@ pub fn slash_ability_update(
     mut commands: Commands,
     time: Res<Time>,
     slashing: Query<&Slash>,
-    mut player_query: Query<(Entity, &mut SlashAbility)>,
+    mut player_query: Query<(Entity, &mut SlashAbility), Without<Die>>,
     melees: Query<Entity, (With<MeleeAttack>, With<PlayerMeleeAttack>)>
 ) {
     if player_query.is_empty() || melees.is_empty() {
@@ -191,7 +192,7 @@ pub fn slash_ability_update(
 
 pub fn slash_ability_cooldown_update(
     time: Res<Time>,
-    mut q: Query<&mut SlashAbility>
+    mut q: Query<&mut SlashAbility, Without<Die>>
 ) {
     for mut slash in q.iter_mut() {
         slash.cd.tick(time.delta());

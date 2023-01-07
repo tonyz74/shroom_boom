@@ -41,6 +41,7 @@ pub fn register_fly_pathfinders(app: &mut App) {
             .with_system(fly_pathfinder_lose_notice)
             .with_system(fly_pathfinder_hurt)
             .with_system(fly_pathfinder_got_hurt)
+            .with_system(fly_pathfinder_just_died)
     );
 }
 
@@ -125,7 +126,7 @@ pub fn fly_pathfinder_chase(
         &mut Pathfinder,
         &mut FlyPathfinder,
         &mut Patrol,
-    ), Without<Hurt>>,
+    ), (Without<Hurt>, Without<Die>)>,
     rapier: Res<RapierContext>
 ) {
     for (pos, mut enemy, collider, mut pathfinder, mut fly, patrol) in fly.iter_mut() {
@@ -189,7 +190,7 @@ pub fn fly_pathfinder_chase(
 
 pub fn fly_pathfinder_lose_notice(
     time: Res<Time>,
-    mut fly: Query<(&mut Pathfinder, &mut Patrol)>
+    mut fly: Query<(&mut Pathfinder, &mut Patrol), Without<Die>>
 ) {
     for (pathfinder, mut patrol) in fly.iter_mut() {
         if pathfinder.target.is_none() {
@@ -245,7 +246,7 @@ pub fn fly_pathfinder_patrol(
         &mut Pathfinder,
         &mut FlyPathfinder,
         &mut Patrol
-    )>
+    ), Without<Die>>
 ) {
     let mut all_should_start_patrolling = false;
 
@@ -312,8 +313,22 @@ pub fn fly_pathfinder_patrol(
     }
 }
 
+pub fn fly_pathfinder_just_died(
+    mut fly: Query<
+        &mut Enemy,
+        (With<FlyPathfinder>, Added<Die>)
+    >
+) {
+    for mut enemy in fly.iter_mut() {
+        enemy.vel = Vec2::ZERO;
+    }
+}
+
 pub fn fly_pathfinder_got_hurt(
-    mut fly: Query<(&mut Enemy, &mut HurtAbility), (With<FlyPathfinder>, Added<Hurt>)>
+    mut fly: Query<(
+        &mut Enemy,
+        &mut HurtAbility
+    ), (With<FlyPathfinder>, Added<Hurt>, Without<Die>)>
 ) {
     for (mut enemy, mut hurt) in fly.iter_mut() {
         if hurt.hit_event.is_none() {
@@ -325,7 +340,7 @@ pub fn fly_pathfinder_got_hurt(
     }
 }
 
-pub fn fly_pathfinder_hurt(mut fly: Query<&mut Enemy, With<Hurt>>) {
+pub fn fly_pathfinder_hurt(mut fly: Query<&mut Enemy, (With<Hurt>, Without<Die>)>) {
     for mut enemy in fly.iter_mut() {
         let opp = {
             let opp_x = -Vec2::new(enemy.vel.x, 0.0).normalize_or_zero().x;

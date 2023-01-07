@@ -46,10 +46,12 @@ impl Trigger for ExpirationTrigger {
 
 
 fn projectile_state_machine() -> StateMachine {
+    let death = Die { should_despawn: true };
+
     StateMachine::new(Move)
-        .trans::<Move>(CollidedTrigger, Die)
-        .trans::<Move>(ExpirationTrigger, Die)
-        .trans::<Die>(NotTrigger(AlwaysTrigger), Die)
+        .trans::<Move>(CollidedTrigger, death)
+        .trans::<Move>(ExpirationTrigger, death)
+        .trans::<Die>(NotTrigger(AlwaysTrigger), death)
 }
 
 fn projectile_register_triggers(app: &mut App) {
@@ -64,7 +66,6 @@ pub fn register_projectile_attacks(app: &mut App) {
         SystemSet::on_update(GameState::Gameplay)
             .with_system(move_projectile_attacks)
             .with_system(projectile_hit_targets)
-            .with_system(despawn_projectiles)
             .with_system(tick_proj_expirations)
     );
 }
@@ -209,18 +210,4 @@ pub fn projectile_hit_targets(
             }
         );
    }
-}
-
-
-
-
-pub fn despawn_projectiles(
-    mut commands: Commands,
-    impacted: Query<Entity, (Added<Die>, With<ProjectileAttack>)>,
-) {
-    for entity in impacted.iter() {
-        if let Some(mut cmd) = commands.get_entity(entity) {
-            cmd.despawn();
-        }
-    }
 }

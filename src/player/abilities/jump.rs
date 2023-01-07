@@ -16,6 +16,7 @@ use crate::{
     entity_states::Jump,
     util
 };
+use crate::entity_states::Die;
 
 #[derive(Component)]
 pub struct JumpAbility {
@@ -49,7 +50,7 @@ pub fn register_jump_ability(app: &mut App) {
 }
 
 pub fn jump_ability_request(
-    mut q: Query<(&ActionState<InputAction>, &mut JumpAbility)>
+    mut q: Query<(&ActionState<InputAction>, &mut JumpAbility), Without<Die>>
 ) {
     for (input, mut jump) in q.iter_mut() {
         if !input.pressed(InputAction::Jump) {
@@ -64,7 +65,7 @@ pub fn jump_ability_reset_coyote_time(
     mut q: Query<(
         &Player,
         &mut JumpAbility
-    ), Without<Jump>>
+    ), (Without<Jump>, Without<Die>)>
 ) {
     for (player, mut jump) in q.iter_mut() {
         if player.grounded {
@@ -75,7 +76,7 @@ pub fn jump_ability_reset_coyote_time(
 
 pub fn jump_ability_tick_buffer(
     time: Res<Time>,
-    mut q: Query<&mut JumpAbility>
+    mut q: Query<&mut JumpAbility, Without<Die>>
 ) {
     for mut jump in q.iter_mut() {
         jump.jump_buffer.tick(time.delta());
@@ -84,7 +85,7 @@ pub fn jump_ability_tick_buffer(
 
 pub fn jump_ability_tick_coyote_time(
     time: Res<Time>,
-    mut q: Query<(&Player, &mut JumpAbility)>
+    mut q: Query<(&Player, &mut JumpAbility), Without<Die>>
 ) {
     for (player, mut jump) in q.iter_mut() {
         if player.grounded {
@@ -99,7 +100,7 @@ pub fn jump_ability_trigger(
     mut q: Query<(
         &mut Player,
         &mut JumpAbility
-    ), Added<Jump>>
+    ), (Added<Jump>, Without<Die>)>
 ) {
     for (mut player, mut jump) in q.iter_mut() {
         player.vel.y = PLAYER_JUMP_SPEED;

@@ -49,7 +49,6 @@ pub fn register_hurt_ability(app: &mut App) {
             .with_system(hurt_ability_tick_immunity)
             .with_system(stop_hurting)
             .with_system(remove_immunity)
-            .with_system(add_immunity_while_hurting)
 
             .with_system(print_immunity_timers)
     );
@@ -101,33 +100,27 @@ impl HurtAbility {
     }
 }
 
-pub fn hurt_ability_trigger(mut hurts: Query<&mut HurtAbility, Added<Hurt>>) {
-    for mut hurt in hurts.iter_mut() {
+pub fn hurt_ability_trigger(
+    mut commands: Commands,
+    mut hurts: Query<(Entity, &mut HurtAbility), (Added<Hurt>, Without<Die>)>
+) {
+    for (entity, mut hurt) in hurts.iter_mut() {
         hurt.immunity_timer.reset();
         hurt.initial_stun_timer.reset();
 
         if let Some(timer) = &mut hurt.regain_control_timer {
             timer.reset();
         }
-    }
-}
 
-pub fn add_immunity_while_hurting(
-    mut commands: Commands,
-    hurts: Query<(Entity, &HurtAbility)>
-) {
-    for (entity, hurt) in hurts.iter() {
-        if hurt.is_immune() {
-            if let Some(mut e_cmd) = commands.get_entity(entity) {
-                e_cmd.insert(Immunity);
-            }
+        if let Some(mut e_cmd) = commands.get_entity(entity) {
+            e_cmd.insert(Immunity);
         }
     }
 }
 
 pub fn hurt_ability_tick_immunity(
     time: Res<Time>,
-    mut hurts: Query<&mut HurtAbility>
+    mut hurts: Query<&mut HurtAbility, Without<Die>>
 ) {
     for mut hurt in hurts.iter_mut() {
         let dt = time.delta();
@@ -143,7 +136,7 @@ pub fn hurt_ability_tick_immunity(
 
 pub fn stop_hurting(
     mut commands: Commands,
-    hurts: Query<(Entity, &HurtAbility), With<Hurt>>
+    hurts: Query<(Entity, &HurtAbility), (With<Hurt>, Without<Die>)>
 ) {
     for (entity, hurt) in hurts.iter() {
         if let Some(regain_control_timer) = &hurt.regain_control_timer {
@@ -160,7 +153,7 @@ pub fn stop_hurting(
 
 pub fn remove_immunity(
     mut commands: Commands,
-    hurts: Query<(Entity, &HurtAbility)>
+    hurts: Query<(Entity, &HurtAbility), Without<Die>>
 ) {
     for (entity, hurt) in hurts.iter() {
         if hurt.immunity_timer.just_finished() {

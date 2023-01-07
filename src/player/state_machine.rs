@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
-use crate::combat::HurtTrigger;
+use crate::combat::{DeathTrigger, HurtTrigger};
 use crate::entity_states::*;
 
 // STATES
@@ -74,4 +74,16 @@ pub fn player_state_machine() -> StateMachine {
         .trans::<Jump>(HurtTrigger, Hurt)
         .trans::<Slash>(HurtTrigger, Hurt)
         .trans::<Crouch>(HurtTrigger, Hurt)
+    
+        // Death
+        .trans::<Idle>(DeathTrigger, Die::default())
+        .trans::<Fall>(DeathTrigger, Die::default())
+        .trans::<Move>(DeathTrigger, Die::default())
+        .trans::<Jump>(DeathTrigger, Die::default())
+        .trans::<Slash>(DeathTrigger, Die::default())
+        .trans::<Crouch>(DeathTrigger, Die::default())
+        .trans::<Dash>(DeathTrigger, Die::default())
+        .trans::<Hurt>(DeathTrigger, Die::default())
+        .trans::<Die>(Not(AlwaysTrigger), Hurt)
+    
 }

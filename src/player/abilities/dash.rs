@@ -10,10 +10,11 @@ use crate::{
             PLAYER_DASH_COOLDOWN,
             PLAYER_DASH_SPEED
         },
-        state_machine as s
+        state_machine::*
     }
 };
-use crate::combat::{ColliderAttack, Immunity};
+use crate::combat::{ColliderAttack, HurtAbility, Immunity};
+use crate::entity_states::Die;
 use crate::util::Facing;
 
 // Ability
@@ -49,7 +50,7 @@ fn dash_ability_trigger(
         &Children,
         &mut Player,
         &mut DashAbility
-    ), Added<s::Dash>>,
+    ), (Added<Dash>, Without<Die>)>,
     mut collider_attacks: Query<&mut ColliderAttack>
 ) {
     if q.is_empty() {
@@ -84,15 +85,16 @@ fn dash_ability_update(
         Entity,
         &Children,
         &mut Player,
-        &mut DashAbility
-    ), With<s::Dash>>,
+        &mut DashAbility,
+        &HurtAbility
+    ), (With<Dash>, Without<Die>)>,
     mut collider_attacks: Query<&mut ColliderAttack>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (e, children, player, mut dash) = q.single_mut();
+    let (e, children, player, mut dash, hurt) = q.single_mut();
 
     let _ = player;
 
@@ -102,11 +104,13 @@ fn dash_ability_update(
     if dash.dur.just_finished() {
         // Transition out of the dashing state
         commands.entity(e)
-            .insert(Done::Success)
-            .remove::<Immunity>();
+            .insert(Done::Success);
 
         dash.cd.reset();
 
+        if !hurt.is_immune() {
+            commands.entity(e).remove::<Immunity>();
+        }
 
         for child in children.iter() {
             if let Ok(mut collider_attack) = collider_attacks.get_mut(*child) {
@@ -119,7 +123,7 @@ fn dash_ability_update(
 
 fn dash_ability_cooldown_update(
     time: Res<Time>,
-    mut q: Query<&mut DashAbility>,
+    mut q: Query<&mut DashAbility, Without<Die>>,
 ) {
     if q.is_empty() {
         return;

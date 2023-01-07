@@ -9,7 +9,7 @@ use crate::{
     pathfind::FlyPathfinder
 };
 use crate::assets::DandelionEnemyAssets;
-use crate::combat::{CombatLayerMask, Health, HurtAbility, KnockbackResistance};
+use crate::combat::{AttackStrength, ColliderAttackBundle, CombatLayerMask, Health, HurtAbility, KnockbackResistance};
 use crate::common::AnimTimer;
 use crate::enemies::Enemy;
 use crate::pathfind::{util::BoundingBox, Pathfinder, PathfinderBundle};
@@ -27,6 +27,21 @@ pub struct DandelionEnemyBundle {
 }
 
 impl DandelionEnemyBundle {
+    pub fn collider_attack() -> ColliderAttackBundle {
+        ColliderAttackBundle {
+            combat_layer: CombatLayerMask::ENEMY,
+            strength: AttackStrength::new(2),
+            ..ColliderAttackBundle::from_size(Vec2::new(36.0, 36.0))
+        }
+    }
+
+    pub fn spawn(commands: &mut Commands, enemy: Self) {
+        commands.spawn(enemy).with_children(|p| {
+            p.spawn(Self::collider_attack());
+        });
+    }
+
+
     pub fn from_assets(assets: &Res<DandelionEnemyAssets>) -> DandelionEnemyBundle {
         DandelionEnemyBundle {
             enemy: EnemyBundle {

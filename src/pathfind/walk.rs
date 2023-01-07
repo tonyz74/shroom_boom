@@ -202,6 +202,18 @@ pub fn walk_pathfinder_stop_if_colliding_enemy_stopped<T: ReadOnlyWorldQuery>(
     }
 }
 
+pub fn walk_pathfinder_get_suitable_target(
+    self_pos: Vec2,
+    mut target: Vec2,
+    pathfinder: &Pathfinder
+) -> Vec2 {
+    target.x += Vec2::new(-(target.x - self_pos.x), 0.0)
+        .normalize_or_zero().x
+        * pathfinder.bb.half_extents.x;
+
+    target
+}
+
 fn walk_pathfinder_patrol(
     mut pathfinders: Query<(
         &GlobalTransform,

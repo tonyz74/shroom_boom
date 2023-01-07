@@ -139,9 +139,16 @@ pub fn fly_pathfinder_chase(
         }
 
         if let Some(target) = pathfinder.target {
-            let slightly_above = target + Vec2::new(0.0, pathfinder.bb.half_extents.y);
+            let x_dir = {
+                let diff = target - self_pos;
+                Vec2::new(diff.x, 0.0).normalize_or_zero().x
+            };
 
-            if slightly_above.distance(self_pos) <= 2.0 || target.distance(self_pos) <= 2.0 {
+            let adjusted = target
+                + Vec2::new(0.0, pathfinder.bb.half_extents.y)
+                + Vec2::new(-x_dir * pathfinder.bb.half_extents.x, 0.0);
+
+            if adjusted.distance(self_pos) <= 2.0 || target.distance(self_pos) <= 2.0 {
                 if patrol.lost_target {
                     pathfinder.target = None;
                 }
@@ -154,15 +161,15 @@ pub fn fly_pathfinder_chase(
             if rapier.cast_shape(
                 self_pos,
                 Rot::default(),
-                (slightly_above - self_pos).normalize(),
+                (adjusted - self_pos).normalize(),
                 collider,
-                slightly_above.distance(self_pos),
+                adjusted.distance(self_pos),
                 QueryFilter {
                     flags: QueryFilterFlags::ONLY_FIXED | QueryFilterFlags::EXCLUDE_SENSORS,
                     ..default()
                 }
             ).is_none() {
-                enemy.vel = (slightly_above - self_pos).normalize() * pathfinder.speed;
+                enemy.vel = (adjusted - self_pos).normalize() * pathfinder.speed;
                 continue;
             }
 

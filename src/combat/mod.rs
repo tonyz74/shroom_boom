@@ -6,14 +6,17 @@ mod projectile;
 mod components;
 mod events;
 mod hurt;
+mod collision;
 
 pub use melee::*;
 pub use projectile::*;
 pub use components::*;
 pub use events::*;
 pub use hurt::*;
+pub use collision::*;
 
 use crate::assets::FlowerEnemyAssets;
+use crate::combat::collision::register_collider_attacks;
 use crate::common::AnimTimer;
 use crate::entity_states::*;
 use crate::player::Player;
@@ -41,6 +44,7 @@ impl Plugin for AttackPlugin {
 
         register_projectile_attacks(app);
         register_hurt_ability(app);
+        register_collider_attacks(app);
     }
 }
 

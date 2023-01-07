@@ -52,6 +52,8 @@ pub fn ranged_pathfinder_state_machine() -> StateMachine {
 pub fn fly_pathfinder_state_machine() -> StateMachine {
     StateMachine::new(Move)
         .trans::<Move>(HurtTrigger, Hurt)
+
         .trans::<Hurt>(HitWallTrigger, Move)
+        .trans::<Hurt>(GroundedTrigger, Move)
         .trans::<Hurt>(DoneTrigger::Success, Move)
 }

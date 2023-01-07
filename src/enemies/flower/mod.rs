@@ -12,6 +12,7 @@ use crate::{
     combat::{CombatLayerMask, Health, HurtAbility, KnockbackResistance},
     pathfind::{Pathfinder, PathfinderBundle, util::BoundingBox, walk::WalkPathfinder, MeleePathfinder}
 };
+use crate::combat::{AttackStrength, ColliderAttackBundle};
 
 pub struct FlowerEnemyPlugin;
 
@@ -34,6 +35,20 @@ pub struct FlowerEnemyBundle {
 }
 
 impl FlowerEnemyBundle {
+    pub fn collider_attack() -> ColliderAttackBundle {
+        ColliderAttackBundle {
+            combat_layer: CombatLayerMask::ENEMY,
+            strength: AttackStrength::new(2),
+            ..ColliderAttackBundle::from_size(Vec2::new(36.0, 36.0))
+        }
+    }
+
+    pub fn spawn(commands: &mut Commands, enemy: Self) {
+        commands.spawn(enemy).with_children(|p| {
+            p.spawn(Self::collider_attack());
+        });
+    }
+
     pub fn from_assets(assets: &Res<FlowerEnemyAssets>) -> Self {
         FlowerEnemyBundle {
             enemy: EnemyBundle {
@@ -82,7 +97,7 @@ impl FlowerEnemyBundle {
 
                 hurt_ability: HurtAbility::new(0.5, None),
 
-                health: Health::new(100),
+                health: Health::new(10),
             },
 
             flower: FlowerEnemy,

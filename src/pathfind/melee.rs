@@ -12,7 +12,7 @@ use crate::{
 };
 
 use std::collections::HashSet;
-use crate::pathfind::{Patrol, walk_pathfinder_jump_if_needed, walk_pathfinder_stop_if_colliding_enemy_stopped};
+use crate::pathfind::{Patrol, walk_pathfinder_get_suitable_target, walk_pathfinder_jump_if_needed, walk_pathfinder_stop_if_colliding_enemy_stopped};
 
 #[derive(Component, Default, Debug, Copy, Clone)]
 pub struct MeleePathfinder;
@@ -46,7 +46,8 @@ fn melee_pathfinder_move(
             self_transform.translation().y,
         );
 
-        if let Some(target_pos) = pathfinder.target {
+        if let Some(mut target_pos) = pathfinder.target {
+            target_pos = walk_pathfinder_get_suitable_target(self_pos, target_pos, &pathfinder);
 
             if (target_pos.x - self_pos.x).abs() <= 2.0 {
                 if patrol.lost_target {

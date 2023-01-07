@@ -14,7 +14,7 @@ use crate::{
         state_machine as s
     }
 };
-use crate::combat::Immunity;
+use crate::combat::{ColliderAttack, Immunity};
 use crate::util::Facing;
 
 // Ability
@@ -48,22 +48,35 @@ pub fn register_dash_ability(app: &mut App) {
 
 fn dash_ability_trigger(
     mut q: Query<(
+        &Children,
         &mut Player,
         &mut DashAbility
-    ), Added<s::Dash>>
+    ), Added<s::Dash>>,
+    mut collider_attacks: Query<&mut ColliderAttack>
 ) {
-    for (mut player, mut dash) in q.iter_mut() {
-        dash.dur.reset();
-        player.vel.y = 0.0;
-
-
-        let dir = match player.facing {
-            Facing::Left => -1.0,
-            Facing::Right => 1.0,
-        };
-
-        player.vel.x = dir * PLAYER_DASH_SPEED;
+    if q.is_empty() {
+        return;
     }
+
+    let (children, mut player, mut dash) = q.single_mut();
+
+    dash.dur.reset();
+    player.vel.y = 0.0;
+
+
+    for child in children.iter() {
+        if let Ok(mut collider_attack) = collider_attacks.get_mut(*child) {
+            collider_attack.enabled = true;
+        }
+    }
+
+
+    let dir = match player.facing {
+        Facing::Left => -1.0,
+        Facing::Right => 1.0,
+    };
+
+    player.vel.x = dir * PLAYER_DASH_SPEED;
 }
 
 fn dash_ability_update(
@@ -71,33 +84,49 @@ fn dash_ability_update(
     mut commands: Commands,
     mut q: Query<(
         Entity,
+        &Children,
         &mut Player,
         &mut DashAbility
-    ), With<s::Dash>>
+    ), With<s::Dash>>,
+    mut collider_attacks: Query<&mut ColliderAttack>
 ) {
-    for (e, player, mut dash) in q.iter_mut() {
-        let _ = player;
+    if q.is_empty() {
+        return;
+    }
 
-        dash.dur.tick(time.delta());
-        commands.entity(e).insert(Immunity);
+    let (e, children, player, mut dash) = q.single_mut();
 
-        if dash.dur.just_finished() {
-            // Transition out of the dashing state
-            commands.entity(e)
-                .insert(Done::Success)
-                .remove::<Immunity>();
+    let _ = player;
 
-            dash.cd.reset();
+    dash.dur.tick(time.delta());
+    commands.entity(e).insert(Immunity);
+
+    if dash.dur.just_finished() {
+        // Transition out of the dashing state
+        commands.entity(e)
+            .insert(Done::Success)
+            .remove::<Immunity>();
+
+        dash.cd.reset();
+
+
+        for child in children.iter() {
+            if let Ok(mut collider_attack) = collider_attacks.get_mut(*child) {
+                collider_attack.enabled = false;
+            }
         }
+
     }
 }
 
 fn dash_ability_cooldown_update(
     time: Res<Time>,
-    mut q: Query<&mut DashAbility>
+    mut q: Query<&mut DashAbility>,
 ) {
-    for mut dash in q.iter_mut() {
-        dash.cd.tick(time.delta());
+    if q.is_empty() {
+        return;
     }
-}
 
+    let mut dash = q.single_mut();
+    dash.cd.tick(time.delta());
+}

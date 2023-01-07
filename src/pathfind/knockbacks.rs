@@ -2,12 +2,8 @@ use rand::prelude::*;
 use bevy::prelude::*;
 
 pub fn fly_pathfinder_knockback(kb: Vec2) -> Vec2 {
-    let mut v = kb * 4.2;
-
-    if v.y.abs() <= 2.0 {
-        v.y = Vec2::new(0.0, v.y).normalize_or_zero().y * 2.0;
-    }
-
+    let mut v = kb * 4.4;
+    v.y = Vec2::new(0.0, v.y).normalize_or_zero().y * v.y.abs().clamp(2.0, 6.0);
     v
 }
 

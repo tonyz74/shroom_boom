@@ -66,7 +66,7 @@ fn handle_dead_enemies(
 ) {
     for (entity, health) in enemies.iter() {
         if health.hp <= 0 {
-            commands.entity(entity).despawn();
+            commands.entity(entity).despawn_recursive();
         }
     }
 }

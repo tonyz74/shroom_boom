@@ -4,7 +4,7 @@ use seldom_state::prelude::Done;
 
 use crate::combat::{CombatLayerMask, ProjectileAttackBundle};
 use crate::state::GameState;
-use crate::pathfind::{Pathfinder, WalkPathfinder, walk_pathfinder_jump_if_needed, Patrol};
+use crate::pathfind::{Pathfinder, WalkPathfinder, walk_pathfinder_jump_if_needed, Patrol, walk_pathfinder_get_suitable_target};
 use crate::enemies::Enemy;
 use crate::entity_states::*;
 
@@ -119,7 +119,9 @@ pub fn ranged_pathfinder_move(
         );
 
         // If there is a player within the enemy's region
-        if let Some(target) = pathfinder.target {
+        if let Some(mut target) = pathfinder.target {
+            target = walk_pathfinder_get_suitable_target(self_pos, target, &pathfinder);
+
             let is_valid_shot = is_valid_shot(self_pos, target, &ranged, &rapier);
 
             if (target.x - self_pos.x).abs() <= 2.0 {

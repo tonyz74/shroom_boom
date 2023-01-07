@@ -126,7 +126,7 @@ pub fn spawn_flower(
     let mut enemy = FlowerEnemyBundle::from_assets(&assets);
     configure_enemy(&mut enemy.enemy, inst, patrol_region, lvl_info);
 
-    commands.spawn(enemy);
+    FlowerEnemyBundle::spawn(commands, enemy);
 }
 
 pub fn spawn_pumpkin(
@@ -139,7 +139,7 @@ pub fn spawn_pumpkin(
     let mut enemy = PumpkinEnemyBundle::from_assets(&assets);
     configure_enemy(&mut enemy.enemy, inst, patrol_region, lvl_info);
 
-    commands.spawn(enemy);
+    PumpkinEnemyBundle::spawn(commands, enemy);
 }
 
 pub fn spawn_dandelion(
@@ -152,5 +152,5 @@ pub fn spawn_dandelion(
     let mut enemy = DandelionEnemyBundle::from_assets(&assets);
     configure_enemy(&mut enemy.enemy, inst, patrol_region, lvl_info);
 
-    commands.spawn(enemy);
+    DandelionEnemyBundle::spawn(commands, enemy);
 }

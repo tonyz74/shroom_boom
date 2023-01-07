@@ -7,7 +7,8 @@ use crate::{
     state::GameState,
     input::InputAction,
     assets::PlayerAssets,
-    common::AnimTimer
+    common::AnimTimer,
+    combat::ColliderAttackBundle
 };
 
 pub mod consts;
@@ -18,7 +19,7 @@ pub mod state_machine;
 pub mod abilities;
 
 use abilities::dash::DashAbility;
-use crate::combat::{CombatLayerMask, Health, HurtAbility, KnockbackResistance};
+use crate::combat::{AttackStrength, ColliderAttack, CombatLayerMask, Health, HurtAbility, KnockbackResistance};
 use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 use crate::player::abilities::slash::SlashAbility;
 use crate::player::abilities::jump::JumpAbility;
@@ -129,7 +130,7 @@ fn setup_player(
             dash: DashAbility::default(),
             slash: SlashAbility::default(),
             jump: JumpAbility::default(),
-            hurt: HurtAbility::new(2.0, Some(0.4)),
+            hurt: HurtAbility::new(0.3, Some(0.3)),
 
             input: InputAction::input_manager_bundle(),
 
@@ -139,7 +140,14 @@ fn setup_player(
             combat_layer: CombatLayerMask::PLAYER,
             health: Health::new(100)
         }
-    );
+    ).with_children(|p| {
+        p.spawn(ColliderAttackBundle {
+            strength: AttackStrength::new(2),
+            combat_layer: CombatLayerMask::PLAYER,
+            attack: ColliderAttack { enabled: false },
+            ..ColliderAttackBundle::from_size(Vec2::new(32.0, 40.0))
+        });
+    });
 }
 
 pub fn player_print_health(p: Query<&Health, (With<Player>, Changed<Health>)>) {

@@ -66,7 +66,7 @@ impl ExplosionAttackBundle {
 
             attack: ExplosionAttack::default(),
 
-            strength: AttackStrength::new(20),
+            strength: AttackStrength::new(2),
 
             combat_layer: CombatLayerMask::empty(),
 
@@ -147,10 +147,12 @@ fn explosion_damage(
                 let percentage = 1.0 - (diff.length() / 64.0);
                 let min_power = if atk.power == 0 { 0.0 } else { (atk.power as f32 / 5.0).ceil() };
 
+                let y_dir = Vec2::new(0.0, diff.y).normalize_or_zero().y;
+
                 hit_events.send(CombatEvent {
                     target: hit_entity,
                     damage: (atk.power as f32 * percentage).clamp(min_power, atk.power as f32) as i32,
-                    kb: diff.normalize_or_zero() * percentage * Vec2::new(2.0, 8.0)
+                    kb: diff.normalize_or_zero() * percentage * Vec2::new(2.0, 4.0) + Vec2::new(0.0, 4.0 * y_dir)
                 });
 
                 true

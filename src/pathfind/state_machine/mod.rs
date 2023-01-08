@@ -33,6 +33,7 @@ pub fn walk_pathfinder_state_machine() -> StateMachine {
 
         .trans::<Hurt>(StopHurtTrigger, Fall)
         .trans::<Hurt>(DoneTrigger::Success, Fall)
+        .trans::<Hurt>(HitWallTrigger, Fall)
 
         .trans::<Move>(DeathTrigger, Die::default())
         .trans::<Jump>(DeathTrigger, Die::default())

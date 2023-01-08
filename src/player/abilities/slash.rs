@@ -41,7 +41,7 @@ pub struct SlashAbility {
 impl Default for SlashAbility {
     fn default() -> Self {
         Self {
-            damage: 100,
+            damage: 1,
             cd: Timer::from_seconds(PLAYER_ATTACK_COOLDOWN, TimerMode::Once),
             dur: Timer::from_seconds(0.15, TimerMode::Once)
         }

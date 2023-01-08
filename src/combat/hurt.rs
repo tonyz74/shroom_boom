@@ -26,31 +26,14 @@ impl Trigger for HurtTrigger {
     }
 }
 
-pub fn print_immunity_timers(
-    keys: Res<Input<KeyCode>>,
-    q: Query<(Entity, &HurtAbility), With<Immunity>>
-) {
-    if !keys.just_pressed(KeyCode::L) {
-        return;
-    }
-
-    for (ent, hurt) in q.iter() {
-        println!("{:?}: {:?} / {:?}", ent, hurt.immunity_timer.elapsed(), hurt.immunity_timer.duration());
-    }
-}
-
-
 pub fn register_hurt_ability(app: &mut App) {
     app.add_plugin(TriggerPlugin::<HurtTrigger>::default());
 
     app.add_system_set(
         SystemSet::on_update(GameState::Gameplay)
             .with_system(hurt_ability_trigger)
-            .with_system(hurt_ability_tick_immunity)
+            .with_system(hurt_ability_update)
             .with_system(stop_hurting)
-            .with_system(remove_immunity)
-
-            .with_system(print_immunity_timers)
     );
 }
 
@@ -105,8 +88,6 @@ pub fn hurt_ability_trigger(
     mut hurts: Query<(Entity, &mut HurtAbility), (Added<Hurt>, Without<Die>)>
 ) {
     for (entity, mut hurt) in hurts.iter_mut() {
-        println!("Resetting immunity for {:?}", entity);
-
         hurt.immunity_timer.reset();
         hurt.initial_stun_timer.reset();
 
@@ -116,22 +97,6 @@ pub fn hurt_ability_trigger(
 
         if let Some(mut e_cmd) = commands.get_entity(entity) {
             e_cmd.insert(Immunity);
-        }
-    }
-}
-
-pub fn hurt_ability_tick_immunity(
-    time: Res<Time>,
-    mut hurts: Query<&mut HurtAbility, Without<Die>>
-) {
-    for mut hurt in hurts.iter_mut() {
-        let dt = time.delta();
-
-        hurt.immunity_timer.tick(dt);
-        hurt.initial_stun_timer.tick(dt);
-
-        if let Some(regain_control_timer) = &mut hurt.regain_control_timer {
-            regain_control_timer.tick(dt);
         }
     }
 }
@@ -146,22 +111,25 @@ pub fn stop_hurting(
                 commands.entity(entity).insert(Done::Success);
             }
         }
-
-        if hurt.immunity_timer.just_finished() {
-            commands.entity(entity)
-                .insert(Done::Success)
-                .remove::<Immunity>();
-        }
     }
 }
 
-pub fn remove_immunity(
+pub fn hurt_ability_update(
+    time: Res<Time>,
     mut commands: Commands,
-    hurts: Query<(Entity, &HurtAbility), Without<Die>>
+    mut hurts: Query<(Entity, &mut HurtAbility), Without<Die>>
 ) {
-    for (entity, hurt) in hurts.iter() {
+    for (entity, mut hurt) in hurts.iter_mut() {
+        let dt = time.delta();
+
+        hurt.immunity_timer.tick(dt);
+        hurt.initial_stun_timer.tick(dt);
+
+        if let Some(regain_control_timer) = &mut hurt.regain_control_timer {
+            regain_control_timer.tick(dt);
+        }
+
         if hurt.immunity_timer.just_finished() {
-            println!("Done with immunity {:?}", entity);
             commands.entity(entity).remove::<Immunity>();
         }
     }

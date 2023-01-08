@@ -1,5 +1,6 @@
 use rand::prelude::*;
 use bevy::prelude::*;
+use bevy::time::FixedTimestep;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
@@ -16,6 +17,7 @@ use crate::{
 };
 
 use crate::combat::HurtAbility;
+use crate::common::PHYSICS_STEPS_PER_SEC;
 use crate::pathfind::Patrol;
 
 #[derive(Component, Debug)]
@@ -34,15 +36,20 @@ impl Default for FlyPathfinder {
 }
 
 pub fn register_fly_pathfinders(app: &mut App) {
-    app.add_system_set(
-        SystemSet::on_update(GameState::Gameplay)
-            .with_system(fly_pathfinder_chase)
-            .with_system(fly_pathfinder_patrol)
-            .with_system(fly_pathfinder_lose_notice)
-            .with_system(fly_pathfinder_hurt)
-            .with_system(fly_pathfinder_got_hurt)
-            .with_system(fly_pathfinder_just_died)
-    );
+    app
+        .add_system_set(
+            SystemSet::on_update(GameState::Gameplay)
+                .with_system(fly_pathfinder_chase)
+                .with_system(fly_pathfinder_patrol)
+                .with_system(fly_pathfinder_lose_notice)
+                .with_system(fly_pathfinder_got_hurt)
+                .with_system(fly_pathfinder_just_died)
+        )
+        .add_system_set(
+            SystemSet::on_update(GameState::Gameplay)
+                .with_run_criteria(FixedTimestep::steps_per_second(PHYSICS_STEPS_PER_SEC))
+                .with_system(fly_pathfinder_remove_kb)
+        );
 }
 
 pub fn fly_pathfinder_follow_path(
@@ -340,14 +347,8 @@ pub fn fly_pathfinder_got_hurt(
     }
 }
 
-pub fn fly_pathfinder_hurt(mut fly: Query<&mut Enemy, (With<Hurt>, Without<Die>)>) {
+pub fn fly_pathfinder_remove_kb(mut fly: Query<&mut Enemy, (With<Hurt>, Without<Die>)>) {
     for mut enemy in fly.iter_mut() {
-        let opp = {
-            let opp_x = -Vec2::new(enemy.vel.x, 0.0).normalize_or_zero().x;
-            let opp_y = -Vec2::new(0.0, enemy.vel.y).normalize_or_zero().y;
-            Vec2::new(opp_x, opp_y)
-        };
-
-        enemy.vel += opp * 0.15;
+        enemy.vel *= 0.94;
     }
 }

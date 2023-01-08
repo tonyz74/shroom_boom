@@ -21,7 +21,7 @@ pub struct ShootAbility {
 impl Default for ShootAbility {
     fn default() -> Self {
         Self {
-            damage: 10,
+            damage: 2,
             startup: Timer::from_seconds(0.1, TimerMode::Once),
             cd: Timer::from_seconds(0.5, TimerMode::Once),
             shoot_target_pos: Vec2::ZERO

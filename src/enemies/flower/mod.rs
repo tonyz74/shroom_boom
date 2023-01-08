@@ -97,7 +97,7 @@ impl FlowerEnemyBundle {
 
                 hurt_ability: HurtAbility::new(0.5, None),
 
-                health: Health::new(1000),
+                health: Health::new(10),
             },
 
             flower: FlowerEnemy,

@@ -8,7 +8,16 @@ pub fn fly_pathfinder_knockback(kb: Vec2) -> Vec2 {
 }
 
 pub fn walk_pathfinder_knockback(kb: Vec2) -> Vec2 {
-    Vec2::new(kb.x * 4.0, 4.0)
+    // let y_dir = Vec2::new(0.0, kb.y).normalize_or_zero().y;
+    let y_vel = {
+        if kb.y.abs() < 4.0 {
+             4.0
+        } else {
+            kb.y.abs() * 1.5
+        }
+    };
+
+    Vec2::new(kb.x * 4.0, y_vel)
 }
 
 pub fn randomize_knockback(kb: Vec2) -> Vec2 {

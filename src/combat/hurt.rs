@@ -105,6 +105,8 @@ pub fn hurt_ability_trigger(
     mut hurts: Query<(Entity, &mut HurtAbility), (Added<Hurt>, Without<Die>)>
 ) {
     for (entity, mut hurt) in hurts.iter_mut() {
+        println!("Resetting immunity for {:?}", entity);
+
         hurt.immunity_timer.reset();
         hurt.initial_stun_timer.reset();
 
@@ -146,7 +148,9 @@ pub fn stop_hurting(
         }
 
         if hurt.immunity_timer.just_finished() {
-            commands.entity(entity).insert(Done::Success);
+            commands.entity(entity)
+                .insert(Done::Success)
+                .remove::<Immunity>();
         }
     }
 }
@@ -157,6 +161,7 @@ pub fn remove_immunity(
 ) {
     for (entity, hurt) in hurts.iter() {
         if hurt.immunity_timer.just_finished() {
+            println!("Done with immunity {:?}", entity);
             commands.entity(entity).remove::<Immunity>();
         }
     }

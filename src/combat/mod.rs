@@ -8,6 +8,7 @@ mod events;
 mod hurt;
 mod collision;
 mod death;
+mod explosion;
 
 pub use melee::*;
 pub use projectile::*;
@@ -16,6 +17,10 @@ pub use events::*;
 pub use hurt::*;
 pub use collision::*;
 pub use death::*;
+pub use explosion::*;
+use crate::assets::ExplosionAssets;
+
+use crate::camera::GameCamera;
 
 use crate::combat::collision::register_collider_attacks;
 use crate::entity_states::*;
@@ -32,6 +37,7 @@ impl Plugin for AttackPlugin {
                 SystemSet::on_update(GameState::Gameplay)
                     .with_system(resolve_melee_attacks)
                     .with_system(handle_hits)
+                    .with_system(temp_explosion)
             )
 
             .add_event::<CombatEvent>()
@@ -41,7 +47,36 @@ impl Plugin for AttackPlugin {
         register_projectile_attacks(app);
         register_hurt_ability(app);
         register_collider_attacks(app);
+        register_explosion_attacks(app);
     }
+}
+
+fn temp_explosion(
+    events: Res<Input<MouseButton>>,
+    windows: Res<Windows>,
+    mut commands: Commands,
+    camera: Query<&GlobalTransform, With<GameCamera>>,
+    assets: Res<ExplosionAssets>
+) {
+    if !events.just_pressed(MouseButton::Left) || camera.is_empty() {
+        return;
+    }
+
+    let cam = Vec2::new(
+        camera.single().translation().x,
+        camera.single().translation().y
+    );
+
+    let win = windows.primary();
+
+    if win.cursor_position().is_none() {
+        return;
+    }
+
+    let cpos = win.cursor_position().unwrap();
+    let world_pos = cpos + (cam - 0.5 * Vec2::new(win.width(), win.height()));
+
+    commands.spawn(ExplosionAttackBundle::from_pos(world_pos, &assets));
 }
 
 fn handle_hits(

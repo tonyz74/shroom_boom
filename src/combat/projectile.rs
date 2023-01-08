@@ -48,9 +48,9 @@ impl Trigger for ExpirationTrigger {
 fn projectile_state_machine() -> StateMachine {
     let death = Die { should_despawn: true };
 
-    StateMachine::new(Move)
-        .trans::<Move>(CollidedTrigger, death)
-        .trans::<Move>(ExpirationTrigger, death)
+    StateMachine::new(Active)
+        .trans::<Active>(CollidedTrigger, death)
+        .trans::<Active>(ExpirationTrigger, death)
         .trans::<Die>(NotTrigger(AlwaysTrigger), death)
 }
 

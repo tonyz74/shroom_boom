@@ -139,7 +139,13 @@ pub fn got_hurt(mut q: Query<(&mut Player, &mut HurtAbility), (Added<Hurt>, With
     }
 
     let hit_event = hurt.hit_event.take().unwrap();
-    let kb = Vec2::new(hit_event.kb.x * 4.0, hit_event.kb.y + 4.0);
+
+    let mut kb = Vec2::new(hit_event.kb.x * 4.0, hit_event.kb.y + 4.0);
+
+    if hit_event.kb.x.abs() <= 0.1 {
+        println!("{:?}", hit_event.kb.x);
+        kb.x = 0.0;
+    }
 
     player.vel = kb;
 }

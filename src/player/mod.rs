@@ -141,7 +141,7 @@ fn setup_player(
 
             kb_res: KnockbackResistance::new(1.0),
             combat_layer: CombatLayerMask::PLAYER,
-            health: Health::new(1000)
+            health: Health::new(100000)
         }
     ).with_children(|p| {
         p.spawn(ColliderAttackBundle {

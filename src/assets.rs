@@ -139,6 +139,24 @@ impl DandelionEnemyAssets {
     }
 }
 
+#[derive(Resource, Default, Debug)]
+pub struct ExplosionAssets {
+    pub anims: HashMap<String, Anim>
+}
+
+impl ExplosionAssets {
+    pub fn load(
+        asset_server: Res<AssetServer>,
+        mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+        mut assets: ResMut<ExplosionAssets>,
+    ) {
+        const SIZE: Vec2 = Vec2::new(16., 16.);
+        let sheet = asset_server.load("sprites/attacks/explosion.png");
+        let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
+        let atlas_handle = texture_atlases.add(atlas);
+        assets.anims = HashMap::from([("BOOM".to_string(), Anim::new(atlas_handle, 0.1))]);
+    }
+}
 
 pub struct AssetLoaderPlugin;
 
@@ -149,6 +167,7 @@ impl Plugin for AssetLoaderPlugin {
             .init_resource::<FlowerEnemyAssets>()
             .init_resource::<PumpkinEnemyAssets>()
             .init_resource::<DandelionEnemyAssets>()
+            .init_resource::<ExplosionAssets>()
 
             .add_state(GameState::AssetLoading)
             .add_startup_system_set(
@@ -158,7 +177,9 @@ impl Plugin for AssetLoaderPlugin {
                     .with_system(FlowerEnemyAssets::load)
                     .with_system(PumpkinEnemyAssets::load)
                     .with_system(DandelionEnemyAssets::load)
+                    .with_system(ExplosionAssets::load)
             )
+
             .add_startup_system(enter_level_transition.after("assets"));
     }
 }

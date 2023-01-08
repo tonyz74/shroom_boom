@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use crate::camera::GameCamera;
 use crate::enemies::Enemy;
-use crate::level::{Active, exit::LevelExit};
+use crate::level::{FinishedTransitioning, exit::LevelExit};
 use crate::state::GameState;
 use crate::player::Player;
 
@@ -77,7 +77,7 @@ pub fn transition_cleanup_old(
     }
 
     for (entity, mut player) in player.iter_mut() {
-        commands.entity(entity).remove::<Active>();
+        commands.entity(entity).remove::<FinishedTransitioning>();
         player.vel = Vec2::ZERO;
     }
 

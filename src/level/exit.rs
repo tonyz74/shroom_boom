@@ -5,7 +5,7 @@ use bevy_rapier2d::prelude::*;
 use crate::{
     level::{
         util,
-        LevelRegion, Active,
+        LevelRegion, FinishedTransitioning,
         transition::{LevelTransition, TransitionEffect}
     },
     state::GameState,
@@ -96,7 +96,7 @@ fn on_player_collide_with_exit(
 }
 
 fn on_player_out_of_bounds(
-    player: Query<(&GlobalTransform, Entity), (With<Player>, With<Active>)>,
+    player: Query<(&GlobalTransform, Entity), (With<Player>, With<FinishedTransitioning>)>,
     region: Query<Entity, With<LevelRegion>>,
     mut state: ResMut<State<GameState>>,
     rapier: Res<RapierContext>

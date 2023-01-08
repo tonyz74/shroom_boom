@@ -19,6 +19,9 @@ pub struct Hurt;
 pub struct Idle;
 
 #[derive(Default, Copy, Clone, Component, Reflect)]
+pub struct Active;
+
+#[derive(Default, Copy, Clone, Component, Reflect)]
 pub struct Die {
     pub should_despawn: bool
 }

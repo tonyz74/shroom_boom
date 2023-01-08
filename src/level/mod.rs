@@ -130,7 +130,7 @@ use crate::player::Player;
 use crate::player::consts::PLAYER_SIZE_PX;
 
 #[derive(Component)]
-pub struct Active;
+pub struct FinishedTransitioning;
 
 fn move_player(
     mut commands: Commands,
@@ -154,6 +154,6 @@ fn move_player(
 
         tf.translation.x += PLAYER_SIZE_PX.x / 2.0;
 
-        commands.entity(e).insert(Active);
+        commands.entity(e).insert(FinishedTransitioning);
     }
 }

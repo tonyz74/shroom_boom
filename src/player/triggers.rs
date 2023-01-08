@@ -17,6 +17,7 @@ use crate::{
 };
 use crate::combat::HurtAbility;
 use crate::level::consts::SOLIDS_INTERACTION_GROUP;
+use crate::player::abilities::shoot::ShootAbility;
 use crate::player::consts::PLAYER_COLLIDER_CAPSULE;
 
 pub fn player_setup_triggers(app: &mut App) {
@@ -28,6 +29,7 @@ pub fn player_setup_triggers(app: &mut App) {
         .add_plugin(TP::<JumpTrigger>::default())
         .add_plugin(TP::<DashTrigger>::default())
         .add_plugin(TP::<SlashTrigger>::default())
+        .add_plugin(TP::<ShootTrigger>::default())
         .add_plugin(TP::<CrouchTrigger>::default())
 
         // Environment triggers
@@ -268,3 +270,21 @@ impl Trigger for HitWallTrigger {
     }
 }
 
+
+#[derive(Copy, Clone, Reflect, FromReflect)]
+pub struct ShootTrigger;
+
+impl Trigger for ShootTrigger {
+    type Param<'w, 's> = Query<'w, 's, (
+        &'static ActionState<InputAction>,
+        &'static ShootAbility
+    ), With<Player>>;
+
+    fn trigger(&self, _: Entity, params: &Self::Param<'_, '_>) -> bool {
+        for (input, shoot) in params.iter() {
+            let ok = input.pressed(InputAction::Shoot) && shoot.cd.finished();
+            return ok;
+        }
+        false
+    }
+}

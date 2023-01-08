@@ -123,7 +123,7 @@ impl PumpkinEnemyBundle {
 
                 projectile: ProjectileAttackBundle {
                     attack: ProjectileAttack {
-                        speed: 8.0,
+                        speed: 2.0,
                         ..default()
                     },
 

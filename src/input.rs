@@ -11,7 +11,7 @@ pub enum InputAction {
 
     Slash,
     Dash,
-    Teleport,
+    Shoot,
 }
 
 impl InputAction {
@@ -27,9 +27,9 @@ impl InputAction {
             (Keyboard(KC::S), Crouch),
             (Keyboard(KC::Space), Jump),
 
-            (Keyboard(KC::E), Slash),
-            (Keyboard(KC::R), Dash),
-            (Keyboard(KC::W), Teleport),
+            (Keyboard(KC::J), Slash),
+            (Keyboard(KC::K), Dash),
+            (Keyboard(KC::L), Shoot),
         ])
     }
 

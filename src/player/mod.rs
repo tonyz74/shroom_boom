@@ -23,6 +23,7 @@ use crate::combat::{AttackStrength, ColliderAttack, CombatLayerMask, Health, Hur
 use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 use crate::player::abilities::slash::SlashAbility;
 use crate::player::abilities::jump::JumpAbility;
+use crate::player::abilities::shoot::ShootAbility;
 use crate::util::Facing;
 
 #[derive(Bundle)]
@@ -32,6 +33,7 @@ pub struct PlayerBundle {
     pub slash: SlashAbility,
     pub dash: DashAbility,
     pub jump: JumpAbility,
+    pub shoot: ShootAbility,
     pub hurt: HurtAbility,
 
     pub character_controller: KinematicCharacterController,
@@ -130,6 +132,7 @@ fn setup_player(
             dash: DashAbility::default(),
             slash: SlashAbility::default(),
             jump: JumpAbility::default(),
+            shoot: ShootAbility::default(),
             hurt: HurtAbility::new(0.3, Some(0.3)),
 
             input: InputAction::input_manager_bundle(),

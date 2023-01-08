@@ -21,6 +21,7 @@ use crate::{
 };
 use crate::combat::HurtAbility;
 use crate::common::PHYSICS_STEP_DELTA;
+use crate::player::abilities::shoot;
 use crate::util::Facing;
 
 pub fn player_setup_logic(app: &mut App) {
@@ -33,12 +34,14 @@ pub fn player_setup_logic(app: &mut App) {
             .with_system(enter_fall)
             .with_system(hit_ground)
             .with_system(got_hurt)
+            .with_system(crouch)
             .with_system(player_died)
     );
 
     dash::register_dash_ability(app);
     slash::register_slash_ability(app);
     jump::register_jump_ability(app);
+    shoot::register_shoot_ability(app);
 
     app.add_system_set(
         SystemSet::on_update(GameState::Gameplay)
@@ -193,6 +196,17 @@ pub fn fall(mut q: Query<&mut Player, Without<Dash>>) {
         player.vel.y = PLAYER_TERMINAL_VELOCITY;
     }
 
+}
+
+pub fn crouch(mut q: Query<&mut Player, With<Crouch>>) {
+    if q.is_empty() {
+        return;
+    }
+
+    let mut player = q.single_mut();
+    if player.grounded {
+        player.vel.y = 0.0;
+    }
 }
 
 pub fn physics_update(

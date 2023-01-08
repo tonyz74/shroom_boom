@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::RapierContext;
 use seldom_state::prelude::*;
 
 use crate::{
@@ -13,6 +14,7 @@ use crate::{
 };
 use crate::combat::{AttackStrength, CombatLayerMask};
 use crate::entity_states::Die;
+use crate::player::abilities::autotarget::{get_closest_target};
 use crate::player::state_machine::Slash;
 
 // HELPER FUNCTIONS
@@ -57,12 +59,7 @@ pub fn register_slash_ability(app: &mut App) {
 
 // Systems
 
-enum SlashDirection {
-    Up,
-    Down,
-    Left,
-    Right
-}
+use crate::player::abilities::autotarget::AttackDirection as SlashDirection;
 
 fn transform_for_direction(dir: SlashDirection) -> (Transform, BVec2) {
     use SlashDirection as Dir;
@@ -88,7 +85,8 @@ fn transform_for_direction(dir: SlashDirection) -> (Transform, BVec2) {
 
         Dir::Right => {
             tf = tf.with_translation(Vec3::new(24.0, 0.0, 0.0));
-        }
+        },
+        _ => panic!()
     };
 
     (tf, flip)
@@ -103,66 +101,82 @@ fn slash_ability_trigger(
         &mut Player,
         &TextureAtlasSprite,
         &mut SlashAbility
-    ), (Added<Slash>, Without<Die>)>
+    ), (Added<Slash>, Without<Die>)>,
+    transforms: Query<&GlobalTransform>,
+    combat_layers: Query<&CombatLayerMask>,
+    rapier: Res<RapierContext>
 ) {
-    for (entity, player, spr, mut slash) in q.iter_mut() {
-        slash.cd.reset();
-        slash.dur.reset();
-
-        let direction;
-
-        if player.vel.y < -8.0 {
-            direction = SlashDirection::Down;
-        } else if player.vel.y > 10.0 {
-            direction = SlashDirection::Up;
-        } else {
-            if spr.flip_x {
-                direction = SlashDirection::Left;
-            } else {
-                direction = SlashDirection::Right;
-            }
-        }
-
-        let (tf, flip) = transform_for_direction(direction);
-
-        commands.entity(entity).with_children(|parent| {
-            parent.spawn((
-                PlayerMeleeAttack,
-
-                MeleeAttackBundle {
-                    sprite_sheet: SpriteSheetBundle {
-                        sprite: TextureAtlasSprite {
-                            flip_x: flip.x,
-                            flip_y: flip.y,
-                            custom_size: Some(Vec2::new(72.0, 48.0)),
-                            ..default()
-                        },
-
-                        transform: tf,
-
-                        texture_atlas: assets.slash_anim.tex.clone(),
-
-                        ..default()
-                    },
-
-                    attack: MeleeAttack {
-                        source: Some(entity),
-                        ..default()
-                    },
-
-                    strength: AttackStrength {
-                        power: slash.damage as i32
-                    },
-
-                    combat_layer: CombatLayerMask::PLAYER,
-
-                    anim_timer: AnimTimer::from_seconds(assets.slash_anim.speed),
-
-                    ..MeleeAttackBundle::from_size(Vec2::new(72.0, 48.0))
-                }
-            ));
-        });
+    if q.is_empty() {
+        return;
     }
+
+    let (entity, player, spr, mut slash) = q.single_mut();
+
+    slash.cd.reset();
+    slash.dur.reset();
+
+    get_closest_target(
+        entity,
+        CombatLayerMask::PLAYER,
+        240.0,
+        &transforms,
+        &combat_layers,
+        &rapier
+    );
+
+    let direction;
+
+    if player.vel.y < -8.0 {
+        direction = SlashDirection::Down;
+    } else if player.vel.y > 10.0 {
+        direction = SlashDirection::Up;
+    } else {
+        if spr.flip_x {
+            direction = SlashDirection::Left;
+        } else {
+            direction = SlashDirection::Right;
+        }
+    }
+
+    let (tf, flip) = transform_for_direction(direction);
+
+    commands.entity(entity).with_children(|parent| {
+        parent.spawn((
+            PlayerMeleeAttack,
+
+            MeleeAttackBundle {
+                sprite_sheet: SpriteSheetBundle {
+                    sprite: TextureAtlasSprite {
+                        flip_x: flip.x,
+                        flip_y: flip.y,
+                        custom_size: Some(Vec2::new(72.0, 48.0)),
+                        ..default()
+                    },
+
+                    transform: tf,
+
+                    texture_atlas: assets.slash_anim.tex.clone(),
+
+                    ..default()
+                },
+
+                attack: MeleeAttack {
+                    source: Some(entity),
+                    ..default()
+                },
+
+                strength: AttackStrength {
+                    power: slash.damage as i32
+                },
+
+                combat_layer: CombatLayerMask::PLAYER,
+
+                anim_timer: AnimTimer::from_seconds(assets.slash_anim.speed),
+
+                ..MeleeAttackBundle::from_size(Vec2::new(72.0, 48.0))
+            }
+        ));
+    });
 }
 
 

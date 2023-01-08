@@ -86,6 +86,7 @@ pub struct ProjectileAttackBundle {
     pub sprite_sheet: SpriteSheetBundle,
     pub collider: Collider,
     pub sensor: Sensor,
+    pub rigid_body: RigidBody,
     pub attack: ProjectileAttack,
     pub strength: AttackStrength,
     pub combat_layer: CombatLayerMask,
@@ -99,6 +100,7 @@ impl Default for ProjectileAttackBundle {
            anim_timer: Default::default(),
            sprite_sheet: Default::default(),
            collider: Default::default(),
+           rigid_body: Default::default(),
            sensor: Default::default(),
            attack: Default::default(),
            strength: Default::default(),
@@ -114,6 +116,7 @@ impl ProjectileAttackBundle {
         Self {
             collider: Collider::cuboid(size.x / 2., size.y / 2.),
             sensor: Sensor,
+            rigid_body: RigidBody::KinematicPositionBased,
             controller: KinematicCharacterController {
                 offset: CharacterLength::Relative(0.02),
                 filter_flags: QueryFilterFlags::EXCLUDE_SENSORS | QueryFilterFlags::EXCLUDE_FIXED,

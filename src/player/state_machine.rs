@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use seldom_state::prelude::*;
 use crate::combat::{DeathTrigger, HurtTrigger};
 use crate::entity_states::*;
+use crate::player::triggers::ShootTrigger;
 
 // STATES
 
@@ -63,18 +64,28 @@ pub fn player_state_machine() -> StateMachine {
         .trans::<Slash>(tg::DashTrigger, Dash)
         .trans::<Crouch>(tg::DashTrigger, Dash)
 
+        // Exiting Hurting
         .trans::<Hurt>(DoneTrigger::Success, Fall)
         .trans::<Hurt>(tg::HitHeadTrigger, Fall)
         .trans::<Hurt>(tg::StopHurtTrigger, Fall)
         .trans::<Hurt>(tg::HitWallTrigger, Fall)
 
+        // Into Hurting
         .trans::<Idle>(HurtTrigger, Hurt)
         .trans::<Fall>(HurtTrigger, Hurt)
         .trans::<Move>(HurtTrigger, Hurt)
         .trans::<Jump>(HurtTrigger, Hurt)
         .trans::<Slash>(HurtTrigger, Hurt)
         .trans::<Crouch>(HurtTrigger, Hurt)
-    
+
+        // Shooting
+        .trans::<Idle>(ShootTrigger, Shoot)
+        .trans::<Fall>(ShootTrigger, Shoot)
+        .trans::<Move>(ShootTrigger, Shoot)
+        .trans::<Jump>(ShootTrigger, Shoot)
+        .trans::<Crouch>(ShootTrigger, Shoot)
+        .trans::<Shoot>(DoneTrigger::Success, Fall)
+
         // Death
         .trans::<Idle>(DeathTrigger, Die::default())
         .trans::<Fall>(DeathTrigger, Die::default())
@@ -85,5 +96,4 @@ pub fn player_state_machine() -> StateMachine {
         .trans::<Dash>(DeathTrigger, Die::default())
         .trans::<Hurt>(DeathTrigger, Die::default())
         .trans::<Die>(Not(AlwaysTrigger), Hurt)
-    
 }

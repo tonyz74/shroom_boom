@@ -64,7 +64,6 @@ fn walk_pathfinder_fall(
             continue;
         }
 
-
         enemy.vel.y += PHYSICS_STEP_DELTA * -40.0;
 
         if enemy.vel.y <= -20.0 {

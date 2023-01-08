@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use shade::entry::ShadePlugin;
+use shroom_boom::entry::ShadePlugin;
 
 fn main() {
     App::new()

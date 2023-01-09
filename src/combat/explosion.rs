@@ -4,6 +4,7 @@ use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::*;
 use crate::assets::ExplosionAssets;
 use crate::combat::{AttackStrength, CombatEvent, CombatLayerMask};
+use crate::combat::knockbacks::explosion_knockback;
 use crate::common::AnimTimer;
 use crate::entity_states::*;
 use crate::state::GameState;
@@ -60,7 +61,7 @@ impl ExplosionAttackBundle {
                 ..default()
             },
 
-            collider: Collider::cuboid(32.0, 32.0),
+            collider: Collider::ball(32.0),
 
             sensor: Sensor,
 
@@ -143,16 +144,12 @@ fn explosion_damage(
 
                 let hit_pos = transforms.get(hit_entity).unwrap().translation();
                 let diff = (hit_pos - explosion_pos).xy();
-
                 let percentage = 1.0 - (diff.length() / 64.0);
-                let min_power = if atk.power == 0 { 0.0 } else { (atk.power as f32 / 5.0).ceil() };
-
-                let y_dir = Vec2::new(0.0, diff.y).normalize_or_zero().y;
 
                 hit_events.send(CombatEvent {
                     target: hit_entity,
-                    damage: (atk.power as f32 * percentage).clamp(min_power, atk.power as f32) as i32,
-                    kb: diff.normalize_or_zero() * percentage * Vec2::new(2.0, 4.0) + Vec2::new(0.0, 4.0 * y_dir)
+                    damage: (atk.power as f32 * percentage) as i32,
+                    kb: explosion_knockback(diff, 64.0)
                 });
 
                 true

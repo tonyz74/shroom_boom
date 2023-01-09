@@ -253,7 +253,7 @@ pub fn fly_pathfinder_patrol(
         &mut Pathfinder,
         &mut FlyPathfinder,
         &mut Patrol
-    ), Without<Die>>
+    ), (Without<Die>, Without<Hurt>)>
 ) {
     let mut all_should_start_patrolling = false;
 

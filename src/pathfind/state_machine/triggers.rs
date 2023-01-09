@@ -1,3 +1,4 @@
+use bevy::ecs::system::{SystemParam, SystemParamFetch};
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -131,5 +132,52 @@ impl Trigger for HitWallTrigger {
 
         let ok = enemy.vel.length() <= 1.0;
         ok
+    }
+}
+
+
+#[derive(Copy, Clone, Reflect, FromReflect)]
+pub struct HitHeadTrigger;
+
+impl Trigger for HitHeadTrigger {
+    type Param<'w, 's> = (
+        Query<'w, 's, (&'static Enemy, &'static GlobalTransform, &'static Pathfinder)>,
+        Res<'w, RapierContext>
+    );
+
+    fn trigger(&self, entity: Entity, (q, ctx): &Self::Param<'_, '_>) -> bool {
+        if !q.contains(entity) {
+            return false;
+        }
+
+        let (enemy, tf, path) = q.get(entity).unwrap();
+        let pos = Vec2::new(tf.translation().x, tf.translation().y);
+
+        let span = path.bb.half_extents.x;
+
+        let origins = [
+            Vect::new(pos.x - span, pos.y),
+            Vect::new(pos.x + 0.00, pos.y),
+            Vect::new(pos.x + span, pos.y),
+        ];
+
+        for origin in origins {
+            let rc = ctx.cast_ray(
+                origin,
+                Vect::new(0.0, 1.0).normalize(),
+                path.bb.half_extents.y + enemy.vel.y + 1.0,
+                true,
+                QueryFilter {
+                    flags: QueryFilterFlags::ONLY_FIXED | QueryFilterFlags::EXCLUDE_SENSORS,
+                    ..default()
+                }
+            );
+
+            if rc.is_some() {
+                return true;
+            }
+        }
+
+        false
     }
 }

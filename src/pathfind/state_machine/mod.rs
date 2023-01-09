@@ -2,8 +2,8 @@ use bevy::prelude::*;
 use seldom_state::prelude::*;
 
 mod triggers;
-use crate::entity_states::*;
 use triggers::*;
+use crate::entity_states::*;
 use crate::combat::{DeathTrigger, HurtTrigger};
 
 pub fn register_triggers(app: &mut App) {
@@ -15,6 +15,7 @@ pub fn register_triggers(app: &mut App) {
         .add_plugin(TP::<NeedsJumpTrigger>::default())
         .add_plugin(TP::<StopHurtTrigger>::default())
         .add_plugin(TP::<HitWallTrigger>::default())
+        .add_plugin(TP::<HitHeadTrigger>::default())
         .add_plugin(TP::<ShootTrigger>::default());
 }
 
@@ -34,6 +35,7 @@ pub fn walk_pathfinder_state_machine() -> StateMachine {
         .trans::<Hurt>(StopHurtTrigger, Fall)
         .trans::<Hurt>(DoneTrigger::Success, Fall)
         .trans::<Hurt>(HitWallTrigger, Fall)
+        .trans::<Hurt>(HitHeadTrigger, Fall)
 
         .trans::<Move>(DeathTrigger, Die::default())
         .trans::<Jump>(DeathTrigger, Die::default())

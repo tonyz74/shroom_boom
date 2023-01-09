@@ -37,6 +37,7 @@ fn attack_direction_between(self_pos: Vec2, target_pos: Vec2) -> AttackDirection
         (Vec2::new(-1.0, -1.0).normalize(), 225.0, AttackDirection::DownLeft),
         (Vec2::new(0.0, -1.0).normalize(), 270.0, AttackDirection::Down),
         (Vec2::new(1.0, -1.0).normalize(), 315.0, AttackDirection::DownRight),
+        (Vec2::new(1.0, 0.0).normalize(), 360.0, AttackDirection::Right),
     ];
 
     let pos_x = angles[0].0;

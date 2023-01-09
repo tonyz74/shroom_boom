@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use crate::combat::{AttackStrength, CombatLayerMask};
 use crate::combat::events::CombatEvent;
+use crate::combat::knockbacks::melee_knockback;
 use crate::common::AnimTimer;
 
 #[derive(Bundle, Default)]
@@ -91,7 +92,7 @@ pub fn resolve_melee_attacks(
                     hit_events.send(CombatEvent {
                         target: hit,
                         damage: atk.power,
-                        kb: Vec2::new(diff.x, diff.y)
+                        kb: melee_knockback(Vec2::new(diff.x, diff.y))
                     });
                 }
 

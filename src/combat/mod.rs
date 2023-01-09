@@ -9,6 +9,7 @@ mod hurt;
 mod collision;
 mod death;
 mod explosion;
+mod knockbacks;
 
 pub use melee::*;
 pub use projectile::*;

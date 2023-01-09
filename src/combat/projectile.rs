@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::*;
 use crate::combat::{AttackStrength, CombatLayerMask, CombatEvent, Immunity};
+use crate::combat::knockbacks::projectile_knockback;
 use crate::common::AnimTimer;
 use crate::entity_states::*;
 use crate::level::consts::SOLIDS_INTERACTION_GROUP;
@@ -194,16 +195,13 @@ pub fn projectile_hit_targets(
                     }
 
                     let hit_pos = transforms.get(hit_entity).unwrap().translation();
-                    let mut dir = (hit_pos - proj_pos).normalize();
-
-                    if (dir.x < 0.0 && proj.vel.x > 0.0) || (dir.x > 0.0 && proj.vel.x < 0.0) {
-                        dir.x *= -1.0;
-                    }
+                    let dir = (hit_pos - proj_pos).normalize();
+                    let knockback = projectile_knockback(Vec2::new(dir.x, dir.y), proj.vel);
 
                     hit_events.send(CombatEvent {
                         target: hit_entity,
                         damage: strength.power,
-                        kb: Vec2::new(dir.x, dir.y)
+                        kb: knockback
                     });
 
                     proj.collided = true;

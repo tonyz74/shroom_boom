@@ -32,6 +32,7 @@ pub fn register_walk_pathfinders(app: &mut App) {
         SystemSet::on_update(GameState::Gameplay)
             .with_system(walk_pathfinder_patrol)
             .with_system(walk_pathfinder_fall)
+            .with_system(walk_pathfinder_enter_fall)
             .with_system(walk_pathfinder_jump)
             .with_system(walk_pathfinder_hurt)
             .with_system(walk_pathfinder_got_hurt)
@@ -68,6 +69,14 @@ fn walk_pathfinder_fall(
 
         if enemy.vel.y <= -20.0 {
             enemy.vel.y = -20.0;
+        }
+    }
+}
+
+fn walk_pathfinder_enter_fall(mut q: Query<&mut Enemy, Added<Fall>>) {
+    for mut enemy in q.iter_mut() {
+        if enemy.vel.y > 0.0 {
+            enemy.vel.y = 0.0;
         }
     }
 }

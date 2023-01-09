@@ -34,9 +34,9 @@ pub struct PlayerTileBundle {
 #[derive(Component)]
 pub struct LevelRegion;
 
-pub struct LevelLoaderPlugin;
+pub struct LevelPlugin;
 
-impl Plugin for LevelLoaderPlugin {
+impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_plugin(LdtkPlugin)

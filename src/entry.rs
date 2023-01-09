@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 
 use bevy_rapier2d::prelude::*;
-use bevy_prototype_lyon::prelude::*;
 use seldom_state::prelude::*;
 
 use bevy_egui::EguiPlugin;
@@ -11,7 +10,7 @@ use crate::{
     assets::AssetLoaderPlugin,
     player::PlayerPlugin,
     input::InputPlugin,
-    level::LevelLoaderPlugin,
+    level::LevelPlugin,
     enemies::EnemyPlugin,
     camera::CameraPlugin,
     pathfind::PathfindingPlugin,
@@ -40,9 +39,6 @@ impl Plugin for ShadePlugin {
 
             .insert_resource(ClearColor(Color::rgb(0.015, 0.015, 0.1)))
 
-            // custom shapes
-            .add_plugin(ShapePlugin)
-
             // state machine
             .add_plugin(StateMachinePlugin)
 
@@ -54,7 +50,7 @@ impl Plugin for ShadePlugin {
             // gameplay
             .add_plugin(PlayerPlugin)
             .add_plugin(EnemyPlugin)
-            .add_plugin(LevelLoaderPlugin)
+            .add_plugin(LevelPlugin)
             .add_plugin(PathfindingPlugin)
             .add_plugin(AttackPlugin)
 

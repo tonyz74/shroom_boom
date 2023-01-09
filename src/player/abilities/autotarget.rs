@@ -3,7 +3,7 @@ use bevy::math::Vec3Swizzles;
 use bevy_rapier2d::prelude::*;
 use crate::combat::CombatLayerMask;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum AttackDirection {
     Up,
     Down,
@@ -23,8 +23,44 @@ impl Default for AttackDirection {
 
 fn attack_direction_between(self_pos: Vec2, target_pos: Vec2) -> AttackDirection {
     let dir = (target_pos - self_pos).normalize_or_zero();
+    if dir == Vec2::ZERO {
+        return AttackDirection::Up;
+    }
 
-    AttackDirection::Down
+    // Angles for each direction vector in degrees
+    let angles = &[
+        (Vec2::new(1.0, 0.0).normalize(), 0.0, AttackDirection::Right),
+        (Vec2::new(1.0, 1.0).normalize(), 45.0, AttackDirection::UpRight),
+        (Vec2::new(0.0, 1.0).normalize(), 90.0, AttackDirection::Up),
+        (Vec2::new(-1.0, 1.0).normalize(), 135.0, AttackDirection::UpLeft),
+        (Vec2::new(-1.0, 0.0).normalize(), 180.0, AttackDirection::Left),
+        (Vec2::new(-1.0, -1.0).normalize(), 225.0, AttackDirection::DownLeft),
+        (Vec2::new(0.0, -1.0).normalize(), 270.0, AttackDirection::Down),
+        (Vec2::new(1.0, -1.0).normalize(), 315.0, AttackDirection::DownRight),
+    ];
+
+    let pos_x = angles[0].0;
+    let mut angle = pos_x.dot(dir).acos() * (180.0 / std::f32::consts::PI);
+
+    if self_pos.y > target_pos.y {
+        angle = 360.0 - angle;
+    }
+
+    let best = {
+        let mut best_diff = f32::MAX;
+        let mut best_pick = AttackDirection::Up;
+
+        for (_, dir_angle, dir) in angles {
+            if (dir_angle - angle).abs() < best_diff {
+                best_diff = (dir_angle - angle).abs();
+                best_pick = *dir;
+            }
+        }
+
+        best_pick
+    };
+
+    best
 }
 
 pub fn get_closest_target(

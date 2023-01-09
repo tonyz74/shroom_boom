@@ -14,7 +14,7 @@ use crate::{
 };
 use crate::combat::{AttackStrength, CombatLayerMask};
 use crate::entity_states::Die;
-use crate::player::abilities::autotarget::{get_closest_target};
+use crate::player::abilities::autotarget::{AttackDirection, get_closest_target};
 use crate::player::state_machine::Slash;
 
 // HELPER FUNCTIONS
@@ -60,6 +60,7 @@ pub fn register_slash_ability(app: &mut App) {
 // Systems
 
 use crate::player::abilities::autotarget::AttackDirection as SlashDirection;
+use crate::util::Facing;
 
 fn transform_for_direction(dir: SlashDirection) -> (Transform, BVec2) {
     use SlashDirection as Dir;
@@ -73,9 +74,29 @@ fn transform_for_direction(dir: SlashDirection) -> (Transform, BVec2) {
             tf = tf.with_translation(Vec3::new(0.0, 32.0, 0.0));
         },
 
+        Dir::UpRight => {
+            tf.rotate(quat_rot2d(45.0));
+            tf = tf.with_translation(Vec3::new(24.0, 24.0, 0.0));
+        },
+
+        Dir::UpLeft => {
+            tf.rotate(quat_rot2d(135.0));
+            tf = tf.with_translation(Vec3::new(-24.0, 24.0, 0.0));
+        }
+
         Dir::Down => {
             tf.rotate(quat_rot2d(-90.0));
             tf = tf.with_translation(Vec3::new(0.0, -32.0, 0.0));
+        },
+
+        Dir::DownRight => {
+            tf.rotate(quat_rot2d(315.0));
+            tf = tf.with_translation(Vec3::new(24.0, -24.0, 0.0));
+        },
+
+        Dir::DownLeft => {
+            tf.rotate(quat_rot2d(225.0));
+            tf = tf.with_translation(Vec3::new(-24.0, -24.0, 0.0));
         },
 
         Dir::Left => {
@@ -86,12 +107,22 @@ fn transform_for_direction(dir: SlashDirection) -> (Transform, BVec2) {
         Dir::Right => {
             tf = tf.with_translation(Vec3::new(24.0, 0.0, 0.0));
         },
-        _ => panic!()
     };
 
     (tf, flip)
 }
 
+fn change_facing_for_direction(player: &mut Player, dir: AttackDirection) {
+    match dir {
+        AttackDirection::Left | AttackDirection::DownLeft | AttackDirection::UpLeft => {
+            player.facing = Facing::Left
+        },
+        AttackDirection::Right | AttackDirection::DownRight | AttackDirection::UpRight => {
+            player.facing = Facing::Right
+        },
+        _ => {}
+    }
+}
 
 fn slash_ability_trigger(
     mut commands: Commands,
@@ -99,7 +130,6 @@ fn slash_ability_trigger(
     mut q: Query<(
         Entity,
         &mut Player,
-        &TextureAtlasSprite,
         &mut SlashAbility
     ), (Added<Slash>, Without<Die>)>,
     transforms: Query<&GlobalTransform>,
@@ -110,34 +140,25 @@ fn slash_ability_trigger(
         return;
     }
 
-    let (entity, player, spr, mut slash) = q.single_mut();
+    let (entity, mut player, mut slash) = q.single_mut();
 
     slash.cd.reset();
     slash.dur.reset();
 
-    get_closest_target(
+    let direction = if let Some((_, b)) = get_closest_target(
         entity,
         CombatLayerMask::PLAYER,
         240.0,
         &transforms,
         &combat_layers,
         &rapier
-    );
-
-    let direction;
-
-    if player.vel.y < -8.0 {
-        direction = SlashDirection::Down;
-    } else if player.vel.y > 10.0 {
-        direction = SlashDirection::Up;
+    ) {
+        b
     } else {
-        if spr.flip_x {
-            direction = SlashDirection::Left;
-        } else {
-            direction = SlashDirection::Right;
-        }
-    }
+        AttackDirection::Right
+    };
 
+    change_facing_for_direction(&mut player, direction);
     let (tf, flip) = transform_for_direction(direction);
 
     commands.entity(entity).with_children(|parent| {

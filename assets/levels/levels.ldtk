@@ -942,10 +942,96 @@
 									"entityIid": "501375c0-7820-11ed-b5e1-e7b6d16893d4",
 									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
 									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
-									"worldIid": "cfd7e500-7820-11ed-b90e-4dd63c805003"
+									"worldIid": "87428b30-7820-11ed-ba3b-4ba454d01a5c"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["501375c0-7820-11ed-b5e1-e7b6d16893d4"]
+								}] },
+								{ "__identifier": "Coins", "__value": 0, "__type": "Int", "__tile": null, "defUid": 68, "realEditorValues": [] }
+							]
+						},
+						{
+							"__identifier": "PatrolRegion",
+							"__grid": [3,26],
+							"__pivot": [0,0],
+							"__tags": ["region"],
+							"__tile": null,
+							"__smartColor": "#E86E6E",
+							"iid": "8afc10c0-7820-11ed-ba3b-fd2c95729cf4",
+							"width": 168,
+							"height": 40,
+							"defUid": 64,
+							"px": [24,208],
+							"fieldInstances": []
+						},
+						{
+							"__identifier": "PatrolRegion",
+							"__grid": [30,27],
+							"__pivot": [0,0],
+							"__tags": ["region"],
+							"__tile": null,
+							"__smartColor": "#E86E6E",
+							"iid": "8c40ecd0-7820-11ed-ba3b-314c014df5b9",
+							"width": 72,
+							"height": 32,
+							"defUid": 64,
+							"px": [240,216],
+							"fieldInstances": []
+						},
+						{
+							"__identifier": "EnemySpawnpoint",
+							"__grid": [12,30],
+							"__pivot": [0.5,0.5],
+							"__tags": [],
+							"__tile": { "tilesetUid": 65, "x": 96, "y": 0, "w": 16, "h": 16 },
+							"__smartColor": "#33A164",
+							"iid": "922f2cb0-7820-11ed-ba3b-c90902ceb777",
+							"width": 8,
+							"height": 8,
+							"defUid": 51,
+							"px": [100,244],
+							"fieldInstances": [
+								{ "__identifier": "EnemyType", "__value": "Flower", "__type": "LocalEnum.EnemyType", "__tile": null, "defUid": 54, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Flower"]
+								}] },
+								{ "__identifier": "Entity_ref", "__value": {
+									"entityIid": "8afc10c0-7820-11ed-ba3b-fd2c95729cf4",
+									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
+									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
+									"worldIid": "87428b30-7820-11ed-ba3b-4ba454d01a5c"
+								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["8afc10c0-7820-11ed-ba3b-fd2c95729cf4"]
+								}] },
+								{ "__identifier": "Coins", "__value": 0, "__type": "Int", "__tile": null, "defUid": 68, "realEditorValues": [] }
+							]
+						},
+						{
+							"__identifier": "EnemySpawnpoint",
+							"__grid": [35,30],
+							"__pivot": [0.5,0.5],
+							"__tags": [],
+							"__tile": { "tilesetUid": 65, "x": 96, "y": 0, "w": 16, "h": 16 },
+							"__smartColor": "#33A164",
+							"iid": "97549e50-7820-11ed-ba3b-01db699254c5",
+							"width": 8,
+							"height": 8,
+							"defUid": 51,
+							"px": [284,244],
+							"fieldInstances": [
+								{ "__identifier": "EnemyType", "__value": "Pumpkin", "__type": "LocalEnum.EnemyType", "__tile": null, "defUid": 54, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Pumpkin"]
+								}] },
+								{ "__identifier": "Entity_ref", "__value": {
+									"entityIid": "8c40ecd0-7820-11ed-ba3b-314c014df5b9",
+									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
+									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
+									"worldIid": "87428b30-7820-11ed-ba3b-4ba454d01a5c"
+								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["8c40ecd0-7820-11ed-ba3b-314c014df5b9"]
 								}] },
 								{ "__identifier": "Coins", "__value": 0, "__type": "Int", "__tile": null, "defUid": 68, "realEditorValues": [] }
 							]

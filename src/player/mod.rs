@@ -145,7 +145,7 @@ fn setup_player(
         }
     ).with_children(|p| {
         p.spawn(ColliderAttackBundle {
-            strength: AttackStrength::new(2),
+            strength: AttackStrength::new(80),
             combat_layer: CombatLayerMask::PLAYER,
             attack: ColliderAttack { enabled: false },
             ..ColliderAttackBundle::from_size(Vec2::new(32.0, 40.0))

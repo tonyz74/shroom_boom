@@ -1,9 +1,14 @@
 use bevy::prelude::*;
+use bevy_debug_text_overlay::screen_print;
+use bevy_rapier2d::prelude::RapierContext;
 use seldom_state::prelude::*;
 use crate::assets::PlayerAssets;
 use crate::combat::{AttackStrength, CombatLayerMask, ProjectileAttack, ProjectileAttackBundle};
 use crate::common::AnimTimer;
 use crate::entity_states::Shoot;
+use crate::player::abilities::autotarget;
+use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_direction, direction_for_facing, direction_to_vec};
+use crate::player::Player;
 use crate::state::GameState;
 
 
@@ -15,7 +20,7 @@ pub struct ShootAbility {
     pub damage: u32,
     pub startup: Timer,
     pub cd: Timer,
-    pub shoot_target_pos: Vec2
+    pub shoot_target: Option<(Vec2, AttackDirection)>
 }
 
 impl Default for ShootAbility {
@@ -24,7 +29,7 @@ impl Default for ShootAbility {
             damage: 2,
             startup: Timer::from_seconds(0.1, TimerMode::Once),
             cd: Timer::from_seconds(0.5, TimerMode::Once),
-            shoot_target_pos: Vec2::ZERO
+            shoot_target: None
         }
     }
 }
@@ -38,67 +43,117 @@ pub fn register_shoot_ability(app: &mut App) {
     );
 }
 
-fn start_shoot(mut q: Query<&mut ShootAbility, Added<Shoot>>) {
+fn start_shoot(
+    mut q: Query<(Entity, &mut ShootAbility), Added<Shoot>>,
+    transforms: Query<&GlobalTransform>,
+    combat_layers: Query<&CombatLayerMask>,
+    rapier: Res<RapierContext>
+) {
     if q.is_empty() {
         return;
     }
 
-    let mut shoot = q.single_mut();
+    let (entity, mut shoot) = q.single_mut();
     shoot.startup.reset();
+
+    shoot.shoot_target = autotarget::get_closest_target(
+        entity,
+        CombatLayerMask::PLAYER,
+        512.0,
+        &transforms,
+        &combat_layers,
+        &rapier
+    );
+
+    screen_print!("{:?}", shoot.shoot_target);
+}
+
+fn spawn_player_projectile(
+    commands: &mut Commands,
+    player: &Player,
+    player_pos: Vec2,
+    shoot: &ShootAbility,
+    assets: &PlayerAssets
+) {
+    let dir = match shoot.shoot_target {
+        Some((enemy_pos, _)) => {
+            enemy_pos - player_pos
+        },
+        None => direction_to_vec(direction_for_facing(player.facing))
+    };
+
+    commands.spawn((
+        PlayerProjectileAttack,
+        ProjectileAttackBundle {
+            anim_timer: AnimTimer::from_seconds(0.4),
+
+            sprite_sheet: SpriteSheetBundle {
+
+                sprite: TextureAtlasSprite {
+                    custom_size: Some(Vec2::new(16., 16.)),
+                    ..default()
+                },
+
+                texture_atlas: assets.anims["IDLE"].tex.clone(),
+
+                transform: Transform::from_xyz(player_pos.x, player_pos.y, 0.0),
+
+                ..default()
+            },
+
+            attack: ProjectileAttack {
+                vel: dir.normalize() * 12.0,
+                speed: 12.0,
+                expiration: Some(Timer::from_seconds(0.5, TimerMode::Once)),
+                ..default()
+            },
+
+            strength: AttackStrength::new(shoot.damage as i32),
+            combat_layer: CombatLayerMask::PLAYER,
+
+            ..ProjectileAttackBundle::from_size(Vec2::new(16., 16.))
+        }
+    ));
+
 }
 
 fn shoot_ability_update(
     time: Res<Time>,
     assets: Res<PlayerAssets>,
     mut commands: Commands,
-    mut q: Query<(Entity, &GlobalTransform, &mut ShootAbility), With<Shoot>>
+    mut q: Query<(
+        Entity,
+        &mut Player,
+        &GlobalTransform,
+        &mut ShootAbility
+    ), With<Shoot>>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (entity, transform, mut shoot) = q.single_mut();
-
+    let (entity, mut player, transform, mut shoot) = q.single_mut();
     let pos = transform.translation();
+
     shoot.startup.tick(time.delta());
 
     if shoot.startup.just_finished() {
-        commands.spawn((
-            PlayerProjectileAttack,
-            ProjectileAttackBundle {
-                anim_timer: AnimTimer::from_seconds(0.4),
+        if let Some((_pos, dir)) = shoot.shoot_target {
+            change_facing_for_direction(&mut player, dir);
+        }
 
-                sprite_sheet: SpriteSheetBundle {
-
-                    sprite: TextureAtlasSprite {
-                        custom_size: Some(Vec2::new(16., 16.)),
-                        ..default()
-                    },
-
-                    texture_atlas: assets.anims["IDLE"].tex.clone(),
-
-                    transform: Transform::from_xyz(pos.x, pos.y, 0.0),
-
-                    ..default()
-                },
-
-                attack: ProjectileAttack {
-                    vel: Vec2::new(12.0, 0.0),
-                    speed: 12.0,
-                    expiration: Some(Timer::from_seconds(0.5, TimerMode::Once)),
-                    ..default()
-                },
-
-                strength: AttackStrength::new(shoot.damage as i32),
-                combat_layer: CombatLayerMask::PLAYER,
-
-                ..ProjectileAttackBundle::from_size(Vec2::new(16., 16.))
-            }
-        ));
+        spawn_player_projectile(
+            &mut commands,
+            &player,
+            Vec2::new(pos.x, pos.y),
+            &shoot,
+            &assets
+        );
 
         shoot.cd.reset();
-
         commands.entity(entity).insert(Done::Success);
+
+        shoot.shoot_target = None;
     }
 }
 

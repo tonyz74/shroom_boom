@@ -14,7 +14,7 @@ use crate::{
 };
 use crate::combat::{AttackStrength, CombatLayerMask};
 use crate::entity_states::Die;
-use crate::player::abilities::autotarget::{AttackDirection, get_closest_target};
+use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_direction, direction_for_facing, get_closest_target};
 use crate::player::state_machine::Slash;
 
 // HELPER FUNCTIONS
@@ -59,69 +59,52 @@ pub fn register_slash_ability(app: &mut App) {
 
 // Systems
 
-use crate::player::abilities::autotarget::AttackDirection as SlashDirection;
-use crate::util::Facing;
-
-fn transform_for_direction(dir: SlashDirection) -> (Transform, BVec2) {
-    use SlashDirection as Dir;
-
+fn transform_for_direction(dir: AttackDirection) -> (Transform, BVec2) {
     let mut flip = BVec2::new(false, false);
     let mut tf = Transform::from_xyz(0.0, 0.0, 1.0);
 
     match dir {
-        Dir::Up => {
+        AttackDirection::Up => {
             tf.rotate(quat_rot2d(90.0));
             tf = tf.with_translation(Vec3::new(0.0, 32.0, 0.0));
         },
 
-        Dir::UpRight => {
+        AttackDirection::UpRight => {
             tf.rotate(quat_rot2d(45.0));
             tf = tf.with_translation(Vec3::new(24.0, 24.0, 0.0));
         },
 
-        Dir::UpLeft => {
+        AttackDirection::UpLeft => {
             tf.rotate(quat_rot2d(135.0));
             tf = tf.with_translation(Vec3::new(-24.0, 24.0, 0.0));
         }
 
-        Dir::Down => {
+        AttackDirection::Down => {
             tf.rotate(quat_rot2d(-90.0));
             tf = tf.with_translation(Vec3::new(0.0, -32.0, 0.0));
         },
 
-        Dir::DownRight => {
+        AttackDirection::DownRight => {
             tf.rotate(quat_rot2d(315.0));
             tf = tf.with_translation(Vec3::new(24.0, -24.0, 0.0));
         },
 
-        Dir::DownLeft => {
+        AttackDirection::DownLeft => {
             tf.rotate(quat_rot2d(225.0));
             tf = tf.with_translation(Vec3::new(-24.0, -24.0, 0.0));
         },
 
-        Dir::Left => {
+        AttackDirection::Left => {
             tf = tf.with_translation(Vec3::new(-24.0, 0.0, 0.0));
             flip.x = true;
         },
 
-        Dir::Right => {
+        AttackDirection::Right => {
             tf = tf.with_translation(Vec3::new(24.0, 0.0, 0.0));
         },
     };
 
     (tf, flip)
-}
-
-fn change_facing_for_direction(player: &mut Player, dir: AttackDirection) {
-    match dir {
-        AttackDirection::Left | AttackDirection::DownLeft | AttackDirection::UpLeft => {
-            player.facing = Facing::Left
-        },
-        AttackDirection::Right | AttackDirection::DownRight | AttackDirection::UpRight => {
-            player.facing = Facing::Right
-        },
-        _ => {}
-    }
 }
 
 fn slash_ability_trigger(
@@ -155,7 +138,7 @@ fn slash_ability_trigger(
     ) {
         b
     } else {
-        AttackDirection::Right
+        direction_for_facing(player.facing)
     };
 
     change_facing_for_direction(&mut player, direction);

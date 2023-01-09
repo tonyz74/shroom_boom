@@ -2,6 +2,8 @@ use bevy::prelude::*;
 use bevy::math::Vec3Swizzles;
 use bevy_rapier2d::prelude::*;
 use crate::combat::CombatLayerMask;
+use crate::player::Player;
+use crate::util::Facing;
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum AttackDirection {
@@ -111,5 +113,32 @@ pub fn get_closest_target(
         Some((target, attack_direction_between(self_pos, target)))
     } else {
         None
+    }
+}
+
+pub fn change_facing_for_direction(player: &mut Player, dir: AttackDirection) {
+    match dir {
+        AttackDirection::Left | AttackDirection::DownLeft | AttackDirection::UpLeft => {
+            player.facing = Facing::Left
+        },
+        AttackDirection::Right | AttackDirection::DownRight | AttackDirection::UpRight => {
+            player.facing = Facing::Right
+        },
+        _ => {}
+    }
+}
+
+pub fn direction_for_facing(facing: Facing) -> AttackDirection {
+    match facing {
+        Facing::Left => AttackDirection::Left,
+        Facing::Right => AttackDirection::Right
+    }
+}
+
+pub fn direction_to_vec(dir: AttackDirection) -> Vec2 {
+    match dir {
+        AttackDirection::Left => Vec2::new(-1.0, 0.0),
+        AttackDirection::Right => Vec2::new(1.0, 0.0),
+        _ => Vec2::ZERO
     }
 }

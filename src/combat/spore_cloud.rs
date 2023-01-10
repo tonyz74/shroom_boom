@@ -1,16 +1,19 @@
 use bevy::prelude::*;
+use rand::prelude::*;
 use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::{AlwaysTrigger, Done, DoneTrigger, NotTrigger, StateMachine};
+use crate::assets::SporeAssets;
 use crate::combat::{AttackStrength, CombatEvent, CombatLayerMask};
 use crate::combat::knockbacks::spore_cloud_knockback;
 use crate::entity_states::*;
+use crate::fx::spore::{SporeParticle, SporeParticleBundle};
 use crate::state::GameState;
-
 
 #[derive(Component, Debug, Clone)]
 pub struct SporeCloudAttack {
     pub size: Vec2,
     pub dmg_timer: Timer,
+    pub particle_timer: Timer,
     pub dur: Timer
 }
 
@@ -19,6 +22,7 @@ impl Default for SporeCloudAttack {
         Self {
             size: Vec2::new(32.0, 32.0),
             dmg_timer: Timer::from_seconds(0.8, TimerMode::Once),
+            particle_timer: Timer::from_seconds(0.8, TimerMode::Repeating),
             dur: Timer::from_seconds(8.0, TimerMode::Once)
         }
     }
@@ -83,16 +87,43 @@ pub fn register_spore_cloud_attacks(app: &mut App) {
 fn spore_cloud_update(
     time: Res<Time>,
     mut commands: Commands,
-    mut q: Query<(Entity, &mut SporeCloudAttack), Without<Die>>
+    assets: Res<SporeAssets>,
+    mut q: Query<(Entity, &GlobalTransform, &mut SporeCloudAttack), Without<Die>>
 ) {
-    for (entity, mut spore_cloud) in q.iter_mut() {
+    for (entity, transform, mut spore_cloud) in q.iter_mut() {
         spore_cloud.dur.tick(time.delta());
         spore_cloud.dmg_timer.tick(time.delta());
+        spore_cloud.particle_timer.tick(time.delta());
 
         if spore_cloud.dur.just_finished() {
             if let Some(mut cmd) = commands.get_entity(entity) {
                 cmd.insert(Done::Success);
             }
+        }
+
+        if spore_cloud.particle_timer.just_finished() {
+            let pos = transform.translation();
+            let mut rng = thread_rng();
+
+            let (x, y, rot) = {
+                let half_x = spore_cloud.size.x / 2.0;
+                let half_y = spore_cloud.size.y / 2.0;
+
+                let x = rng.gen_range((pos.x - half_x)..(pos.x + half_x));
+                let y = rng.gen_range((pos.y - half_y)..(pos.y + half_y));
+
+                let rot = rng.gen_range(-30.0..30.0);
+
+                (x, y, rot)
+            };
+
+            commands.spawn(SporeParticleBundle {
+                spore: SporeParticle {
+                    rotation_speed: rot * (3.14 / 180.0),
+                    ..default()
+                },
+                ..SporeParticleBundle::new(Vec2::new(x, y), &assets)
+            });
         }
     }
 }

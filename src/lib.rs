@@ -16,3 +16,4 @@ pub mod input;
 pub mod pathfind;
 pub mod util;
 pub mod entity_states;
+pub mod fx;

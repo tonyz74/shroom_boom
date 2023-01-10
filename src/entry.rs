@@ -14,7 +14,8 @@ use crate::{
     enemies::EnemyPlugin,
     camera::CameraPlugin,
     pathfind::PathfindingPlugin,
-    combat::AttackPlugin
+    combat::AttackPlugin,
+    fx::EffectsPlugin
 };
 
 pub struct ShadePlugin;
@@ -53,6 +54,9 @@ impl Plugin for ShadePlugin {
             .add_plugin(LevelPlugin)
             .add_plugin(PathfindingPlugin)
             .add_plugin(AttackPlugin)
+
+            // polish
+            .add_plugin(EffectsPlugin)
 
             .add_startup_system(setup_rapier);
     }

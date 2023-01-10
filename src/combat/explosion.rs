@@ -47,7 +47,7 @@ pub struct ExplosionAttackBundle {
 }
 
 impl ExplosionAttackBundle {
-    pub fn from_pos(pos: Vec2, assets: &ExplosionAssets) -> Self {
+    pub fn new(pos: Vec2, assets: &ExplosionAssets) -> Self {
         Self {
             anim_timer: AnimTimer::from_seconds(assets.anims["BOOM"].speed),
 

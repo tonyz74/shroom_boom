@@ -46,7 +46,7 @@ pub struct SporeCloudAttackBundle {
 }
 
 impl SporeCloudAttackBundle {
-    pub fn from_pos(pos: Vec2, size: Vec2) -> Self {
+    pub fn new(pos: Vec2, size: Vec2) -> Self {
         Self {
             sprite_sheet: SpriteBundle {
                 sprite: Sprite {

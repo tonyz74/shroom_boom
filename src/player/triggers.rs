@@ -95,7 +95,7 @@ impl Trigger for DashTrigger {
         false
     }
 }
-
+//
 action_trigger!(
     With<Player>,
     JumpTrigger,
@@ -104,7 +104,7 @@ action_trigger!(
 
 // #[derive(Copy, Clone, Reflect, FromReflect)]
 // pub struct JumpTrigger;
-//
+
 // impl Trigger for JumpTrigger {
 //     type Param<'w, 's> = Query<'w, 's, &'static JumpAbility, With<Player>>;
 //

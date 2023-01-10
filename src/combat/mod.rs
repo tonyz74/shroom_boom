@@ -10,6 +10,7 @@ mod collision;
 mod death;
 mod explosion;
 mod knockbacks;
+mod spore_cloud;
 
 pub use melee::*;
 pub use projectile::*;
@@ -19,11 +20,14 @@ pub use hurt::*;
 pub use collision::*;
 pub use death::*;
 pub use explosion::*;
+pub use spore_cloud::*;
+
 use crate::assets::ExplosionAssets;
 
 use crate::camera::GameCamera;
 
 use crate::combat::collision::register_collider_attacks;
+use crate::combat::spore_cloud::SporeCloudAttackBundle;
 use crate::entity_states::*;
 
 use crate::state::GameState;
@@ -49,6 +53,7 @@ impl Plugin for AttackPlugin {
         register_hurt_ability(app);
         register_collider_attacks(app);
         register_explosion_attacks(app);
+        register_spore_cloud_attacks(app);
     }
 }
 
@@ -77,7 +82,8 @@ fn temp_explosion(
     let cpos = win.cursor_position().unwrap();
     let world_pos = cpos + (cam - 0.5 * Vec2::new(win.width(), win.height()));
 
-    commands.spawn(ExplosionAttackBundle::from_pos(world_pos, &assets));
+    // commands.spawn(ExplosionAttackBundle::from_pos(world_pos, &assets));
+    commands.spawn(SporeCloudAttackBundle::from_pos(world_pos, Vec2::new(256.0, 128.0)));
 }
 
 fn handle_hits(

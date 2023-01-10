@@ -27,5 +27,5 @@ pub fn explosion_knockback(dir: Vec2, radius: f32) -> Vec2 {
 }
 
 pub fn spore_cloud_knockback() -> Vec2 {
-    Vec2::new(0.0, 0.4)
+    Vec2::new(0.0, 0.0)
 }

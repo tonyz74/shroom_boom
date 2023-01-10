@@ -30,7 +30,7 @@ impl Default for ExplosionAttack {
 fn explosion_attack_state_machine() -> StateMachine {
     StateMachine::new(Active)
         .trans::<Active>(DoneTrigger::Success, Die::default())
-        .trans::<Die>(NotTrigger(AlwaysTrigger), Die::default())
+        .trans::<Die>(NotTrigger(AlwaysTrigger), Active)
 }
 
 

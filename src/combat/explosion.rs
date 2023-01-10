@@ -19,7 +19,7 @@ impl Default for ExplosionAttack {
     fn default() -> Self {
         Self {
             dur: Timer::from_seconds(0.4, TimerMode::Once),
-            effective_dur: Timer::from_seconds(0.125, TimerMode::Once)
+            effective_dur: Timer::from_seconds(0.15, TimerMode::Once)
         }
     }
 }
@@ -61,7 +61,7 @@ impl ExplosionAttackBundle {
                 ..default()
             },
 
-            collider: Collider::ball(32.0),
+            collider: Collider::ball(0.0),
 
             sensor: Sensor,
 
@@ -80,6 +80,7 @@ pub fn register_explosion_attacks(app: &mut App) {
     app.add_system_set(
         SystemSet::on_update(GameState::Gameplay)
             .with_system(tick_explosion_timers)
+            .with_system(explosion_expand)
             .with_system(explosion_death)
             .with_system(explosion_damage)
     );
@@ -109,6 +110,12 @@ fn explosion_death(mut q: Query<(&ExplosionAttack, &mut Die)>) {
         if explosion.dur.finished() {
             death.should_despawn = true;
         }
+    }
+}
+
+fn explosion_expand(mut q: Query<(&mut Collider, &ExplosionAttack)>) {
+    for (mut collider, explosion) in q.iter_mut() {
+        *collider = Collider::ball(explosion.effective_dur.percent() * 32.0);
     }
 }
 

@@ -942,12 +942,12 @@
 									"entityIid": "501375c0-7820-11ed-b5e1-e7b6d16893d4",
 									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
 									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
-									"worldIid": "87428b30-7820-11ed-ba3b-4ba454d01a5c"
+									"worldIid": "48679060-7820-11ed-980c-398d428cf35c"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["501375c0-7820-11ed-b5e1-e7b6d16893d4"]
 								}] },
-								{ "__identifier": "Coins", "__value": 0, "__type": "Int", "__tile": null, "defUid": 68, "realEditorValues": [] }
+								{ "__identifier": "Coins", "__value": 10, "__type": "Int", "__tile": null, "defUid": 68, "realEditorValues": [{ "id": "V_Int", "params": [10] }] }
 							]
 						},
 						{
@@ -999,12 +999,12 @@
 									"entityIid": "8afc10c0-7820-11ed-ba3b-fd2c95729cf4",
 									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
 									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
-									"worldIid": "87428b30-7820-11ed-ba3b-4ba454d01a5c"
+									"worldIid": "48679060-7820-11ed-980c-398d428cf35c"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["8afc10c0-7820-11ed-ba3b-fd2c95729cf4"]
 								}] },
-								{ "__identifier": "Coins", "__value": 0, "__type": "Int", "__tile": null, "defUid": 68, "realEditorValues": [] }
+								{ "__identifier": "Coins", "__value": 2, "__type": "Int", "__tile": null, "defUid": 68, "realEditorValues": [{ "id": "V_Int", "params": [2] }] }
 							]
 						},
 						{
@@ -1028,12 +1028,12 @@
 									"entityIid": "8c40ecd0-7820-11ed-ba3b-314c014df5b9",
 									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
 									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
-									"worldIid": "87428b30-7820-11ed-ba3b-4ba454d01a5c"
+									"worldIid": "48679060-7820-11ed-980c-398d428cf35c"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["8c40ecd0-7820-11ed-ba3b-314c014df5b9"]
 								}] },
-								{ "__identifier": "Coins", "__value": 0, "__type": "Int", "__tile": null, "defUid": 68, "realEditorValues": [] }
+								{ "__identifier": "Coins", "__value": 1, "__type": "Int", "__tile": null, "defUid": 68, "realEditorValues": [{ "id": "V_Int", "params": [1] }] }
 							]
 						}
 					]

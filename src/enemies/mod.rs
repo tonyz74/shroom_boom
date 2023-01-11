@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
-use crate::coin::drops::CoinDrops;
+use crate::coin::drops::CoinHolder;
 use crate::combat::{ColliderAttack, CombatLayerMask, Health, HurtAbility, KnockbackResistance};
 
 use crate::common::AnimTimer;
@@ -34,7 +34,7 @@ pub struct EnemyBundle {
     pub kb_res: KnockbackResistance,
     pub combat_layer: CombatLayerMask,
 
-    pub coins: CoinDrops,
+    pub coins: CoinHolder,
 
     #[bundle]
     pub sprite_sheet: SpriteSheetBundle,

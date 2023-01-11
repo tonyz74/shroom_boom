@@ -8,8 +8,8 @@ use crate::entity_states::Die;
 
 
 #[derive(Copy, Clone, Debug, Component, Default)]
-pub struct CoinDrops {
-    pub value: i32
+pub struct CoinHolder {
+    pub total_value: i32
 }
 
 pub fn register_drops(app: &mut App) {
@@ -40,7 +40,7 @@ fn spawn_random_coin<R: Rng + ?Sized>(
 
 fn drop_coins_on_death(
     mut commands: Commands,
-    dead: Query<(&CoinDrops, &GlobalTransform), Added<Die>>,
+    dead: Query<(&CoinHolder, &GlobalTransform), Added<Die>>,
     assets: Res<CoinAssets>
 ) {
     for (drop, transform) in dead.iter() {
@@ -51,8 +51,8 @@ fn drop_coins_on_death(
 
         let mut rng = thread_rng();
 
-        let value_split = drop.value / 2;
-        let remaining = drop.value % 2;
+        let value_split = drop.total_value / 2;
+        let remaining = drop.total_value % 2;
 
         for _ in 0..value_split {
             spawn_random_coin(&mut rng, &mut commands, 2, pos, &assets);

@@ -19,6 +19,8 @@ pub mod state_machine;
 pub mod abilities;
 
 use abilities::dash::DashAbility;
+use crate::coin::drops::CoinHolder;
+use crate::coin::pickup::CoinCollector;
 use crate::combat::{AttackStrength, ColliderAttack, CombatLayerMask, Health, HurtAbility, KnockbackResistance};
 use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 use crate::player::abilities::slash::SlashAbility;
@@ -46,6 +48,9 @@ pub struct PlayerBundle {
     pub kb_res: KnockbackResistance,
     pub combat_layer: CombatLayerMask,
     pub health: Health,
+
+    pub coin_holder: CoinHolder,
+    pub coin_collector: CoinCollector,
 
     #[bundle]
     pub input: InputManagerBundle<InputAction>,
@@ -134,6 +139,9 @@ fn setup_player(
             jump: JumpAbility::default(),
             shoot: ShootAbility::default(),
             hurt: HurtAbility::new(0.3, Some(0.3)),
+
+            coin_holder: CoinHolder::default(),
+            coin_collector: CoinCollector,
 
             input: InputAction::input_manager_bundle(),
 

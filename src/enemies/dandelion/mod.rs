@@ -9,7 +9,7 @@ use crate::{
     pathfind::FlyPathfinder
 };
 use crate::assets::DandelionEnemyAssets;
-use crate::coin::drops::CoinDrops;
+use crate::coin::drops::CoinHolder;
 use crate::combat::{AttackStrength, ColliderAttackBundle, CombatLayerMask, Health, HurtAbility, KnockbackResistance};
 use crate::common::AnimTimer;
 use crate::enemies::Enemy;
@@ -46,7 +46,7 @@ impl DandelionEnemyBundle {
     pub fn from_assets(assets: &Res<DandelionEnemyAssets>) -> DandelionEnemyBundle {
         DandelionEnemyBundle {
             enemy: EnemyBundle {
-                coins: CoinDrops::default(),
+                coins: CoinHolder::default(),
 
                 anim_timer: AnimTimer::from_seconds(assets.anims["IDLE"].speed),
 

@@ -14,7 +14,7 @@ use crate::{
 
 use std::collections::HashMap;
 use crate::assets::{DandelionEnemyAssets, PumpkinEnemyAssets};
-use crate::coin::drops::CoinDrops;
+use crate::coin::drops::CoinHolder;
 use crate::enemies::dandelion::DandelionEnemyBundle;
 use crate::enemies::EnemyBundle;
 use crate::level::LevelInfo;
@@ -140,7 +140,7 @@ fn configure_enemy(
         lvl_info.grid_size.as_ivec2()
     ).extend(1.0);
 
-    enemy.coins = CoinDrops { value: coins };
+    enemy.coins = CoinHolder { total_value: coins };
 }
 
 pub fn spawn_flower(

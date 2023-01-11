@@ -1,12 +1,15 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::*;
 use rand::prelude::*;
+use crate::assets::{CoinAssets, ExplosionAssets};
+use crate::coin::coin::{Coin, CoinBundle, CoinMovement};
 use crate::state::GameState;
 use crate::entity_states::Die;
 
 
 #[derive(Copy, Clone, Debug, Component, Default)]
 pub struct CoinDrops {
-    pub amount: i32
+    pub value: i32
 }
 
 pub fn register_drops(app: &mut App) {
@@ -16,12 +19,50 @@ pub fn register_drops(app: &mut App) {
     );
 }
 
+fn spawn_random_coin<R: Rng + ?Sized>(
+    rng: &mut R,
+    commands: &mut Commands,
+    worth: i32,
+    pos: Vec2,
+    assets: &CoinAssets
+) {
+    let vel = Vec2::new(
+        rng.gen_range(-2.0..2.0),
+        rng.gen_range(1.0..2.0)
+    );
+
+    commands.spawn(CoinBundle {
+        coin: Coin { value: worth },
+        coin_movement: CoinMovement { vel, ..default() },
+        ..CoinBundle::new(pos, assets)
+    });
+}
 
 fn drop_coins_on_death(
-    dead: Query<&CoinDrops, Added<Die>>
+    mut commands: Commands,
+    dead: Query<(&CoinDrops, &GlobalTransform), Added<Die>>,
+    assets: Res<CoinAssets>
 ) {
-    for drop in dead.iter() {
+    for (drop, transform) in dead.iter() {
+        let pos = Vec2::new(
+            transform.translation().x,
+            transform.translation().y
+        );
+
+        let mut rng = thread_rng();
+
+        let value_split = drop.value / 2;
+        let remaining = drop.value % 2;
+
+        for _ in 0..value_split {
+            spawn_random_coin(&mut rng, &mut commands, 2, pos, &assets);
+        }
+
+        if remaining != 0 {
+            spawn_random_coin(&mut rng, &mut commands, remaining, pos, &assets);
+        }
+
+
         println!("dropping {:?}", drop);
     }
 }
-

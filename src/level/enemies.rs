@@ -140,7 +140,7 @@ fn configure_enemy(
         lvl_info.grid_size.as_ivec2()
     ).extend(1.0);
 
-    enemy.coins = CoinDrops { amount: coins };
+    enemy.coins = CoinDrops { value: coins };
 }
 
 pub fn spawn_flower(

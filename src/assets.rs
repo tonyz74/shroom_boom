@@ -194,7 +194,7 @@ impl CoinAssets {
         mut assets: ResMut<CoinAssets>,
     ) {
         const SIZE: Vec2 = Vec2::new(16., 16.);
-        let sheet = asset_server.load("sprites/items/coin.png");
+        let sheet = asset_server.load("sprites/item/coin.png");
 
         let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
         let atlas_handle = texture_atlases.add(atlas);

@@ -145,7 +145,8 @@ fn explosion_damage(
                 ..default()
             },
             |hit_entity| {
-                if combat_layers.get(hit_entity).unwrap().is_ally_with(*combat_layer) {
+                if !combat_layers.contains(hit_entity)
+                    || combat_layers.get(hit_entity).unwrap().is_ally_with(*combat_layer) {
                     return true;
                 }
 

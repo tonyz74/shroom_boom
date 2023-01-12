@@ -5,6 +5,7 @@ use seldom_state::prelude::*;
 
 use bevy_egui::EguiPlugin;
 use bevy_inspector_egui::WorldInspectorPlugin;
+use bevy_easings::EasingsPlugin;
 
 use crate::{
     assets::AssetLoaderPlugin,
@@ -32,10 +33,9 @@ impl Plugin for ShadePlugin {
             // physics
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
             .add_plugin(RapierDebugRenderPlugin::default())
-
-            // egui
             .add_plugin(EguiPlugin)
             .add_plugin(WorldInspectorPlugin::new())
+            .add_plugin(EasingsPlugin)
 
             .add_plugin(bevy_debug_text_overlay::OverlayPlugin::default())
 

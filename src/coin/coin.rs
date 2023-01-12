@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy::time::FixedTimestep;
 use bevy_debug_text_overlay::screen_print;
 use bevy_rapier2d::prelude::*;
-use crate::assets::{CoinAssets, ExplosionAssets};
+use crate::assets::CoinAssets;
 use crate::common::{AnimTimer, PHYSICS_STEP_DELTA, PHYSICS_STEPS_PER_SEC};
 use crate::state::GameState;
 

@@ -8,6 +8,7 @@ use crate::state::GameState;
 pub struct SporeParticle {
     // Rotation speed in radians/sec
     pub rotation_speed: f32,
+    pub scale_speed: f32,
     pub lifetime: Timer
 }
 
@@ -15,6 +16,7 @@ impl Default for SporeParticle {
     fn default() -> Self {
         Self {
             rotation_speed: 0.0,
+            scale_speed: 0.0,
             lifetime: Timer::from_seconds(2.0, TimerMode::Once)
         }
     }
@@ -45,6 +47,7 @@ impl SporeParticleBundle {
 
             spore: SporeParticle {
                 rotation_speed: 0.0,
+                scale_speed: 0.0,
                 lifetime: Timer::default()
             },
 
@@ -87,5 +90,8 @@ fn spore_particle_rotate(
 ) {
     for (mut transform, spore) in q.iter_mut() {
         transform.rotate_axis(Vec3::Z, spore.rotation_speed * PHYSICS_STEP_DELTA);
+
+        let scale_diff = spore.scale_speed * PHYSICS_STEP_DELTA;
+        *transform = transform.with_scale(transform.scale + scale_diff);
     }
 }

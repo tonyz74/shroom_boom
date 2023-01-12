@@ -22,7 +22,7 @@ impl Default for SporeCloudAttack {
         Self {
             size: Vec2::new(32.0, 32.0),
             dmg_timer: Timer::from_seconds(0.8, TimerMode::Once),
-            particle_timer: Timer::from_seconds(0.8, TimerMode::Repeating),
+            particle_timer: Timer::from_seconds(0.6, TimerMode::Repeating),
             dur: Timer::from_seconds(8.0, TimerMode::Once)
         }
     }
@@ -105,7 +105,7 @@ fn spore_cloud_update(
             let pos = transform.translation();
             let mut rng = thread_rng();
 
-            let (x, y, rot) = {
+            let (x, y, rot, scale) = {
                 let half_x = spore_cloud.size.x / 2.0;
                 let half_y = spore_cloud.size.y / 2.0;
 
@@ -113,13 +113,15 @@ fn spore_cloud_update(
                 let y = rng.gen_range((pos.y - half_y)..(pos.y + half_y));
 
                 let rot = rng.gen_range(-30.0..30.0);
+                let scale = rng.gen_range(-0.5..0.0);
 
-                (x, y, rot)
+                (x, y, rot, scale)
             };
 
             commands.spawn(SporeParticleBundle {
                 spore: SporeParticle {
                     rotation_speed: rot * (3.14 / 180.0),
+                    scale_speed: scale,
                     ..default()
                 },
                 ..SporeParticleBundle::new(Vec2::new(x, y), &assets)
@@ -158,7 +160,8 @@ fn spore_cloud_damage(
                 ..default()
             },
             |hit_entity| {
-                if combat_layers.get(hit_entity).unwrap().is_ally_with(*combat_layer) {
+                if !combat_layers.contains(hit_entity)
+                    || combat_layers.get(hit_entity).unwrap().is_ally_with(*combat_layer) {
                     return true;
                 }
 

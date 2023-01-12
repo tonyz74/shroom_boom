@@ -548,6 +548,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_easings"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc4d451010b8b55009ded4e320c6d3a2f462dbb079f24adfbc915733724583c9"
+dependencies = [
+ "bevy 0.9.0",
+ "interpolation",
+]
+
+[[package]]
 name = "bevy_ecs"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2626,6 +2636,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "interpolation"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d3b7357d2bbc5ee92f8e899ab645233e43d21407573cceb37fed8bc3dede2c02"
+
+[[package]]
 name = "io-kit-sys"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3983,6 +3999,7 @@ dependencies = [
  "bevy 0.9.0",
  "bevy-debug-text-overlay",
  "bevy-inspector-egui",
+ "bevy_easings",
  "bevy_ecs_ldtk",
  "bevy_egui",
  "bevy_mod_debug_console",

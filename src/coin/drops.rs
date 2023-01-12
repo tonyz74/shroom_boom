@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use rand::prelude::*;
-use crate::assets::{CoinAssets, ExplosionAssets};
+use crate::assets::CoinAssets;
 use crate::coin::coin::{Coin, CoinBundle, CoinMovement};
 use crate::state::GameState;
 use crate::entity_states::Die;

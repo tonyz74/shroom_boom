@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::RapierContext;
 use seldom_state::prelude::*;
 
 use crate::{
@@ -13,8 +14,10 @@ use crate::{
         state_machine::*
     }
 };
-use crate::combat::{ColliderAttack, HurtAbility, Immunity};
+use crate::combat::{ColliderAttack, CombatLayerMask, HurtAbility, Immunity};
 use crate::entity_states::Die;
+use crate::player::abilities::autotarget;
+use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_direction, direction_for_facing, direction_to_vec};
 use crate::util::Facing;
 
 // Ability
@@ -47,17 +50,23 @@ pub fn register_dash_ability(app: &mut App) {
 
 fn dash_ability_trigger(
     mut q: Query<(
+        Entity,
         &Children,
         &mut Player,
         &mut DashAbility
     ), (Added<Dash>, Without<Die>)>,
-    mut collider_attacks: Query<&mut ColliderAttack>
+
+    transforms: Query<&GlobalTransform>,
+    combat_layers: Query<&CombatLayerMask>,
+
+    mut collider_attacks: Query<&mut ColliderAttack>,
+    rapier: Res<RapierContext>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (children, mut player, mut dash) = q.single_mut();
+    let (entity, children, mut player, mut dash) = q.single_mut();
 
     dash.dur.reset();
     player.vel.y = 0.0;
@@ -69,13 +78,33 @@ fn dash_ability_trigger(
         }
     }
 
+    let combat_layer = combat_layers.get(entity).unwrap();
 
-    let dir = match player.facing {
-        Facing::Left => -1.0,
-        Facing::Right => 1.0,
-    };
+    if player.vel.x == 0.0 {
+        let dir = if let Some((_, dir)) = autotarget::get_closest_target(
+            entity,
+            *combat_layer,
+            256.0,
+            &transforms,
+            &combat_layers,
+            &rapier
+        ) {
+            match dir {
+                AttackDirection::Up | AttackDirection::Down => direction_for_facing(player.facing),
+                _ => dir,
+            }
+        } else {
+            direction_for_facing(player.facing)
+        };
 
-    player.vel.x = dir * PLAYER_DASH_SPEED;
+        change_facing_for_direction(&mut player, dir);
+        let x = direction_to_vec(dir).x;
+
+        player.vel.x = x * PLAYER_DASH_SPEED;
+    } else {
+        // Player already has requested direction
+        player.vel.x = Vec2::new(player.vel.x, 0.0).normalize().x * PLAYER_DASH_SPEED;
+    }
 }
 
 fn dash_ability_update(

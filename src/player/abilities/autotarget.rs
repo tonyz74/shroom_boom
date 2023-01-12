@@ -138,7 +138,13 @@ pub fn direction_for_facing(facing: Facing) -> AttackDirection {
 pub fn direction_to_vec(dir: AttackDirection) -> Vec2 {
     match dir {
         AttackDirection::Left => Vec2::new(-1.0, 0.0),
+        AttackDirection::UpLeft => Vec2::new(-1.0, 0.0),
+        AttackDirection::DownLeft => Vec2::new(-1.0, 0.0),
+
         AttackDirection::Right => Vec2::new(1.0, 0.0),
+        AttackDirection::UpRight => Vec2::new(1.0, 0.0),
+        AttackDirection::DownRight => Vec2::new(1.0, 0.0),
+
         _ => Vec2::ZERO
     }
 }

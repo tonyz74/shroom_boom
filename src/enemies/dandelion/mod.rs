@@ -92,7 +92,7 @@ impl DandelionEnemyBundle {
 
                 hurt_ability: HurtAbility::new(0.5, Some(0.5)),
 
-                health: Health::new(100),
+                health: Health::new(1000),
             },
 
             dandelion: DandelionEnemy,

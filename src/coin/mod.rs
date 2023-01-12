@@ -1,6 +1,7 @@
 pub mod drops;
 pub mod pickup;
 pub mod coin;
+pub mod state_machine;
 
 use bevy::prelude::*;
 use bevy_debug_text_overlay::screen_print;

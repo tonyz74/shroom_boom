@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use crate::coin::coin::Coin;
+use crate::coin::coin::{Coin, CoinMovement};
 use crate::coin::drops::CoinHolder;
 use crate::state::GameState;
 
@@ -18,13 +18,12 @@ pub struct CoinCollector;
 
 
 fn collect_coins(
-    mut commands: Commands,
-    coins: Query<(Entity, &GlobalTransform, &Collider, &Coin)>,
-    mut collectors: Query<(&GlobalTransform, &mut CoinHolder), With<CoinCollector>>,
+    mut coins: Query<(&GlobalTransform, &Collider, &Coin, &mut CoinMovement)>,
+    mut collectors: Query<&mut CoinHolder, With<CoinCollector>>,
     rapier: Res<RapierContext>
 ) {
 
-    for (entity, tf, collider, coin) in coins.iter() {
+    for (tf, collider, coin, mut coin_mov) in coins.iter_mut() {
         let pos = Vec2::new(
             tf.translation().x,
             tf.translation().y
@@ -39,16 +38,9 @@ fn collect_coins(
                 ..default()
             },
             |collision| {
-                if let Ok((tf, mut coin_holder)) = collectors.get_mut(collision) {
-                    let collision_pos = Vec2::new(
-                        tf.translation().x,
-                        tf.translation().y
-                    );
-
-                    let _ = collision_pos;
-
+                if let Ok(mut coin_holder) = collectors.get_mut(collision) {
                     coin_holder.total_value += coin.value;
-                    commands.entity(entity).despawn();
+                    coin_mov.picked_up = true;
                 }
 
                 true

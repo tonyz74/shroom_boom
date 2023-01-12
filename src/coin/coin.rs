@@ -205,7 +205,8 @@ pub fn coin_slide(
 
 #[derive(Component, Copy, Clone, Debug, Default)]
 pub struct Coin {
-    pub value: i32
+    pub value: i32,
+    pub collected: bool
 }
 
 #[derive(Component, Clone, Debug)]

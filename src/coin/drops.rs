@@ -32,7 +32,7 @@ fn spawn_random_coin<R: Rng + ?Sized>(
     );
 
     commands.spawn(CoinBundle {
-        coin: Coin { value: worth },
+        coin: Coin { value: worth, collected: false },
         coin_movement: CoinMovement { vel, ..default() },
         ..CoinBundle::new(pos, assets)
     });

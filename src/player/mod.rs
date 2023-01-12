@@ -17,6 +17,7 @@ pub mod logic;
 pub mod triggers;
 pub mod state_machine;
 pub mod abilities;
+pub mod ammo;
 
 use abilities::dash::DashAbility;
 use crate::coin::drops::CoinHolder;
@@ -26,6 +27,7 @@ use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 use crate::player::abilities::slash::SlashAbility;
 use crate::player::abilities::jump::JumpAbility;
 use crate::player::abilities::shoot::ShootAbility;
+use crate::player::ammo::Ammo;
 use crate::util::Facing;
 
 #[derive(Bundle)]
@@ -44,6 +46,8 @@ pub struct PlayerBundle {
     pub collider: Collider,
     pub state_machine: StateMachine,
     pub anim_timer: AnimTimer,
+
+    pub ammo: Ammo,
 
     pub kb_res: KnockbackResistance,
     pub combat_layer: CombatLayerMask,
@@ -82,6 +86,7 @@ impl Plugin for PlayerPlugin {
         anim::player_setup_anim(app);
         logic::player_setup_logic(app);
         triggers::player_setup_triggers(app);
+        ammo::register_ammo(app);
     }
 }
 
@@ -112,6 +117,8 @@ fn setup_player(
             },
 
             anim_timer: AnimTimer::from_seconds(anim.speed),
+
+            ammo: Ammo::default(),
 
             collider: Collider::capsule(
                 PLAYER_COLLIDER_CAPSULE.segment.a.into(),

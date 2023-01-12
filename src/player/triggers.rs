@@ -18,6 +18,7 @@ use crate::{
 use crate::combat::HurtAbility;
 use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 use crate::player::abilities::shoot::ShootAbility;
+use crate::player::ammo::Ammo;
 use crate::player::consts::PLAYER_COLLIDER_CAPSULE;
 
 pub fn player_setup_triggers(app: &mut App) {
@@ -277,14 +278,16 @@ pub struct ShootTrigger;
 impl Trigger for ShootTrigger {
     type Param<'w, 's> = Query<'w, 's, (
         &'static ActionState<InputAction>,
-        &'static ShootAbility
+        &'static ShootAbility,
+        &'static Ammo
     ), With<Player>>;
 
-    fn trigger(&self, _: Entity, params: &Self::Param<'_, '_>) -> bool {
-        for (input, shoot) in params.iter() {
-            let ok = input.pressed(InputAction::Shoot) && shoot.cd.finished();
-            return ok;
+    fn trigger(&self, _: Entity, q: &Self::Param<'_, '_>) -> bool {
+        if q.is_empty() {
+            return false;
         }
-        false
+
+        let (input, shoot, ammo) = q.single();
+        input.pressed(InputAction::Shoot) && shoot.cd.finished() && ammo.rounds_left > 0
     }
 }

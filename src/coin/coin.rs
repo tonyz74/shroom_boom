@@ -100,10 +100,11 @@ fn coin_move(mut coins: Query<(&mut KinematicCharacterController, &CoinMovement)
 }
 
 fn set_coin_target(
-    mut coins: Query<(&GlobalTransform, &mut CoinMovement)>,
+    idling: Query<&Idle>,
+    mut coins: Query<(Entity, &GlobalTransform, &mut CoinMovement)>,
     mut collectors: Query<&GlobalTransform, With<CoinCollector>>,
 ) {
-    for (transform, mut coin) in coins.iter_mut() {
+    for (ent, transform, mut coin) in coins.iter_mut() {
         let coin_pos = Vec2::new(
             transform.translation().x,
             transform.translation().y
@@ -120,7 +121,7 @@ fn set_coin_target(
 
             let distance = target_pos.distance(coin_pos);
 
-            if distance > 256.0 {
+            if idling.contains(ent) && distance > 256.0 {
                 continue;
             }
 

@@ -18,3 +18,4 @@ pub mod util;
 pub mod entity_states;
 pub mod fx;
 pub mod coin;
+pub mod bossfight;

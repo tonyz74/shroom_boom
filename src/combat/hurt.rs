@@ -33,7 +33,6 @@ pub fn register_hurt_ability(app: &mut App) {
         SystemSet::on_update(GameState::Gameplay)
             .with_system(hurt_ability_trigger)
             .with_system(hurt_ability_update)
-            .with_system(stop_hurting)
     );
 }
 
@@ -88,6 +87,8 @@ pub fn hurt_ability_trigger(
     mut hurts: Query<(Entity, &mut HurtAbility), (Added<Hurt>, Without<Die>)>
 ) {
     for (entity, mut hurt) in hurts.iter_mut() {
+        println!("triggering hurt for {:?}", entity);
+
         hurt.immunity_timer.reset();
         hurt.initial_stun_timer.reset();
 
@@ -101,18 +102,6 @@ pub fn hurt_ability_trigger(
     }
 }
 
-pub fn stop_hurting(
-    mut commands: Commands,
-    hurts: Query<(Entity, &HurtAbility), (With<Hurt>, Without<Die>)>
-) {
-    for (entity, hurt) in hurts.iter() {
-        if let Some(regain_control_timer) = &hurt.regain_control_timer {
-            if regain_control_timer.just_finished() {
-                commands.entity(entity).insert(Done::Success);
-            }
-        }
-    }
-}
 
 pub fn hurt_ability_update(
     time: Res<Time>,
@@ -127,6 +116,11 @@ pub fn hurt_ability_update(
 
         if let Some(regain_control_timer) = &mut hurt.regain_control_timer {
             regain_control_timer.tick(dt);
+
+            if regain_control_timer.just_finished() {
+                println!("done");
+                commands.entity(entity).insert(Done::Success);
+            }
         }
 
         if hurt.immunity_timer.just_finished() {

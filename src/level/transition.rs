@@ -82,7 +82,7 @@ pub fn transition_cleanup_old(
     }
 
     for enemy in enemies.iter() {
-        commands.entity(enemy).despawn();
+        commands.entity(enemy).despawn_recursive();
     }
 }
 

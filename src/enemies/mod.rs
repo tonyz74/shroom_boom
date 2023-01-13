@@ -13,7 +13,7 @@ pub mod flower;
 pub mod pumpkin;
 pub mod dandelion;
 
-#[derive(Default, Component)]
+#[derive(Default, Component, Clone, Copy)]
 pub struct Enemy {
     pub vel: Vec2,
 }

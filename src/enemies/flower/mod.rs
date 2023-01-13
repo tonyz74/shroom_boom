@@ -50,7 +50,7 @@ impl FlowerEnemyBundle {
         });
     }
 
-    pub fn from_assets(assets: &Res<FlowerEnemyAssets>) -> Self {
+    pub fn from_assets(assets: &FlowerEnemyAssets) -> Self {
         FlowerEnemyBundle {
             enemy: EnemyBundle {
                 coins: CoinHolder::default(),

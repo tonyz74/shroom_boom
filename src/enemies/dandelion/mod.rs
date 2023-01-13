@@ -43,7 +43,7 @@ impl DandelionEnemyBundle {
     }
 
 
-    pub fn from_assets(assets: &Res<DandelionEnemyAssets>) -> DandelionEnemyBundle {
+    pub fn from_assets(assets: &DandelionEnemyAssets) -> DandelionEnemyBundle {
         DandelionEnemyBundle {
             enemy: EnemyBundle {
                 coins: CoinHolder::default(),

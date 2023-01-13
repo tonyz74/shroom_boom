@@ -17,7 +17,8 @@ use crate::{
     pathfind::PathfindingPlugin,
     combat::AttackPlugin,
     fx::EffectsPlugin,
-    coin::CoinPlugin
+    coin::CoinPlugin,
+    bossfight::BossPlugin
 };
 
 pub struct ShadePlugin;
@@ -56,6 +57,7 @@ impl Plugin for ShadePlugin {
             .add_plugin(PathfindingPlugin)
             .add_plugin(AttackPlugin)
             .add_plugin(CoinPlugin)
+            .add_plugin(BossPlugin)
 
             // polish
             .add_plugin(EffectsPlugin)

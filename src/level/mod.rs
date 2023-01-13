@@ -8,6 +8,7 @@ pub mod transition;
 pub mod enemies;
 pub mod util;
 pub mod door;
+pub mod boss;
 
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -55,6 +56,7 @@ impl Plugin for LevelPlugin {
         transition::register_transition_systems(app);
         enemies::register_enemy_spawnpoints(app);
         door::register_doors(app);
+        boss::register_boss_spawnpoints(app);
 
         app.add_system_set(
             SystemSet::on_enter(GameState::LevelTransition)

@@ -54,7 +54,7 @@ impl PumpkinEnemyBundle {
         });
     }
 
-    pub fn from_assets(assets: &Res<PumpkinEnemyAssets>) -> Self {
+    pub fn from_assets(assets: &PumpkinEnemyAssets) -> Self {
         PumpkinEnemyBundle {
             enemy: EnemyBundle {
                 coins: CoinHolder::default(),

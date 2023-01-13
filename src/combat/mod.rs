@@ -64,7 +64,7 @@ fn temp_explosion(
     camera: Query<&GlobalTransform, With<GameCamera>>,
     assets: Res<ExplosionAssets>
 ) {
-    if !events.just_pressed(MouseButton::Left) || camera.is_empty() {
+    if !events.just_pressed(MouseButton::Right) || camera.is_empty() {
         return;
     }
 

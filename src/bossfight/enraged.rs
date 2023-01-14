@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use crate::bossfight::{Boss, BossStage};
-use crate::bossfight::state_machine::BeginEnraged;
-use crate::entity_states::Idle;
+use crate::bossfight::state_machine::{BeginEnraged, PickNextMove};
 use crate::state::GameState;
 
 #[derive(Copy, Clone, Component, Debug, PartialEq, Eq)]
@@ -10,41 +9,39 @@ pub enum EnragedAttackMove {
     Boom,
     RelocateRight,
     ChargeLeft,
+    TurnRight,
     ChargeRight,
     Hover,
     Slam,
 }
 
-pub const ATTACK_SEQUENCE_LEN: usize = 21;
 pub const ATTACK_SEQUENCE: &[EnragedAttackMove] = &[
     EnragedAttackMove::Rest,
-
     EnragedAttackMove::Boom,
-    EnragedAttackMove::Rest,
 
+    EnragedAttackMove::Rest,
     EnragedAttackMove::RelocateRight,
 
-    EnragedAttackMove::Rest,
     EnragedAttackMove::ChargeLeft,
-    EnragedAttackMove::Rest,
+    EnragedAttackMove::TurnRight,
     EnragedAttackMove::ChargeRight,
 
     EnragedAttackMove::Rest,
+
     EnragedAttackMove::ChargeLeft,
-    EnragedAttackMove::Rest,
+    EnragedAttackMove::TurnRight,
     EnragedAttackMove::ChargeRight,
 
     EnragedAttackMove::Rest,
+
+    EnragedAttackMove::Hover,
+    EnragedAttackMove::Slam,
+    EnragedAttackMove::Hover,
+    EnragedAttackMove::Slam,
     EnragedAttackMove::Hover,
     EnragedAttackMove::Slam,
 
     EnragedAttackMove::Rest,
-    EnragedAttackMove::Hover,
-    EnragedAttackMove::Slam,
-
-    EnragedAttackMove::Rest,
-    EnragedAttackMove::Hover,
-    EnragedAttackMove::Slam,
 ];
 
 pub fn register_boss_enraged(app: &mut App) {
@@ -66,17 +63,17 @@ pub fn boss_enter_enraged(
 }
 
 pub fn boss_enraged_update(
-    idling: Query<&Idle>,
-    start_idling: Query<Entity, Added<Idle>>,
-    mut q: Query<(Entity, &BossStage, &mut Boss)>
+    mut q: Query<(&BossStage, &mut Boss), With<PickNextMove>>
 ) {
-    for (entity, stage, mut boss) in q.iter_mut() {
-        if stage != &BossStage::Enraged || start_idling.contains(entity) {
-            return;
-        }
-
-        if idling.contains(entity) {
-            boss.move_index = (boss.move_index + 1) % ATTACK_SEQUENCE_LEN;
-        }
+    if q.is_empty() {
+        return;
     }
+
+    let (stage, mut boss) = q.single_mut();
+
+    if stage != &BossStage::Enraged {
+        return;
+    }
+
+    boss.move_index = (boss.move_index + 1) % ATTACK_SEQUENCE.len();
 }

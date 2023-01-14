@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
-use crate::bossfight::{Boss, BossStage};
+use crate::bossfight::{Airborne, Boss, BossStage};
 use crate::combat::{DeathTrigger, HurtTrigger};
 use crate::entity_states::*;
 
@@ -11,7 +11,6 @@ pub fn register_boss_state_machine(app: &mut App) {
 
     app
         .add_plugin(TP::<SummonTrigger>::default())
-        .add_plugin(TP::<GroundedTrigger>::default())
         .add_plugin(TP::<EnragedTrigger>::default())
         .add_plugin(TP::<VulnerableTrigger>::default())
 
@@ -21,16 +20,14 @@ pub fn register_boss_state_machine(app: &mut App) {
         .add_plugin(TP::<HoverTrigger>::default())
         .add_plugin(TP::<SlamTrigger>::default())
         .add_plugin(TP::<BoomTrigger>::default())
+        .add_plugin(TP::<TurnRightTrigger>::default())
         .add_plugin(TP::<RelocateTrigger>::default());
 }
 
 pub fn boss_state_machine() -> StateMachine {
-    StateMachine::new(Fall)
-        .trans::<Fall>(GroundedTrigger, Idle)
-        .trans::<Hurt>(DoneTrigger::Success, Fall)
-
+    StateMachine::new(Idle)
+        .trans::<Hurt>(DoneTrigger::Success, Idle)
         .trans::<Idle>(HurtTrigger, Hurt)
-        .trans::<Fall>(HurtTrigger, Hurt)
 
         .trans::<Idle>(SummonTrigger, Summon)
         .trans::<Summon>(VulnerableTrigger, Vulnerable)
@@ -40,31 +37,49 @@ pub fn boss_state_machine() -> StateMachine {
         .trans::<Idle>(VulnerableTrigger, Vulnerable)
 
         .trans::<Vulnerable>(EnragedTrigger, BeginEnraged)
-        .trans::<BeginEnraged>(AlwaysTrigger, Fall)
+        .trans::<BeginEnraged>(AlwaysTrigger, Idle)
 
 
         // Enraged attacks
         .trans::<Idle>(RestTrigger, Rest)
-        .trans::<Rest>(DoneTrigger::Success, Idle)
-        .trans::<Idle>(ChargeLeftTrigger, Charge)
-        .trans::<Charge>(DoneTrigger::Success, Idle)
-        .trans::<Idle>(ChargeRightTrigger, Charge)
-        .trans::<Charge>(DoneTrigger::Success, Idle)
-        .trans::<Idle>(HoverTrigger, Hover)
-        .trans::<Hover>(DoneTrigger::Success, Idle)
-        .trans::<Idle>(RelocateTrigger, Relocate)
-        .trans::<Relocate>(DoneTrigger::Success, Idle)
-        .trans::<Idle>(SlamTrigger, Slam)
-        .trans::<Slam>(DoneTrigger::Success, Idle)
-        .trans::<Idle>(BoomTrigger, Boom)
-        .trans::<Boom>(DoneTrigger::Success, Idle)
+        .trans::<Rest>(HurtTrigger, Hurt)
+        .trans::<Rest>(DoneTrigger::Success, PickNextMove)
 
+        .trans::<Idle>(ChargeLeftTrigger, Charge)
+        .trans::<Charge>(DoneTrigger::Success, PickNextMove)
+        .trans::<Idle>(ChargeRightTrigger, Charge)
+        .trans::<Charge>(DoneTrigger::Success, PickNextMove)
+
+        .trans::<Idle>(HoverTrigger, Hover)
+        .trans::<Rest>(HurtTrigger, Hurt)
+        .trans::<Hover>(DoneTrigger::Success, PickNextMove)
+
+        .trans::<Idle>(RelocateTrigger, Relocate)
+        .trans::<Relocate>(DoneTrigger::Success, PickNextMove)
+
+        .trans::<Idle>(SlamTrigger, Slam)
+        .trans::<Slam>(DoneTrigger::Success, PickNextMove)
+
+        .trans::<Idle>(BoomTrigger, Boom)
+        .trans::<Boom>(DoneTrigger::Success, PickNextMove)
+
+        .trans::<Idle>(TurnRightTrigger, TurnRight)
+        .trans::<TurnRight>(DoneTrigger::Success, PickNextMove)
+
+        .trans::<PickNextMove>(AlwaysTrigger, AbilityStartup)
+        .trans::<AbilityStartup>(AlwaysTrigger, Idle)
 
 
 
         .trans::<Fall>(DeathTrigger, Die::default())
         .trans::<Idle>(DeathTrigger, Die::default())
         .trans::<Hurt>(DeathTrigger, Die::default())
+        .trans::<Rest>(DeathTrigger, Die::default())
+        .trans::<Boom>(DeathTrigger, Die::default())
+        .trans::<Relocate>(DeathTrigger, Die::default())
+        .trans::<Charge>(DeathTrigger, Die::default())
+        .trans::<Hover>(DeathTrigger, Die::default())
+        .trans::<Slam>(DeathTrigger, Die::default())
 
         .trans::<Die>(NotTrigger(AlwaysTrigger), Die::default())
 }
@@ -81,6 +96,11 @@ pub struct Vulnerable;
 #[derive(Component, Copy, Clone, Reflect)]
 pub struct BeginEnraged;
 
+#[derive(Component, Copy, Clone, Reflect)]
+pub struct PickNextMove;
+
+#[derive(Component, Copy, Clone, Reflect)]
+pub struct AbilityStartup;
 
 
 #[derive(Component, Copy, Clone, Reflect)]
@@ -101,29 +121,12 @@ pub struct Slam;
 #[derive(Component, Copy, Clone, Reflect)]
 pub struct Boom;
 
+#[derive(Component, Copy, Clone, Reflect)]
+pub struct TurnRight;
 
 
 
 
-
-#[derive(Copy, Clone, Debug, Reflect, FromReflect)]
-pub struct GroundedTrigger;
-
-impl Trigger for GroundedTrigger {
-    type Param<'w, 's> = Query<'w, 's,
-        &'static KinematicCharacterControllerOutput,
-        With<Boss>
-    >;
-
-    fn trigger(&self, entity: Entity, outs: &Self::Param<'_, '_>) -> bool {
-        if !outs.contains(entity) {
-            return false;
-        }
-
-        let cc_out = outs.get(entity).unwrap();
-        cc_out.grounded
-    }
-}
 
 #[derive(Copy, Clone, Debug, Reflect, FromReflect)]
 pub struct SummonTrigger;
@@ -183,7 +186,6 @@ impl Trigger for EnragedTrigger {
 
 
 
-
 macro_rules! attack_trigger {
     ($trig_name: ident, $action: expr) => {
         #[derive(Copy, Clone, Reflect, FromReflect)]
@@ -212,5 +214,6 @@ attack_trigger!(ChargeLeftTrigger, EnragedAttackMove::ChargeLeft);
 attack_trigger!(ChargeRightTrigger, EnragedAttackMove::ChargeRight);
 attack_trigger!(HoverTrigger, EnragedAttackMove::Hover);
 attack_trigger!(RelocateTrigger, EnragedAttackMove::RelocateRight);
-attack_trigger!(SlamTrigger, EnragedAttackMove::Slam);
+attack_trigger!(TurnRightTrigger, EnragedAttackMove::TurnRight);
 attack_trigger!(BoomTrigger, EnragedAttackMove::Boom);
+attack_trigger!(SlamTrigger, EnragedAttackMove::Slam);

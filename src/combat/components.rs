@@ -20,19 +20,6 @@ impl CombatLayerMask {
 }
 
 #[derive(Component, Debug, Copy, Clone, Default)]
-pub struct KnockbackResistance {
-    pub resistance: f32
-}
-
-impl KnockbackResistance {
-    pub fn new(res: f32) -> Self {
-        KnockbackResistance {
-            resistance: res
-        }
-    }
-}
-
-#[derive(Component, Debug, Copy, Clone, Default)]
 pub struct KnockbackStrength {
     pub multiplier: f32
 }

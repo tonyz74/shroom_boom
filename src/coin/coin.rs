@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use bevy::time::FixedTimestep;
-use bevy_debug_text_overlay::screen_print;
 use bevy_rapier2d::prelude::*;
 use crate::entity_states::*;
 use crate::assets::CoinAssets;

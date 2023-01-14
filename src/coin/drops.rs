@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::*;
 use rand::prelude::*;
 use crate::assets::CoinAssets;
 use crate::coin::coin::{Coin, CoinBundle, CoinMovement};

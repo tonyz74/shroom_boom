@@ -18,7 +18,6 @@ use crate::combat::{ColliderAttack, CombatLayerMask, HurtAbility, Immunity};
 use crate::entity_states::Die;
 use crate::player::abilities::autotarget;
 use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_direction, direction_for_facing, direction_to_vec};
-use crate::util::Facing;
 
 // Ability
 

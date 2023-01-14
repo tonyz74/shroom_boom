@@ -10,7 +10,7 @@
 	},
 	"jsonVersion": "1.1.3",
 	"appBuildId": 458364,
-	"nextUid": 73,
+	"nextUid": 78,
 	"identifierStyle": "Capitalize",
 	"worldLayout": "Free",
 	"worldGridWidth": 256,
@@ -787,12 +787,129 @@
 			"tileRenderMode": "FitInside",
 			"tileRect": { "tilesetUid": 65, "x": 240, "y": 800, "w": 16, "h": 16 },
 			"nineSliceBorders": [],
-			"maxCount": 0,
+			"maxCount": 1,
 			"limitScope": "PerLevel",
 			"limitBehavior": "MoveLastOne",
 			"pivotX": 0.5,
 			"pivotY": 0.5,
-			"fieldDefs": []
+			"fieldDefs": [
+				{
+					"identifier": "SummonPointY",
+					"__type": "Point",
+					"uid": 73,
+					"type": "F_Point",
+					"isArray": false,
+					"canBeNull": false,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "PointPath",
+					"editorDisplayPos": "Above",
+					"editorAlwaysShow": false,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefTags": [],
+					"tilesetUid": null
+				},
+				{
+					"identifier": "DashPointRIght",
+					"__type": "Point",
+					"uid": 74,
+					"type": "F_Point",
+					"isArray": false,
+					"canBeNull": false,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "PointPath",
+					"editorDisplayPos": "Above",
+					"editorAlwaysShow": false,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefTags": [],
+					"tilesetUid": null
+				},
+				{
+					"identifier": "DashPointLeft",
+					"__type": "Point",
+					"uid": 75,
+					"type": "F_Point",
+					"isArray": false,
+					"canBeNull": false,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "PointPath",
+					"editorDisplayPos": "Above",
+					"editorAlwaysShow": false,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefTags": [],
+					"tilesetUid": null
+				},
+				{
+					"identifier": "HoverPointY",
+					"__type": "Point",
+					"uid": 76,
+					"type": "F_Point",
+					"isArray": false,
+					"canBeNull": false,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "PointPath",
+					"editorDisplayPos": "Above",
+					"editorAlwaysShow": false,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefTags": [],
+					"tilesetUid": null
+				}
+			]
 		}
 	], "tilesets": [
 		{
@@ -923,7 +1040,7 @@
 						},
 						{
 							"__identifier": "EntryPoint",
-							"__grid": [8,20],
+							"__grid": [5,3],
 							"__pivot": [0.5,0.5],
 							"__tags": [],
 							"__tile": null,
@@ -932,7 +1049,7 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 33,
-							"px": [68,164],
+							"px": [44,28],
 							"fieldInstances": [{ "__identifier": "EntryPoint_ID", "__value": 0, "__type": "Int", "__tile": null, "defUid": 50, "realEditorValues": [] }]
 						},
 						{
@@ -970,7 +1087,7 @@
 									"entityIid": "501375c0-7820-11ed-b5e1-e7b6d16893d4",
 									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
 									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
-									"worldIid": "d41f49b0-7820-11ed-8060-b554a62aa47a"
+									"worldIid": "786bbd50-7820-11ed-9f18-d9f98cca1eb2"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["501375c0-7820-11ed-b5e1-e7b6d16893d4"]
@@ -1027,7 +1144,7 @@
 									"entityIid": "8afc10c0-7820-11ed-ba3b-fd2c95729cf4",
 									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
 									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
-									"worldIid": "d41f49b0-7820-11ed-8060-b554a62aa47a"
+									"worldIid": "786bbd50-7820-11ed-9f18-d9f98cca1eb2"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["8afc10c0-7820-11ed-ba3b-fd2c95729cf4"]
@@ -1056,12 +1173,29 @@
 									"entityIid": "8c40ecd0-7820-11ed-ba3b-314c014df5b9",
 									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
 									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
-									"worldIid": "d41f49b0-7820-11ed-8060-b554a62aa47a"
+									"worldIid": "786bbd50-7820-11ed-9f18-d9f98cca1eb2"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["8c40ecd0-7820-11ed-ba3b-314c014df5b9"]
 								}] },
 								{ "__identifier": "Coins", "__value": 1, "__type": "Int", "__tile": null, "defUid": 68, "realEditorValues": [{ "id": "V_Int", "params": [1] }] }
+							]
+						},
+						{
+							"__identifier": "Exit",
+							"__grid": [5,1],
+							"__pivot": [0.5,0.5],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#94D9B3",
+							"iid": "8c7ac7a0-7820-11ed-9f18-3746d7e75e5f",
+							"width": 64,
+							"height": 64,
+							"defUid": 46,
+							"px": [44,12],
+							"fieldInstances": [
+								{ "__identifier": "NextLevel", "__value": 1, "__type": "Int", "__tile": null, "defUid": 47, "realEditorValues": [{ "id": "V_Int", "params": [1] }] },
+								{ "__identifier": "EntryPoint_ID", "__value": 0, "__type": "Int", "__tile": null, "defUid": 49, "realEditorValues": [{ "id": "V_Int", "params": [0] }] }
 							]
 						}
 					]
@@ -1860,7 +1994,24 @@
 							"height": 16,
 							"defUid": 72,
 							"px": [188,164],
-							"fieldInstances": []
+							"fieldInstances": [
+								{ "__identifier": "SummonPointY", "__value": { "cx": 23, "cy": 26 }, "__type": "Point", "__tile": null, "defUid": 73, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["23,26"]
+								}] },
+								{ "__identifier": "DashPointRIght", "__value": { "cx": 45, "cy": 23 }, "__type": "Point", "__tile": null, "defUid": 74, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["45,23"]
+								}] },
+								{ "__identifier": "DashPointLeft", "__value": { "cx": 2, "cy": 23 }, "__type": "Point", "__tile": null, "defUid": 75, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["2,23"]
+								}] },
+								{ "__identifier": "HoverPointY", "__value": { "cx": 23, "cy": 8 }, "__type": "Point", "__tile": null, "defUid": 76, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["23,8"]
+								}] }
+							]
 						}
 					]
 				},
@@ -2398,7 +2549,7 @@
 									"entityIid": "f72857b0-7820-11ed-8060-2558bf1b39ef",
 									"layerIid": "193075a0-7820-11ed-8060-73c0d2670de7",
 									"levelIid": "19300070-7820-11ed-8060-b37c999aef1b",
-									"worldIid": "d41f49b0-7820-11ed-8060-b554a62aa47a"
+									"worldIid": "786bbd50-7820-11ed-9f18-d9f98cca1eb2"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["f72857b0-7820-11ed-8060-2558bf1b39ef"]

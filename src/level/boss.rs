@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use crate::assets::BossAssets;
-use crate::bossfight::{Boss, BossBundle};
-use crate::combat::HurtAbility;
+use crate::bossfight::BossBundle;
 use crate::level::{coord, LevelInfo};
 use crate::state::GameState;
 

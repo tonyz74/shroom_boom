@@ -87,7 +87,6 @@ pub fn hurt_ability_trigger(
     mut hurts: Query<(Entity, &mut HurtAbility), (Added<Hurt>, Without<Die>)>
 ) {
     for (entity, mut hurt) in hurts.iter_mut() {
-        println!("triggering hurt for {:?}", entity);
 
         hurt.immunity_timer.reset();
         hurt.initial_stun_timer.reset();
@@ -118,7 +117,6 @@ pub fn hurt_ability_update(
             regain_control_timer.tick(dt);
 
             if regain_control_timer.just_finished() {
-                println!("done");
                 commands.entity(entity).insert(Done::Success);
             }
         }

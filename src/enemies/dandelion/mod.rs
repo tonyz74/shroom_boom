@@ -10,7 +10,7 @@ use crate::{
 };
 use crate::assets::DandelionEnemyAssets;
 use crate::coin::drops::CoinHolder;
-use crate::combat::{AttackStrength, ColliderAttackBundle, CombatLayerMask, Health, HurtAbility, KnockbackResistance};
+use crate::combat::{AttackStrength, ColliderAttackBundle, CombatLayerMask, Health, HurtAbility};
 use crate::common::AnimTimer;
 use crate::enemies::Enemy;
 use crate::pathfind::{util::BoundingBox, Pathfinder, PathfinderBundle};
@@ -36,10 +36,10 @@ impl DandelionEnemyBundle {
         }
     }
 
-    pub fn spawn(commands: &mut Commands, enemy: Self) {
+    pub fn spawn(commands: &mut Commands, enemy: Self) -> Entity {
         commands.spawn(enemy).with_children(|p| {
             p.spawn(Self::collider_attack());
-        });
+        }).id()
     }
 
 
@@ -87,7 +87,6 @@ impl DandelionEnemyBundle {
                     ..default()
                 },
 
-                kb_res: KnockbackResistance::new(1.0),
                 combat_layer: CombatLayerMask::ENEMY,
 
                 hurt_ability: HurtAbility::new(0.5, Some(0.5)),

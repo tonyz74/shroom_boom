@@ -22,7 +22,7 @@ pub mod ammo;
 use abilities::dash::DashAbility;
 use crate::coin::drops::CoinHolder;
 use crate::coin::pickup::CoinCollector;
-use crate::combat::{AttackStrength, ColliderAttack, CombatLayerMask, Health, HurtAbility, KnockbackResistance};
+use crate::combat::{AttackStrength, ColliderAttack, CombatLayerMask, Health, HurtAbility};
 use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 use crate::player::abilities::slash::SlashAbility;
 use crate::player::abilities::jump::JumpAbility;
@@ -49,7 +49,6 @@ pub struct PlayerBundle {
 
     pub ammo: Ammo,
 
-    pub kb_res: KnockbackResistance,
     pub combat_layer: CombatLayerMask,
     pub health: Health,
 
@@ -154,7 +153,6 @@ fn setup_player(
 
             state_machine: state_machine::player_state_machine(),
 
-            kb_res: KnockbackResistance::new(1.0),
             combat_layer: CombatLayerMask::PLAYER,
             health: Health::new(100000)
         }

@@ -9,7 +9,7 @@ use crate::{
     common::AnimTimer,
     enemies::{EnemyBundle, Enemy},
     assets::FlowerEnemyAssets,
-    combat::{CombatLayerMask, Health, HurtAbility, KnockbackResistance},
+    combat::{CombatLayerMask, Health, HurtAbility},
     pathfind::{Pathfinder, PathfinderBundle, util::BoundingBox, walk::WalkPathfinder, MeleePathfinder}
 };
 use crate::coin::drops::CoinHolder;
@@ -44,10 +44,10 @@ impl FlowerEnemyBundle {
         }
     }
 
-    pub fn spawn(commands: &mut Commands, enemy: Self) {
+    pub fn spawn(commands: &mut Commands, enemy: Self) -> Entity {
         commands.spawn(enemy).with_children(|p| {
             p.spawn(Self::collider_attack());
-        });
+        }).id()
     }
 
     pub fn from_assets(assets: &FlowerEnemyAssets) -> Self {
@@ -95,7 +95,6 @@ impl FlowerEnemyBundle {
                     ..default()
                 },
 
-                kb_res: KnockbackResistance::new(1.0),
                 combat_layer: CombatLayerMask::ENEMY,
 
                 hurt_ability: HurtAbility::new(0.5, None),

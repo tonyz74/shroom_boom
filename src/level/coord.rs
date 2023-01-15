@@ -1,5 +1,29 @@
 use bevy::prelude::*;
-use crate::level::consts::RENDERED_TILE_SIZE;
+use bevy_ecs_ldtk::{EntityInstance, GridCoords};
+use crate::level::consts::{RENDERED_TILE_SIZE, TILE_SIZE};
+use crate::level::coord;
+use crate::pathfind::Region;
+
+
+pub fn grid_coords_to_region(
+    inst: &EntityInstance,
+    grid_size: Vec2
+) -> Region {
+    let reg_dim = IVec2::new(
+        (inst.width as f32 / TILE_SIZE) as i32,
+        (inst.height as f32 / TILE_SIZE) as i32
+    );
+
+    let tl = GridCoords::new(inst.grid.x, inst.grid.y);
+    let br = GridCoords::new(inst.grid.x + reg_dim.x, inst.grid.y + reg_dim.y);
+
+    let region = Region {
+        tl: grid_coord_to_translation(tl.into(), grid_size.as_ivec2()),
+        br: grid_coord_to_translation(br.into(), grid_size.as_ivec2()),
+    };
+
+    region
+}
 
 pub fn top_left_to_center(
     top_left: Vec2,

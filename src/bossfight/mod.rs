@@ -25,9 +25,8 @@ use crate::state::GameState;
 use enraged::ATTACK_SEQUENCE;
 use crate::bossfight::abilities::{BoomAbility, RelocateAbility, register_boss_abilities, RestAbility};
 
+pub use crate::bossfight::config::BossConfig;
 
-#[derive(Copy, Clone, Debug, Component, Reflect)]
-pub struct Airborne;
 
 #[derive(Component, Clone, Reflect)]
 pub struct Boss {
@@ -56,6 +55,7 @@ impl Boss {
 pub struct BossBundle {
     pub boss: Boss,
     pub stage: BossStage,
+    pub config: BossConfig,
 
     pub enemy: Enemy,
     pub sensor: Sensor,
@@ -98,6 +98,8 @@ impl BossBundle {
         let anim = &assets.anims["WAIT"];
 
         Self {
+            config: BossConfig::default(),
+
             boss: Boss::default(),
 
             stage: BossStage::Waiting,
@@ -163,6 +165,7 @@ impl Plugin for BossPlugin {
         app
             .register_type::<Boss>()
             .register_type::<BossStage>()
+            .register_type::<BossConfig>()
             .add_system_set(
                 SystemSet::on_update(GameState::Gameplay)
                     .with_system(boss_got_hurt)

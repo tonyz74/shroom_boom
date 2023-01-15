@@ -1,11 +1,12 @@
 use bevy::prelude::*;
+use crate::pathfind::Region;
 
-#[derive(Component, Clone, Debug)]
+#[derive(Component, Clone, Debug, Default, Reflect)]
 pub struct BossConfig {
     pub relocate_point: Vec2,
 
-    pub dash_right: Vec2,
-    pub dash_left: Vec2,
+    pub charge_right: Vec2,
+    pub charge_left: Vec2,
 
     pub hover_base: Vec2,
     pub summon_base: Vec2,
@@ -13,5 +14,5 @@ pub struct BossConfig {
     pub x_min: f32,
     pub x_max: f32,
 
-    pub boom_box: Vec2
+    pub boom_region: Region
 }

@@ -62,20 +62,10 @@ fn spawn_enemies(
     let mut patrol_regions_map = HashMap::new();
 
     for inst in patrol_regions.iter() {
-        let reg_dim = IVec2::new(
-            (inst.width as f32 / TILE_SIZE) as i32,
-            (inst.height as f32 / TILE_SIZE) as i32
+        patrol_regions_map.insert(
+            inst.iid.clone(),
+            coord::grid_coords_to_region(&inst, lvl_info.grid_size)
         );
-
-        let tl = GridCoords::new(inst.grid.x, inst.grid.y);
-        let br = GridCoords::new(inst.grid.x + reg_dim.x, inst.grid.y + reg_dim.y);
-
-        let region = Region {
-            tl: coord::grid_coord_to_translation(tl.into(), lvl_info.grid_size.as_ivec2()),
-            br: coord::grid_coord_to_translation(br.into(), lvl_info.grid_size.as_ivec2()),
-        };
-
-        patrol_regions_map.insert(inst.iid.clone(), region);
     }
 
     for inst in enemies.iter() {

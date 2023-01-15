@@ -14,7 +14,7 @@ impl GridRegion {
     }
 }
 
-#[derive(Component, Debug, Default, Copy, Clone)]
+#[derive(Component, Debug, Default, Copy, Clone, Reflect)]
 pub struct Region {
     pub tl: Vec2,
     pub br: Vec2

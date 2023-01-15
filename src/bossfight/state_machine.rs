@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
-use crate::bossfight::{Airborne, Boss, BossStage};
+use crate::bossfight::{Boss, BossStage};
 use crate::combat::{DeathTrigger, HurtTrigger};
 use crate::entity_states::*;
 
@@ -81,6 +81,8 @@ pub fn boss_state_machine() -> StateMachine {
         .trans::<Idle>(DeathTrigger, Die::default())
         .trans::<Hurt>(DeathTrigger, Die::default())
         .trans::<Rest>(DeathTrigger, Die::default())
+        .trans::<Turn>(DeathTrigger, Die::default())
+        .trans::<Leap>(DeathTrigger, Die::default())
         .trans::<Boom>(DeathTrigger, Die::default())
         .trans::<Relocate>(DeathTrigger, Die::default())
         .trans::<Charge>(DeathTrigger, Die::default())

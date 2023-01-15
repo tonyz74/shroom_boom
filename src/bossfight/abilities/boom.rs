@@ -45,7 +45,6 @@ fn start_booming(
     }
 
     let (entity, mut boom) = q.single_mut();
-
     commands.entity(entity).insert(Immunity);
 
     boom.wait_timer.reset();

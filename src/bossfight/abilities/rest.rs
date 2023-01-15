@@ -3,6 +3,7 @@ use seldom_state::prelude::*;
 use crate::bossfight::Boss;
 use crate::bossfight::stage::BossStage;
 use crate::bossfight::state_machine::{Rest, AbilityStartup};
+use crate::combat::Immunity;
 use crate::state::GameState;
 
 #[derive(Debug, Component, Clone)]
@@ -30,14 +31,20 @@ pub fn register_rest_ability(app: &mut App) {
 
 
 fn start_resting(
-    mut q: Query<&mut RestAbility, (With<Boss>, Added<AbilityStartup>)>
+    mut commands: Commands,
+    mut q: Query<
+        (Entity, &mut RestAbility),
+        (With<Boss>, Added<AbilityStartup>)
+    >
 ) {
     if q.is_empty() {
         return;
     }
 
-    let mut rest = q.single_mut();
+    let (entity, mut rest) = q.single_mut();
     rest.timer.reset();
+
+    commands.entity(entity).remove::<Immunity>();
 }
 
 fn rest_update(

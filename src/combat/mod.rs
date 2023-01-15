@@ -83,7 +83,7 @@ fn temp_explosion(
     let world_pos = cpos + (cam - 0.5 * Vec2::new(win.width(), win.height()));
 
     commands.spawn(ExplosionAttackBundle::new(world_pos, &assets));
-    commands.spawn(SporeCloudAttackBundle::new(world_pos, Vec2::new(256.0, 128.0)));
+    // commands.spawn(SporeCloudAttackBundle::new(world_pos, Vec2::new(256.0, 128.0)));
 }
 
 fn handle_hits(
@@ -99,7 +99,7 @@ fn handle_hits(
                 continue;
             }
 
-            health.hp -= hit.damage;
+            health.hp -= hit.damage.abs();
             hurt.hit_event = Some(*hit);
         }
     }

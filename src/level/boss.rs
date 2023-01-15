@@ -76,14 +76,19 @@ fn spawn_boss(
                 boom_region_map[&id.entity_iid]
             };
 
+            let rightmost = charge_right - Vec2::new(256.0, 0.0);
+            let leftmost = charge_left + Vec2::new(256.0, 0.0);
+
             BossConfig {
                 boom_region,
                 summon_base,
-                charge_left,
-                charge_right,
                 hover_base,
 
-                relocate_point: charge_right,
+                charge_left: leftmost,
+                charge_right: rightmost,
+
+                relocate_point: rightmost,
+
                 x_min: charge_left.x,
                 x_max: charge_right.x
             }

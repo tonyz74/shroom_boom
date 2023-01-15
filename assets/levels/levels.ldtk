@@ -10,7 +10,7 @@
 	},
 	"jsonVersion": "1.1.3",
 	"appBuildId": 458364,
-	"nextUid": 80,
+	"nextUid": 83,
 	"identifierStyle": "Capitalize",
 	"worldLayout": "Free",
 	"worldGridWidth": 256,
@@ -823,7 +823,7 @@
 					"tilesetUid": null
 				},
 				{
-					"identifier": "DashPointRIght",
+					"identifier": "DashPointRight",
 					"__type": "Point",
 					"uid": 74,
 					"type": "F_Point",
@@ -908,8 +908,65 @@
 					"allowedRefs": "OnlySame",
 					"allowedRefTags": [],
 					"tilesetUid": null
+				},
+				{
+					"identifier": "BoomBox",
+					"__type": "EntityRef",
+					"uid": 82,
+					"type": "F_EntityRef",
+					"isArray": false,
+					"canBeNull": false,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "RefLinkBetweenCenters",
+					"editorDisplayPos": "Above",
+					"editorAlwaysShow": false,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": false,
+					"allowedRefs": "Any",
+					"allowedRefTags": [],
+					"tilesetUid": null
 				}
 			]
+		},
+		{
+			"identifier": "BoomRegion",
+			"uid": 81,
+			"tags": ["region"],
+			"width": 16,
+			"height": 16,
+			"resizableX": true,
+			"resizableY": true,
+			"keepAspectRatio": false,
+			"tileOpacity": 1,
+			"fillOpacity": 1,
+			"lineOpacity": 1,
+			"hollow": true,
+			"color": "#F18F50",
+			"renderMode": "Rectangle",
+			"showName": true,
+			"tilesetId": null,
+			"tileId": null,
+			"tileRenderMode": "FitInside",
+			"tileRect": null,
+			"nineSliceBorders": [],
+			"maxCount": 0,
+			"limitScope": "PerLevel",
+			"limitBehavior": "MoveLastOne",
+			"pivotX": 0,
+			"pivotY": 0,
+			"fieldDefs": []
 		}
 	], "tilesets": [
 		{
@@ -1087,7 +1144,7 @@
 									"entityIid": "501375c0-7820-11ed-b5e1-e7b6d16893d4",
 									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
 									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
-									"worldIid": "786bbd50-7820-11ed-9f18-d9f98cca1eb2"
+									"worldIid": "5a0e1130-7820-11ed-b405-d3fc535a0282"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["501375c0-7820-11ed-b5e1-e7b6d16893d4"]
@@ -1144,7 +1201,7 @@
 									"entityIid": "8afc10c0-7820-11ed-ba3b-fd2c95729cf4",
 									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
 									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
-									"worldIid": "786bbd50-7820-11ed-9f18-d9f98cca1eb2"
+									"worldIid": "5a0e1130-7820-11ed-b405-d3fc535a0282"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["8afc10c0-7820-11ed-ba3b-fd2c95729cf4"]
@@ -1173,7 +1230,7 @@
 									"entityIid": "8c40ecd0-7820-11ed-ba3b-314c014df5b9",
 									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
 									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
-									"worldIid": "786bbd50-7820-11ed-9f18-d9f98cca1eb2"
+									"worldIid": "5a0e1130-7820-11ed-b405-d3fc535a0282"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["8c40ecd0-7820-11ed-ba3b-314c014df5b9"]
@@ -1999,7 +2056,7 @@
 									"id": "V_String",
 									"params": ["23,26"]
 								}] },
-								{ "__identifier": "DashPointRIght", "__value": { "cx": 45, "cy": 25 }, "__type": "Point", "__tile": null, "defUid": 74, "realEditorValues": [{
+								{ "__identifier": "DashPointRight", "__value": { "cx": 45, "cy": 25 }, "__type": "Point", "__tile": null, "defUid": 74, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["45,25"]
 								}] },
@@ -2010,8 +2067,31 @@
 								{ "__identifier": "HoverPointY", "__value": { "cx": 23, "cy": 10 }, "__type": "Point", "__tile": null, "defUid": 76, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["23,10"]
+								}] },
+								{ "__identifier": "BoomBox", "__value": {
+									"entityIid": "c4645b70-7820-11ed-b405-ad3932577994",
+									"layerIid": "d4d90760-7820-11ed-963f-25c56a72f1e0",
+									"levelIid": "d4d89230-7820-11ed-963f-41a18e3c1b4c",
+									"worldIid": "5a0e1130-7820-11ed-b405-d3fc535a0282"
+								}, "__type": "EntityRef", "__tile": null, "defUid": 82, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["c4645b70-7820-11ed-b405-ad3932577994"]
 								}] }
 							]
+						},
+						{
+							"__identifier": "BoomRegion",
+							"__grid": [2,12],
+							"__pivot": [0,0],
+							"__tags": ["region"],
+							"__tile": null,
+							"__smartColor": "#F18F50",
+							"iid": "c4645b70-7820-11ed-b405-ad3932577994",
+							"width": 352,
+							"height": 144,
+							"defUid": 81,
+							"px": [16,96],
+							"fieldInstances": []
 						}
 					]
 				},
@@ -2549,7 +2629,7 @@
 									"entityIid": "f72857b0-7820-11ed-8060-2558bf1b39ef",
 									"layerIid": "193075a0-7820-11ed-8060-73c0d2670de7",
 									"levelIid": "19300070-7820-11ed-8060-b37c999aef1b",
-									"worldIid": "786bbd50-7820-11ed-9f18-d9f98cca1eb2"
+									"worldIid": "5a0e1130-7820-11ed-b405-d3fc535a0282"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["f72857b0-7820-11ed-8060-2558bf1b39ef"]

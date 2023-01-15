@@ -21,6 +21,8 @@ pub fn register_boss_state_machine(app: &mut App) {
         .add_plugin(TP::<SlamTrigger>::default())
         .add_plugin(TP::<BoomTrigger>::default())
         .add_plugin(TP::<TurnRightTrigger>::default())
+        .add_plugin(TP::<TurnLeftTrigger>::default())
+        .add_plugin(TP::<LeapTrigger>::default())
         .add_plugin(TP::<RelocateTrigger>::default());
 }
 
@@ -63,8 +65,12 @@ pub fn boss_state_machine() -> StateMachine {
         .trans::<Idle>(BoomTrigger, Boom)
         .trans::<Boom>(DoneTrigger::Success, PickNextMove)
 
-        .trans::<Idle>(TurnRightTrigger, TurnRight)
-        .trans::<TurnRight>(DoneTrigger::Success, PickNextMove)
+        .trans::<Idle>(TurnRightTrigger, Turn)
+        .trans::<Idle>(TurnLeftTrigger, Turn)
+        .trans::<Turn>(DoneTrigger::Success, PickNextMove)
+
+        .trans::<Idle>(LeapTrigger, Leap)
+        .trans::<Leap>(DoneTrigger::Success, PickNextMove)
 
         .trans::<PickNextMove>(AlwaysTrigger, AbilityStartup)
         .trans::<AbilityStartup>(AlwaysTrigger, Idle)
@@ -116,14 +122,16 @@ pub struct Hover;
 pub struct Relocate;
 
 #[derive(Component, Copy, Clone, Reflect)]
+pub struct Turn;
+
+#[derive(Component, Copy, Clone, Reflect)]
+pub struct Leap;
+
+#[derive(Component, Copy, Clone, Reflect)]
 pub struct Slam;
 
 #[derive(Component, Copy, Clone, Reflect)]
 pub struct Boom;
-
-#[derive(Component, Copy, Clone, Reflect)]
-pub struct TurnRight;
-
 
 
 
@@ -215,5 +223,7 @@ attack_trigger!(ChargeRightTrigger, EnragedAttackMove::ChargeRight);
 attack_trigger!(HoverTrigger, EnragedAttackMove::Hover);
 attack_trigger!(RelocateTrigger, EnragedAttackMove::RelocateRight);
 attack_trigger!(TurnRightTrigger, EnragedAttackMove::TurnRight);
+attack_trigger!(TurnLeftTrigger, EnragedAttackMove::TurnLeft);
+attack_trigger!(LeapTrigger, EnragedAttackMove::Leap);
 attack_trigger!(BoomTrigger, EnragedAttackMove::Boom);
 attack_trigger!(SlamTrigger, EnragedAttackMove::Slam);

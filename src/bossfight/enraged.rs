@@ -9,8 +9,10 @@ pub enum EnragedAttackMove {
     Boom,
     RelocateRight,
     ChargeLeft,
-    TurnRight,
     ChargeRight,
+    TurnRight,
+    TurnLeft,
+    Leap,
     Hover,
     Slam,
 }
@@ -25,16 +27,18 @@ pub const ATTACK_SEQUENCE: &[EnragedAttackMove] = &[
     EnragedAttackMove::ChargeLeft,
     EnragedAttackMove::TurnRight,
     EnragedAttackMove::ChargeRight,
+    EnragedAttackMove::TurnLeft,
 
     EnragedAttackMove::Rest,
 
     EnragedAttackMove::ChargeLeft,
     EnragedAttackMove::TurnRight,
     EnragedAttackMove::ChargeRight,
+    EnragedAttackMove::TurnLeft,
 
     EnragedAttackMove::Rest,
+    EnragedAttackMove::Leap,
 
-    EnragedAttackMove::Hover,
     EnragedAttackMove::Slam,
     EnragedAttackMove::Hover,
     EnragedAttackMove::Slam,

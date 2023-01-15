@@ -21,7 +21,7 @@ pub struct BoomAbility {
 impl Default for BoomAbility {
     fn default() -> Self {
         Self {
-            sel_timer: Timer::from_seconds(0.15, TimerMode::Repeating),
+            sel_timer: Timer::from_seconds(0.1, TimerMode::Repeating),
             explosion_points: vec![],
             wait_timer: Timer::from_seconds(0.8, TimerMode::Once)
         }
@@ -59,7 +59,7 @@ fn pick_explosion_point(
     grid: &PathfindingGrid,
 ) -> Vec2 {
     let mut rng = thread_rng();
-    let mut coords = IVec2::ZERO;
+    let mut coords;
 
     let max = grid.lvl_info.grid_size.as_ivec2();
 
@@ -101,9 +101,7 @@ fn boom_update(
         boom.wait_timer.tick(time.delta());
 
         if boom.wait_timer.just_finished() {
-            // Spawn explosions
             boom_spawn_explosions(&mut commands, &boom.explosion_points, &assets);
-
             commands.entity(entity).remove::<Immunity>().insert(Done::Success);
         }
     }

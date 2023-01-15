@@ -15,6 +15,7 @@ pub fn register_boss_state_machine(app: &mut App) {
         .add_plugin(TP::<VulnerableTrigger>::default())
 
         .add_plugin(TP::<RestTrigger>::default())
+        .add_plugin(TP::<TakeoffTrigger>::default())
         .add_plugin(TP::<ChargeLeftTrigger>::default())
         .add_plugin(TP::<ChargeRightTrigger>::default())
         .add_plugin(TP::<HoverTrigger>::default())
@@ -64,6 +65,10 @@ pub fn boss_state_machine() -> StateMachine {
 
         .trans::<Idle>(BoomTrigger, Boom)
         .trans::<Boom>(DoneTrigger::Success, PickNextMove)
+
+
+        .trans::<Idle>(TakeoffTrigger, Takeoff)
+        .trans::<Takeoff>(DoneTrigger::Success, PickNextMove)
 
         .trans::<Idle>(TurnRightTrigger, Turn)
         .trans::<Idle>(TurnLeftTrigger, Turn)
@@ -135,6 +140,8 @@ pub struct Slam;
 #[derive(Component, Copy, Clone, Reflect)]
 pub struct Boom;
 
+#[derive(Component, Copy, Clone, Reflect)]
+pub struct Takeoff;
 
 
 
@@ -229,3 +236,4 @@ attack_trigger!(TurnLeftTrigger, EnragedAttackMove::TurnLeft);
 attack_trigger!(LeapTrigger, EnragedAttackMove::Leap);
 attack_trigger!(BoomTrigger, EnragedAttackMove::Boom);
 attack_trigger!(SlamTrigger, EnragedAttackMove::Slam);
+attack_trigger!(TakeoffTrigger, EnragedAttackMove::Takeoff);

@@ -9,7 +9,7 @@ use crate::{
         flower::FlowerEnemyBundle
     },
     pathfind::util::Region,
-    level::{util, coord, consts::TILE_SIZE},
+    level::{util, coord},
 };
 
 use std::collections::HashMap;

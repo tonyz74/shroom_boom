@@ -3,7 +3,7 @@ use seldom_state::prelude::*;
 use crate::bossfight::Boss;
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::stage::BossStage;
-use crate::bossfight::state_machine::{Rest, AbilityStartup};
+use crate::bossfight::state_machine::AbilityStartup;
 use crate::combat::Immunity;
 use crate::state::GameState;
 
@@ -49,22 +49,20 @@ fn start_resting(
 
     rest.timer.reset();
     immunity.is_immune = false;
-
-    println!("rest {:?}", immunity.is_immune);
 }
 
 fn rest_update(
     time: Res<Time>,
     mut commands: Commands,
-    mut q: Query<(Entity, &mut RestAbility, &BossStage, &Boss), With<Rest>>
+    mut q: Query<(Entity, &mut RestAbility, &BossStage, &Boss)>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (entity, mut rest, stage, _boss) = q.single_mut();
+    let (entity, mut rest, stage, boss) = q.single_mut();
 
-    if stage != &BossStage::Enraged {
+    if stage != &BossStage::Enraged || boss.current_move() != EnragedAttackMove::Rest {
         return;
     }
 

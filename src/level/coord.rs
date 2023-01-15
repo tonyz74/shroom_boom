@@ -1,7 +1,6 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::{EntityInstance, GridCoords};
 use crate::level::consts::{RENDERED_TILE_SIZE, TILE_SIZE};
-use crate::level::coord;
 use crate::pathfind::Region;
 
 

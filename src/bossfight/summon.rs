@@ -27,7 +27,6 @@ pub fn register_boss_summon(app: &mut App) {
 }
 
 fn enter_summon(
-    mut commands: Commands,
     mut collider_attacks: Query<&mut ColliderAttack>,
     mut q: Query<(&mut Immunity, &Children), (With<Boss>, Added<Summon>)>
 ) {

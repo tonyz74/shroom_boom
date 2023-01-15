@@ -22,7 +22,7 @@ use crate::enemies::Enemy;
 use crate::entity_states::*;
 use crate::state::GameState;
 use enraged::ATTACK_SEQUENCE;
-use crate::bossfight::abilities::{register_boss_abilities, RestAbility};
+use crate::bossfight::abilities::{BoomAbility, register_boss_abilities, RestAbility};
 
 
 #[derive(Copy, Clone, Debug, Component, Reflect)]
@@ -66,6 +66,7 @@ pub struct BossBundle {
 
     pub rest: RestAbility,
     pub hurt: HurtAbility,
+    pub boom: BoomAbility,
 
     pub health: Health,
     pub combat_layer: CombatLayerMask,
@@ -118,6 +119,7 @@ impl BossBundle {
 
             rest: RestAbility::default(),
             hurt: HurtAbility::new(0.3, Some(0.3)),
+            boom: BoomAbility::default(),
 
             health: Health::new(200),
 

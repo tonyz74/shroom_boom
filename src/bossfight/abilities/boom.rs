@@ -3,6 +3,7 @@ use rand::prelude::*;
 use seldom_state::prelude::*;
 use crate::assets::ExplosionAssets;
 use crate::bossfight::Boss;
+use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::state_machine::{AbilityStartup, Boom};
 use crate::combat::{ExplosionAttackBundle, Immunity};
 use crate::level::coord::grid_coord_to_translation;
@@ -37,14 +38,21 @@ pub fn register_boom_ability(app: &mut App) {
 }
 
 fn start_booming(
-    mut commands: Commands,
-    mut q: Query<(&mut Immunity, &mut BoomAbility), (With<Boss>, Added<AbilityStartup>)>
+    mut q: Query<(
+        &mut Immunity,
+        &mut BoomAbility,
+        &Boss
+    ), Added<AbilityStartup>>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (mut immunity, mut boom) = q.single_mut();
+    let (mut immunity, mut boom, boss) = q.single_mut();
+    if boss.current_move() != EnragedAttackMove::Boom {
+        return;
+    }
+
     immunity.is_immune = true;
 
     boom.wait_timer.reset();

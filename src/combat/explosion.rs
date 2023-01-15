@@ -156,7 +156,7 @@ fn explosion_damage(
 
                 hit_events.send(CombatEvent {
                     target: hit_entity,
-                    damage: (atk.power as f32 * percentage) as i32,
+                    damage: (atk.power as f32 * percentage).abs().clamp(0.0, atk.power as f32) as i32,
                     kb: explosion_knockback(diff, 64.0)
                 });
 

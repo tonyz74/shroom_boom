@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
-use bevy_rapier2d::prelude::*;
 use crate::bossfight::{Boss, BossStage};
 use crate::combat::{DeathTrigger, HurtTrigger};
 use crate::entity_states::*;
@@ -40,7 +39,7 @@ pub fn boss_state_machine() -> StateMachine {
         .trans::<Idle>(VulnerableTrigger, Vulnerable)
 
         .trans::<Vulnerable>(EnragedTrigger, BeginEnraged)
-        .trans::<BeginEnraged>(AlwaysTrigger, Idle)
+        .trans::<BeginEnraged>(AlwaysTrigger, AbilityStartup)
 
 
         // Enraged attacks

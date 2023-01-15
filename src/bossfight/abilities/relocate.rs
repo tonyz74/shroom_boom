@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
-use bevy_rapier2d::prelude::*;
 use crate::bossfight::{Boss, BossConfig};
+use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::state_machine::{AbilityStartup, Relocate};
 use crate::combat::{ColliderAttack, Immunity};
 use crate::state::GameState;
@@ -34,14 +34,18 @@ fn start_relocation(
     mut q: Query<(
         &mut Immunity,
         &mut ColliderAttack,
-        &mut RelocateAbility
-    ), (With<Boss>, Added<AbilityStartup>)>
+        &mut RelocateAbility,
+        &Boss,
+    ), Added<AbilityStartup>>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (mut immunity, mut atk, mut relocate) = q.single_mut();
+    let (mut immunity, mut atk, mut relocate, boss) = q.single_mut();
+    if boss.current_move() != EnragedAttackMove::RelocateRight {
+        return;
+    }
 
     atk.enabled = false;
     immunity.is_immune = true;

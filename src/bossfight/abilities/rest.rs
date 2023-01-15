@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use crate::bossfight::Boss;
+use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::stage::BossStage;
 use crate::bossfight::state_machine::{Rest, AbilityStartup};
 use crate::combat::Immunity;
@@ -31,18 +32,25 @@ pub fn register_rest_ability(app: &mut App) {
 
 
 fn start_resting(
-    mut q: Query<
-        (&mut Immunity, &mut RestAbility),
-        (With<Boss>, Added<AbilityStartup>)
-    >
+    mut q: Query<(
+        &mut Immunity,
+        &mut RestAbility,
+        &Boss
+    ), Added<AbilityStartup>>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (mut immunity, mut rest) = q.single_mut();
+    let (mut immunity, mut rest, boss) = q.single_mut();
+    if boss.current_move() != EnragedAttackMove::Rest {
+        return;
+    }
+
     rest.timer.reset();
     immunity.is_immune = false;
+
+    println!("rest {:?}", immunity.is_immune);
 }
 
 fn rest_update(

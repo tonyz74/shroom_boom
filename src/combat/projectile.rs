@@ -190,7 +190,9 @@ pub fn projectile_hit_targets(
             },
             |hit_entity| {
                 if let Ok(layer) = combat_layers.get(hit_entity) {
-                    if layer.is_ally_with(*proj_combat_layer) || immunities.contains(hit_entity) {
+
+                    let immune = immunities.contains(hit_entity) && immunities.get(hit_entity).unwrap().is_immune;
+                    if layer.is_ally_with(*proj_combat_layer) || immune {
                         return true;
                     }
 

@@ -18,9 +18,9 @@ pub fn register_boss_vulnerable(app: &mut App) {
 fn boss_enter_vulnerable(
     mut commands: Commands,
     summoned: Query<&SummonedEnemy>,
-    mut bosses: Query<(Entity, &mut BossStage, &mut Boss), With<FinishedSummoning>>,
+    mut bosses: Query<(Entity, &mut BossStage, &mut Boss, &mut Immunity), With<FinishedSummoning>>,
 ) {
-    for (ent, mut stage, mut boss) in bosses.iter_mut() {
+    for (ent, mut stage, mut boss, mut immunity) in bosses.iter_mut() {
         if !summoned.is_empty() || !stage.is_summon_stage() {
             continue;
         }
@@ -29,8 +29,9 @@ fn boss_enter_vulnerable(
 
         commands
             .entity(ent)
-            .remove::<FinishedSummoning>()
-            .remove::<Immunity>();
+            .remove::<FinishedSummoning>();
+
+        immunity.is_immune = false;
 
         stage.advance();
     }

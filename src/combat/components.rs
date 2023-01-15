@@ -55,4 +55,6 @@ impl Health {
 }
 
 #[derive(Component, Debug, Copy, Clone, Default)]
-pub struct Immunity;
+pub struct Immunity {
+    pub is_immune: bool
+}

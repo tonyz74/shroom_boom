@@ -83,10 +83,9 @@ impl HurtAbility {
 }
 
 pub fn hurt_ability_trigger(
-    mut commands: Commands,
-    mut hurts: Query<(Entity, &mut HurtAbility), (Added<Hurt>, Without<Die>)>
+    mut hurts: Query<(&mut Immunity, &mut HurtAbility), (Added<Hurt>, Without<Die>)>
 ) {
-    for (entity, mut hurt) in hurts.iter_mut() {
+    for (mut immunity, mut hurt) in hurts.iter_mut() {
 
         hurt.immunity_timer.reset();
         hurt.initial_stun_timer.reset();
@@ -95,9 +94,7 @@ pub fn hurt_ability_trigger(
             timer.reset();
         }
 
-        if let Some(mut e_cmd) = commands.get_entity(entity) {
-            e_cmd.insert(Immunity);
-        }
+        immunity.is_immune = true;
     }
 }
 
@@ -105,9 +102,9 @@ pub fn hurt_ability_trigger(
 pub fn hurt_ability_update(
     time: Res<Time>,
     mut commands: Commands,
-    mut hurts: Query<(Entity, &mut HurtAbility), Without<Die>>
+    mut hurts: Query<(Entity, &mut Immunity, &mut HurtAbility), Without<Die>>
 ) {
-    for (entity, mut hurt) in hurts.iter_mut() {
+    for (entity, mut immunity, mut hurt) in hurts.iter_mut() {
         let dt = time.delta();
 
         hurt.immunity_timer.tick(dt);
@@ -122,7 +119,7 @@ pub fn hurt_ability_update(
         }
 
         if hurt.immunity_timer.just_finished() {
-            commands.entity(entity).remove::<Immunity>();
+            immunity.is_immune = false;
         }
     }
 }

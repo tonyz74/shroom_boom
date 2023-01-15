@@ -31,9 +31,8 @@ pub fn register_relocate_ability(app: &mut App) {
 }
 
 fn start_relocation(
-    mut commands: Commands,
     mut q: Query<(
-        Entity,
+        &mut Immunity,
         &mut ColliderAttack,
         &mut RelocateAbility
     ), (With<Boss>, Added<AbilityStartup>)>
@@ -42,10 +41,10 @@ fn start_relocation(
         return;
     }
 
-    let (entity, mut atk, mut relocate) = q.single_mut();
+    let (mut immunity, mut atk, mut relocate) = q.single_mut();
 
     atk.enabled = false;
-    commands.entity(entity).insert(Immunity);
+    immunity.is_immune = true;
 
     relocate.retract.reset();
     relocate.extend.reset();
@@ -58,14 +57,15 @@ fn relocate_update(
         Entity,
         &mut RelocateAbility,
         &mut Transform,
-        &BossConfig
+        &BossConfig,
+        &mut Immunity
     ), With<Relocate>>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (entity, mut relocate, mut transform, cfg) = q.single_mut();
+    let (entity, mut relocate, mut transform, cfg, mut immunity) = q.single_mut();
     relocate.retract.tick(time.delta());
 
     if relocate.retract.just_finished() {
@@ -84,8 +84,9 @@ fn relocate_update(
 
         if relocate.extend.just_finished() {
             commands.entity(entity)
-                .remove::<Immunity>()
                 .insert(Done::Success);
+
+            immunity.is_immune = false;
         }
     }
 }

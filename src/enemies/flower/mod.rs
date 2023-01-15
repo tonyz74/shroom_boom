@@ -13,7 +13,7 @@ use crate::{
     pathfind::{Pathfinder, PathfinderBundle, util::BoundingBox, walk::WalkPathfinder, MeleePathfinder}
 };
 use crate::coin::drops::CoinHolder;
-use crate::combat::{AttackStrength, ColliderAttackBundle};
+use crate::combat::{AttackStrength, ColliderAttackBundle, Immunity};
 
 pub struct FlowerEnemyPlugin;
 
@@ -53,6 +53,8 @@ impl FlowerEnemyBundle {
     pub fn from_assets(assets: &FlowerEnemyAssets) -> Self {
         FlowerEnemyBundle {
             enemy: EnemyBundle {
+                immunity: Immunity::default(),
+
                 coins: CoinHolder::default(),
 
                 anim_timer: AnimTimer::from_seconds(assets.anims["IDLE"].speed),

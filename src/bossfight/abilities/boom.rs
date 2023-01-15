@@ -38,14 +38,14 @@ pub fn register_boom_ability(app: &mut App) {
 
 fn start_booming(
     mut commands: Commands,
-    mut q: Query<(Entity, &mut BoomAbility), (With<Boss>, Added<AbilityStartup>)>
+    mut q: Query<(&mut Immunity, &mut BoomAbility), (With<Boss>, Added<AbilityStartup>)>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (entity, mut boom) = q.single_mut();
-    commands.entity(entity).insert(Immunity);
+    let (mut immunity, mut boom) = q.single_mut();
+    immunity.is_immune = true;
 
     boom.wait_timer.reset();
     boom.sel_timer.reset();
@@ -80,14 +80,14 @@ fn boom_update(
     time: Res<Time>,
     grid: Res<PathfindingGrid>,
     mut commands: Commands,
-    mut q: Query<(Entity, &mut BoomAbility), (With<Boss>, With<Boom>)>,
+    mut q: Query<(Entity, &mut BoomAbility, &mut Immunity), (With<Boss>, With<Boom>)>,
     assets: Res<ExplosionAssets>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (entity, mut boom) = q.single_mut();
+    let (entity, mut boom, mut immunity) = q.single_mut();
 
     if boom.explosion_points.len() < N_EXPLOSIONS {
         boom.sel_timer.tick(time.delta());
@@ -101,7 +101,8 @@ fn boom_update(
 
         if boom.wait_timer.just_finished() {
             boom_spawn_explosions(&mut commands, &boom.explosion_points, &assets);
-            commands.entity(entity).remove::<Immunity>().insert(Done::Success);
+            immunity.is_immune = false;
+            commands.entity(entity).insert(Done::Success);
         }
     }
 }

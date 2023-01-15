@@ -13,7 +13,7 @@ use crate::{
     pathfind::{Pathfinder, PathfinderBundle, util::BoundingBox, walk::WalkPathfinder, RangedPathfinder}
 };
 use crate::coin::drops::CoinHolder;
-use crate::combat::{AttackStrength, ColliderAttackBundle, ProjectileAttack, ProjectileAttackBundle};
+use crate::combat::{AttackStrength, ColliderAttackBundle, Immunity, ProjectileAttack, ProjectileAttackBundle};
 
 
 #[derive(Component, Copy, Clone, Debug)]
@@ -57,6 +57,8 @@ impl PumpkinEnemyBundle {
     pub fn from_assets(assets: &PumpkinEnemyAssets) -> Self {
         PumpkinEnemyBundle {
             enemy: EnemyBundle {
+                immunity: Immunity::default(),
+
                 coins: CoinHolder::default(),
 
                 anim_timer: AnimTimer::from_seconds(assets.anims["IDLE"].speed),

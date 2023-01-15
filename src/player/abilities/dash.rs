@@ -114,6 +114,7 @@ fn dash_ability_update(
         &Children,
         &mut Player,
         &mut DashAbility,
+        &mut Immunity,
         &HurtAbility
     ), (With<Dash>, Without<Die>)>,
     mut collider_attacks: Query<&mut ColliderAttack>
@@ -122,12 +123,12 @@ fn dash_ability_update(
         return;
     }
 
-    let (e, children, player, mut dash, hurt) = q.single_mut();
+    let (e, children, player, mut dash, mut immunity, hurt) = q.single_mut();
 
     let _ = player;
 
     dash.dur.tick(time.delta());
-    commands.entity(e).insert(Immunity);
+    immunity.is_immune = true;
 
     if dash.dur.just_finished() {
         // Transition out of the dashing state
@@ -137,7 +138,7 @@ fn dash_ability_update(
         dash.cd.reset();
 
         if !hurt.is_immune() {
-            commands.entity(e).remove::<Immunity>();
+            immunity.is_immune = false;
         }
 
         for child in children.iter() {

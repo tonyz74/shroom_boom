@@ -17,7 +17,7 @@ use crate::bossfight::state_machine::{boss_state_machine, register_boss_state_ma
 use crate::bossfight::summon::register_boss_summon;
 use crate::bossfight::vulnerable::register_boss_vulnerable;
 use crate::coin::drops::CoinHolder;
-use crate::combat::{AttackStrength, ColliderAttackBundle, CombatLayerMask, Health, HurtAbility};
+use crate::combat::{AttackStrength, ColliderAttackBundle, CombatLayerMask, Health, HurtAbility, Immunity};
 use crate::common::AnimTimer;
 use crate::enemies::Enemy;
 use crate::entity_states::*;
@@ -71,6 +71,7 @@ pub struct BossBundle {
     pub relocate: RelocateAbility,
 
     pub health: Health,
+    pub immunity: Immunity,
     pub combat_layer: CombatLayerMask,
 
     pub coins: CoinHolder,
@@ -98,6 +99,8 @@ impl BossBundle {
         let anim = &assets.anims["WAIT"];
 
         Self {
+            immunity: Immunity::default(),
+
             config: BossConfig::default(),
 
             boss: Boss::default(),

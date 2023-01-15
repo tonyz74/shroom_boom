@@ -31,9 +31,8 @@ pub fn register_rest_ability(app: &mut App) {
 
 
 fn start_resting(
-    mut commands: Commands,
     mut q: Query<
-        (Entity, &mut RestAbility),
+        (&mut Immunity, &mut RestAbility),
         (With<Boss>, Added<AbilityStartup>)
     >
 ) {
@@ -41,10 +40,9 @@ fn start_resting(
         return;
     }
 
-    let (entity, mut rest) = q.single_mut();
+    let (mut immunity, mut rest) = q.single_mut();
     rest.timer.reset();
-
-    commands.entity(entity).remove::<Immunity>();
+    immunity.is_immune = false;
 }
 
 fn rest_update(

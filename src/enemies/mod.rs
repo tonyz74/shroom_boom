@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
 use crate::coin::drops::CoinHolder;
-use crate::combat::{ColliderAttack, CombatLayerMask, Health, HurtAbility};
+use crate::combat::{ColliderAttack, CombatLayerMask, Health, HurtAbility, Immunity};
 
 use crate::common::AnimTimer;
 use crate::entity_states::Die;
@@ -31,6 +31,7 @@ pub struct EnemyBundle {
     pub hurt_ability: HurtAbility,
 
     pub health: Health,
+    pub immunity: Immunity,
     pub combat_layer: CombatLayerMask,
 
     pub coins: CoinHolder,

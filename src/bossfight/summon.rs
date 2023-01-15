@@ -29,10 +29,10 @@ pub fn register_boss_summon(app: &mut App) {
 fn enter_summon(
     mut commands: Commands,
     mut collider_attacks: Query<&mut ColliderAttack>,
-    q: Query<(Entity, &Children), (With<Boss>, Added<Summon>)>
+    mut q: Query<(&mut Immunity, &Children), (With<Boss>, Added<Summon>)>
 ) {
-    for (e, children) in q.iter() {
-        commands.entity(e).insert(Immunity);
+    for (mut immunity, children) in q.iter_mut() {
+        immunity.is_immune = true;
 
         for child in children {
             if let Ok(mut atk) = collider_attacks.get_mut(*child) {

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
-use crate::bossfight::Boss;
+use crate::bossfight::{Boss, BossConfig};
 use crate::bossfight::state_machine::{AbilityStartup, Relocate};
 use crate::combat::{ColliderAttack, Immunity};
 use crate::state::GameState;
@@ -54,19 +54,25 @@ fn start_relocation(
 fn relocate_update(
     time: Res<Time>,
     mut commands: Commands,
-    mut q: Query<(Entity, &mut RelocateAbility, &mut Transform), With<Relocate>>
+    mut q: Query<(
+        Entity,
+        &mut RelocateAbility,
+        &mut Transform,
+        &BossConfig
+    ), With<Relocate>>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (entity, mut relocate, mut transform) = q.single_mut();
+    let (entity, mut relocate, mut transform, cfg) = q.single_mut();
     relocate.retract.tick(time.delta());
 
     if relocate.retract.just_finished() {
 
         // Move the boss
-        transform.translation = Vec3::new(800.0, 800.0, 1.0);
+        transform.translation.x = cfg.charge_right.x;
+        transform.translation.y = cfg.charge_right.y;
 
         let tl = transform.translation;
         transform.rotate_around(tl, Quat::from_rotation_z((3.14 / 180.0) * 90.0));

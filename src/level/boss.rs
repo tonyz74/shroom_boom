@@ -4,6 +4,7 @@ use bevy_ecs_ldtk::prelude::*;
 use crate::assets::BossAssets;
 use crate::bossfight::{BossBundle, BossConfig};
 use crate::level::{coord, LevelInfo, util};
+use crate::level::consts::RENDERED_TILE_SIZE;
 use crate::state::GameState;
 
 
@@ -76,8 +77,8 @@ fn spawn_boss(
                 boom_region_map[&id.entity_iid]
             };
 
-            let rightmost = charge_right - Vec2::new(256.0, 0.0);
-            let leftmost = charge_left + Vec2::new(256.0, 0.0);
+            let rightmost = charge_right - Vec2::new(256.0 - RENDERED_TILE_SIZE, 0.0);
+            let leftmost = charge_left + Vec2::new(256.0 - RENDERED_TILE_SIZE, 0.0);
 
             BossConfig {
                 boom_region,

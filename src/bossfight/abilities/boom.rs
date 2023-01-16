@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use rand::prelude::*;
 use seldom_state::prelude::*;
 use crate::assets::ExplosionAssets;
-use crate::bossfight::Boss;
+use crate::bossfight::{Boss, BossConfig};
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::stage::BossStage;
 use crate::bossfight::state_machine::{AbilityStartup, Boom};
@@ -63,41 +63,37 @@ fn start_booming(
 
 
 
-fn pick_explosion_point(
-    grid: &PathfindingGrid,
-) -> Vec2 {
+fn pick_explosion_point(cfg: &BossConfig) -> Vec2 {
     let mut rng = thread_rng();
-    let mut coords;
 
-    let max = grid.lvl_info.grid_size.as_ivec2();
+    let x_min = cfg.boom_region.tl.x;
+    let x_max = cfg.boom_region.br.x;
+    let y_min = cfg.boom_region.br.y;
+    let y_max = cfg.boom_region.tl.y;
 
-    loop {
-        coords = IVec2::new(
-            rng.gen_range(0..max.x),
-            rng.gen_range(0..max.y)
-        );
+    let x_range = [(x_min / 128.0) as i32, (x_max / 128.0) as i32];
+    let y_range = [(y_min / 128.0) as i32, (y_max / 128.0) as i32];
 
-        if !grid.solids.contains(&coords) {
-            break;
-        }
-    }
+    let coords = IVec2::new(
+        rng.gen_range(x_range[0]..x_range[1]),
+        rng.gen_range(y_range[0]..y_range[1])
+    );
 
-    grid_coord_to_translation(coords, grid.lvl_info.grid_size.as_ivec2())
+    coords.as_vec2() * 128.0
 }
 
 fn boom_update(
     time: Res<Time>,
-    grid: Res<PathfindingGrid>,
     mut commands: Commands,
     booming: Query<&Boom>,
-    mut q: Query<(Entity, &mut BoomAbility, &mut Immunity, &Boss, &BossStage)>,
+    mut q: Query<(Entity, &mut BoomAbility, &mut Immunity, &Boss, &BossStage, &BossConfig)>,
     assets: Res<ExplosionAssets>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (entity, mut boom, mut immunity, boss, stage) = q.single_mut();
+    let (entity, mut boom, mut immunity, boss, stage, cfg) = q.single_mut();
     if stage != &BossStage::Enraged || boss.current_move() != EnragedAttackMove::Boom {
         return;
     }
@@ -106,8 +102,7 @@ fn boom_update(
         boom.sel_timer.tick(time.delta());
 
         if boom.sel_timer.just_finished() {
-            boom.explosion_points.push(pick_explosion_point(&grid));
-            println!("p: {:?}", boom.explosion_points[boom.explosion_points.len() - 1]);
+            boom.explosion_points.push(pick_explosion_point(&cfg));
         }
 
     } else {
@@ -127,6 +122,9 @@ fn boom_spawn_explosions(
     assets: &ExplosionAssets
 ) {
     for point in points {
-        commands.spawn(ExplosionAttackBundle::new(*point, assets));
+        let mut explosion = ExplosionAttackBundle::new(*point, assets);
+        explosion.sprite_sheet.transform.scale = Vec2::splat(1.25).extend(1.0);
+
+        commands.spawn(explosion);
     }
 }

@@ -1,0 +1,1 @@
+pub const EXPLOSION_RADIUS: f32 = 64.0;

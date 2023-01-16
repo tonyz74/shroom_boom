@@ -2114,16 +2114,16 @@
 						},
 						{
 							"__identifier": "BoomRegion",
-							"__grid": [2,12],
+							"__grid": [4,12],
 							"__pivot": [0,0],
 							"__tags": ["region"],
 							"__tile": null,
 							"__smartColor": "#F18F50",
 							"iid": "c4645b70-7820-11ed-b405-ad3932577994",
-							"width": 480,
-							"height": 144,
+							"width": 448,
+							"height": 128,
 							"defUid": 81,
-							"px": [16,96],
+							"px": [32,96],
 							"fieldInstances": []
 						}
 					]

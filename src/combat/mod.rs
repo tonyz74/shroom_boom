@@ -11,6 +11,7 @@ mod death;
 mod explosion;
 mod knockbacks;
 mod spore_cloud;
+mod consts;
 
 pub use melee::*;
 pub use projectile::*;

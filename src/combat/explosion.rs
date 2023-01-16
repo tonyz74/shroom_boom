@@ -4,6 +4,7 @@ use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::*;
 use crate::assets::ExplosionAssets;
 use crate::combat::{AttackStrength, CombatEvent, CombatLayerMask, KnockbackModifier};
+use crate::combat::consts::EXPLOSION_RADIUS;
 use crate::combat::knockbacks::explosion_knockback;
 use crate::common::AnimTimer;
 use crate::entity_states::*;
@@ -120,6 +121,7 @@ fn explosion_damage(
     transforms: Query<&GlobalTransform>,
     mut explosions: Query<(
         Entity,
+        &GlobalTransform,
         &Collider,
         &CombatLayerMask,
         &AttackStrength,
@@ -130,7 +132,12 @@ fn explosion_damage(
     combat_layers: Query<&CombatLayerMask>,
     mut hit_events: EventWriter<CombatEvent>,
 ) {
-    for (entity, collider, combat_layer, atk, kb) in explosions.iter_mut() {
+    for (entity, tf, collider, combat_layer, atk, kb) in explosions.iter_mut() {
+        let scale = {
+            let (s, _r, _t) = tf.to_scale_rotation_translation();
+            (s.x + s.y) / 2.0
+        };
+
         let transform = transforms.get(entity).unwrap();
         let explosion_pos = transform.translation();
 
@@ -150,12 +157,12 @@ fn explosion_damage(
 
                 let hit_pos = transforms.get(hit_entity).unwrap().translation();
                 let diff = (hit_pos - explosion_pos).xy();
-                let percentage = 1.0 - (diff.length() / 64.0);
+                let percentage = 1.0 - (diff.length() / (EXPLOSION_RADIUS * scale));
 
                 hit_events.send(CombatEvent {
                     target: hit_entity,
                     damage: (atk.power as f32 * percentage).abs().clamp(0.0, atk.power as f32) as i32,
-                    kb: (kb.mod_fn)(explosion_knockback(diff, 64.0))
+                    kb: (kb.mod_fn)(explosion_knockback(diff, (EXPLOSION_RADIUS * scale)))
                 });
 
                 true

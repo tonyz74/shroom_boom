@@ -2,31 +2,33 @@ use bevy::prelude::*;
 use seldom_state::prelude::Done;
 use crate::bossfight::{Boss, BossConfig};
 use crate::bossfight::enraged::EnragedAttackMove;
-use crate::bossfight::state_machine::{AbilityStartup, Slam};
+use crate::bossfight::stage::BossStage::Enraged;
+use crate::bossfight::state_machine::{AbilityStartup, Takeoff};
 use crate::combat::Immunity;
 use crate::enemies::Enemy;
 use crate::state::GameState;
 
 #[derive(Component, Debug, Clone)]
-pub struct SlamAbility;
+pub struct TakeoffAbility;
 
-impl Default for SlamAbility {
+impl Default for TakeoffAbility  {
     fn default() -> Self {
         Self
     }
 }
 
-pub fn register_slam_ability(app: &mut App) {
+pub fn register_takeoff_ability(app: &mut App) {
     app.add_system_set(
         SystemSet::on_update(GameState::Gameplay)
-            .with_system(start_slam)
-            .with_system(slam_update)
+            .with_system(start_takeoff)
+            .with_system(takeoff_update)
     );
 }
 
-fn start_slam(
+fn start_takeoff(
     mut q: Query<(
         &mut Immunity,
+        &TakeoffAbility,
         &Boss
     ), Added<AbilityStartup>>
 ) {
@@ -34,36 +36,39 @@ fn start_slam(
         return;
     }
 
-    let (mut immunity, boss) = q.single_mut();
-
-    if boss.current_move() != EnragedAttackMove::Slam {
+    let (mut immunity, _takeoff, boss) = q.single_mut();
+    if boss.current_move() != EnragedAttackMove::Takeoff {
         return;
     }
 
     immunity.is_immune = true;
 }
 
-fn slam_update(
+fn takeoff_update(
     mut commands: Commands,
     mut q: Query<(
         Entity,
+        &mut Transform,
         &GlobalTransform,
-        &mut Enemy,
         &mut Immunity,
+        &mut Enemy,
         &BossConfig
-    ), With<Slam>>
+    ), With<Takeoff>>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (entity, tf, mut enemy, mut immunity, cfg) = q.single_mut();
-    enemy.vel.y = -30.0;
+    let (entity, mut mov, transform, mut immunity, mut enemy, cfg) = q.single_mut();
+    let y_level = transform.translation().y;
 
-
-    let y_level = tf.translation().y;
-    if (y_level - cfg.slam_base.y).abs() <= 2.0 {
+    if y_level > cfg.hover_base.y {
         immunity.is_immune = false;
         commands.entity(entity).insert(Done::Success);
+        mov.translation.y = cfg.hover_base.y;
+
+        return;
     }
+
+    enemy.vel.y = 30.0;
 }

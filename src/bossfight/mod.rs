@@ -23,7 +23,7 @@ use crate::enemies::Enemy;
 use crate::entity_states::*;
 use crate::state::GameState;
 use enraged::ATTACK_SEQUENCE;
-use crate::bossfight::abilities::{BoomAbility, RelocateAbility, register_boss_abilities, RestAbility, ChargeAbility, LeapAbility, HoverAbility, SlamAbility};
+use crate::bossfight::abilities::{BoomAbility, RelocateAbility, register_boss_abilities, RestAbility, ChargeAbility, LeapAbility, HoverAbility, SlamAbility, TakeoffAbility};
 
 pub use crate::bossfight::config::BossConfig;
 use crate::util::Facing;
@@ -75,6 +75,7 @@ pub struct BossBundle {
     pub charge: ChargeAbility,
     pub leap: LeapAbility,
     pub hover: HoverAbility,
+    pub takeoff: TakeoffAbility,
     pub relocate: RelocateAbility,
 
     pub health: Health,
@@ -140,6 +141,7 @@ impl BossBundle {
             leap: LeapAbility::default(),
             hover: HoverAbility::default(),
             slam: SlamAbility::default(),
+            takeoff: TakeoffAbility::default(),
             relocate: RelocateAbility::default(),
 
             health: Health::new(200),

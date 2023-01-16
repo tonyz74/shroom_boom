@@ -33,7 +33,6 @@ pub fn register_relocate_ability(app: &mut App) {
 fn start_relocation(
     mut q: Query<(
         &mut Immunity,
-        &mut ColliderAttack,
         &mut RelocateAbility,
         &Boss,
     ), Added<AbilityStartup>>
@@ -42,12 +41,11 @@ fn start_relocation(
         return;
     }
 
-    let (mut immunity, mut atk, mut relocate, boss) = q.single_mut();
+    let (mut immunity, mut relocate, boss) = q.single_mut();
     if boss.current_move() != EnragedAttackMove::RelocateRight {
         return;
     }
 
-    atk.enabled = false;
     immunity.is_immune = true;
 
     relocate.retract.reset();

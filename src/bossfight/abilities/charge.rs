@@ -56,7 +56,7 @@ fn start_charging(
 
     for child in children {
         if let Ok(mut atk) = p.get_mut(*child) {
-            atk.enabled = false;
+            atk.enabled = true;
         }
     }
 
@@ -66,8 +66,10 @@ fn start_charging(
 
 fn charge_update(
     mut commands: Commands,
+    mut p: Query<&mut ColliderAttack>,
     mut q: Query<(
         Entity,
+        &Children,
         &GlobalTransform,
         &mut Enemy,
         &ChargeAbility,
@@ -79,7 +81,7 @@ fn charge_update(
         return;
     }
 
-    let (entity, transform, mut enemy, charge, config, boss) = q.single_mut();
+    let (entity, children, transform, mut enemy, charge, config, boss) = q.single_mut();
     enemy.vel = Vec2::new(30.0 * charge.dir, 0.0);
 
     let pos = transform.translation().xy();
@@ -89,7 +91,13 @@ fn charge_update(
         Facing::Right => config.charge_right.x
     };
 
-    if (target - pos.x).abs() <= 4.0 {
+    if (target - pos.x).abs() <= 2.0 {
         commands.entity(entity).insert(Done::Success);
+
+        for child in children {
+            if let Ok(mut atk) = p.get_mut(*child) {
+                atk.enabled = false;
+            }
+        }
     }
 }

@@ -65,6 +65,7 @@ fn takeoff_update(
         immunity.is_immune = false;
         commands.entity(entity).insert(Done::Success);
         mov.translation.y = cfg.hover_base.y;
+        enemy.vel = Vec2::ZERO;
 
         return;
     }

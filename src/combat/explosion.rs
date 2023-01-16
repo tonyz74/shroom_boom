@@ -4,7 +4,7 @@ use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::*;
 use crate::assets::ExplosionAssets;
 use crate::combat::{AttackStrength, CombatEvent, CombatLayerMask, KnockbackModifier};
-use crate::combat::consts::EXPLOSION_RADIUS;
+use crate::combat::consts::{EXPLOSION_DIAMETER, EXPLOSION_DURATION, EXPLOSION_EFFECTIVE_DURATION, EXPLOSION_RADIUS};
 use crate::combat::knockbacks::explosion_knockback;
 use crate::common::AnimTimer;
 use crate::entity_states::*;
@@ -19,8 +19,8 @@ pub struct ExplosionAttack {
 impl Default for ExplosionAttack {
     fn default() -> Self {
         Self {
-            dur: Timer::from_seconds(0.4, TimerMode::Once),
-            effective_dur: Timer::from_seconds(0.15, TimerMode::Once)
+            dur: Timer::from_seconds(EXPLOSION_DURATION, TimerMode::Once),
+            effective_dur: Timer::from_seconds(EXPLOSION_EFFECTIVE_DURATION, TimerMode::Once)
         }
     }
 }
@@ -55,7 +55,7 @@ impl ExplosionAttackBundle {
 
             sprite_sheet: SpriteSheetBundle {
                 sprite: TextureAtlasSprite {
-                    custom_size: Some(Vec2::new(64.0, 64.0)),
+                    custom_size: Some(Vec2::splat(EXPLOSION_DIAMETER)),
                     ..default()
                 },
                 texture_atlas: assets.anims["BOOM"].tex.clone(),
@@ -66,7 +66,7 @@ impl ExplosionAttackBundle {
             collider: Collider::ball(0.0),
             sensor: Sensor,
             attack: ExplosionAttack::default(),
-            strength: AttackStrength::new(2),
+            strength: AttackStrength::default(),
             knockback: KnockbackModifier::default(),
             combat_layer: CombatLayerMask::empty(),
             state_machine: explosion_attack_state_machine()
@@ -113,7 +113,7 @@ fn explosion_death(mut q: Query<(&ExplosionAttack, &mut Die)>) {
 
 fn explosion_expand(mut q: Query<(&mut Collider, &ExplosionAttack)>) {
     for (mut collider, explosion) in q.iter_mut() {
-        *collider = Collider::ball(explosion.effective_dur.percent() * 32.0);
+        *collider = Collider::ball(explosion.effective_dur.percent() * EXPLOSION_RADIUS);
     }
 }
 
@@ -157,12 +157,12 @@ fn explosion_damage(
 
                 let hit_pos = transforms.get(hit_entity).unwrap().translation();
                 let diff = (hit_pos - explosion_pos).xy();
-                let percentage = 1.0 - (diff.length() / (EXPLOSION_RADIUS * scale));
+                let percentage = 1.0 - (diff.length() / (EXPLOSION_DIAMETER * scale));
 
                 hit_events.send(CombatEvent {
                     target: hit_entity,
                     damage: (atk.power as f32 * percentage).abs().clamp(0.0, atk.power as f32) as i32,
-                    kb: (kb.mod_fn)(explosion_knockback(diff, (EXPLOSION_RADIUS * scale)))
+                    kb: (kb.mod_fn)(explosion_knockback(diff, EXPLOSION_DIAMETER * scale))
                 });
 
                 true

@@ -12,7 +12,7 @@ use crate::combat::Immunity;
 use crate::common::{PHYSICS_STEP_DELTA, PHYSICS_STEPS_PER_SEC};
 use crate::enemies::Enemy;
 use crate::state::GameState;
-use crate::util::Facing;
+use crate::util::{deg_to_rad, Facing, quat_rot2d_deg, rad_to_deg};
 
 #[derive(Component, Debug, Clone)]
 pub struct LeapAbility {
@@ -93,7 +93,7 @@ fn leap_update(
         immunity.is_immune = false;
         enemy.vel = Vec2::ZERO;
         mov.translation = cfg.hover_base.extend(mov.translation.z);
-        mov.rotation = Quat::from_rotation_z(0.0);
+        mov.rotation = quat_rot2d_deg(0.0);
 
         cc.filter_flags = QueryFilterFlags::EXCLUDE_SENSORS;
 
@@ -116,9 +116,9 @@ fn leap_rotate(
     let (mut transform, leap) = q.single_mut();
     let (_, _, rot) = transform.rotation.to_euler(EulerRot::XYZ);
 
-    if (rot * 57.29577).abs() <= 1.0 {
-        transform.rotation = Quat::from_rotation_z(0.0);
+    if rad_to_deg(rot).abs() <= 1.0 {
+        transform.rotation = quat_rot2d_deg(0.0);
     } else if leap.rotate_lag.finished() {
-        transform.rotate_z((3.14 / 180.0) * (-360.0 * PHYSICS_STEP_DELTA));
+        transform.rotate_z(deg_to_rad(-360.0 * PHYSICS_STEP_DELTA));
     }
 }

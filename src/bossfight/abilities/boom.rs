@@ -7,8 +7,6 @@ use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::stage::BossStage;
 use crate::bossfight::state_machine::{AbilityStartup, Boom};
 use crate::combat::{ExplosionAttackBundle, Immunity};
-use crate::level::coord::grid_coord_to_translation;
-use crate::pathfind::grid::PathfindingGrid;
 use crate::state::GameState;
 
 const N_EXPLOSIONS: usize = 24;

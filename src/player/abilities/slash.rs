@@ -16,15 +16,7 @@ use crate::combat::{AttackStrength, CombatLayerMask};
 use crate::entity_states::Die;
 use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_direction, direction_for_facing, get_closest_target};
 use crate::player::state_machine::Slash;
-
-// HELPER FUNCTIONS
-fn deg_to_rad(deg: f32) -> f32 {
-    deg * (std::f64::consts::PI as f32 / 180.0)
-}
-
-fn quat_rot2d(deg: f32) -> Quat {
-    Quat::from_rotation_z(deg_to_rad(deg))
-}
+use crate::util::quat_rot2d_deg;
 
 // MAIN
 
@@ -65,32 +57,32 @@ fn transform_for_direction(dir: AttackDirection) -> (Transform, BVec2) {
 
     match dir {
         AttackDirection::Up => {
-            tf.rotate(quat_rot2d(90.0));
+            tf.rotate(quat_rot2d_deg(90.0));
             tf = tf.with_translation(Vec3::new(0.0, 32.0, 0.0));
         },
 
         AttackDirection::UpRight => {
-            tf.rotate(quat_rot2d(45.0));
+            tf.rotate(quat_rot2d_deg(45.0));
             tf = tf.with_translation(Vec3::new(24.0, 24.0, 0.0));
         },
 
         AttackDirection::UpLeft => {
-            tf.rotate(quat_rot2d(135.0));
+            tf.rotate(quat_rot2d_deg(135.0));
             tf = tf.with_translation(Vec3::new(-24.0, 24.0, 0.0));
         }
 
         AttackDirection::Down => {
-            tf.rotate(quat_rot2d(-90.0));
+            tf.rotate(quat_rot2d_deg(-90.0));
             tf = tf.with_translation(Vec3::new(0.0, -32.0, 0.0));
         },
 
         AttackDirection::DownRight => {
-            tf.rotate(quat_rot2d(315.0));
+            tf.rotate(quat_rot2d_deg(315.0));
             tf = tf.with_translation(Vec3::new(24.0, -24.0, 0.0));
         },
 
         AttackDirection::DownLeft => {
-            tf.rotate(quat_rot2d(225.0));
+            tf.rotate(quat_rot2d_deg(225.0));
             tf = tf.with_translation(Vec3::new(-24.0, -24.0, 0.0));
         },
 

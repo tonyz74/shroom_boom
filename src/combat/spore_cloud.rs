@@ -4,6 +4,7 @@ use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::{AlwaysTrigger, Done, DoneTrigger, NotTrigger, StateMachine};
 use crate::assets::SporeAssets;
 use crate::combat::{AttackStrength, CombatEvent, CombatLayerMask, KnockbackModifier};
+use crate::combat::consts::{SPORE_CLOUD_COLOR, SPORE_CLOUD_DAMAGE_RATE, SPORE_CLOUD_DURATION, SPORE_CLOUD_PARTICLE_SPAWN_RATE, SPORE_CLOUD_SIZE, SPORE_CLOUD_SPORE_ROTATION_RANGE, SPORE_CLOUD_SPORE_SCALE_RANGE};
 use crate::combat::knockbacks::spore_cloud_knockback;
 use crate::entity_states::*;
 use crate::fx::spore::{SporeParticle, SporeParticleBundle};
@@ -20,10 +21,10 @@ pub struct SporeCloudAttack {
 impl Default for SporeCloudAttack {
     fn default() -> Self {
         Self {
-            size: Vec2::new(32.0, 32.0),
-            dmg_timer: Timer::from_seconds(0.8, TimerMode::Once),
-            particle_timer: Timer::from_seconds(0.6, TimerMode::Repeating),
-            dur: Timer::from_seconds(8.0, TimerMode::Once)
+            size: SPORE_CLOUD_SIZE,
+            dmg_timer: Timer::from_seconds(SPORE_CLOUD_DAMAGE_RATE, TimerMode::Once),
+            particle_timer: Timer::from_seconds(SPORE_CLOUD_PARTICLE_SPAWN_RATE, TimerMode::Repeating),
+            dur: Timer::from_seconds(SPORE_CLOUD_DURATION, TimerMode::Once)
         }
     }
 }
@@ -52,7 +53,7 @@ impl SporeCloudAttackBundle {
             sprite_sheet: SpriteBundle {
                 sprite: Sprite {
                     custom_size: Some(size),
-                    color: Color::rgba(0.0, 0.2, 1.0, 0.4),
+                    color: SPORE_CLOUD_COLOR,
                     ..default()
                 },
                 transform: Transform::from_xyz(pos.x, pos.y, 10.0),
@@ -111,8 +112,8 @@ fn spore_cloud_update(
                 let x = rng.gen_range((pos.x - half_x)..(pos.x + half_x));
                 let y = rng.gen_range((pos.y - half_y)..(pos.y + half_y));
 
-                let rot = rng.gen_range(-30.0..30.0);
-                let scale = rng.gen_range(-0.5..0.0);
+                let rot = rng.gen_range(SPORE_CLOUD_SPORE_ROTATION_RANGE);
+                let scale = rng.gen_range(SPORE_CLOUD_SPORE_SCALE_RANGE);
 
                 (x, y, rot, scale)
             };

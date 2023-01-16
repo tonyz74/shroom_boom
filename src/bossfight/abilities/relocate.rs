@@ -5,6 +5,7 @@ use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::state_machine::{AbilityStartup, Relocate};
 use crate::combat::Immunity;
 use crate::state::GameState;
+use crate::util::quat_rot2d_deg;
 
 
 #[derive(Component, Clone, Debug)]
@@ -77,7 +78,7 @@ fn relocate_update(
         transform.translation.y = cfg.charge_right.y;
 
         let tl = transform.translation;
-        transform.rotate_around(tl, Quat::from_rotation_z((3.14 / 180.0) * 90.0));
+        transform.rotate_around(tl, quat_rot2d_deg(90.0));
 
     }
 

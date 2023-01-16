@@ -19,15 +19,21 @@ impl CombatLayerMask {
     const FRIENDLY_TO_ALL: Self = Self::all();
 }
 
-#[derive(Component, Debug, Copy, Clone, Default)]
-pub struct KnockbackStrength {
-    pub multiplier: f32
+#[derive(Component, Debug, Copy, Clone)]
+pub struct KnockbackModifier {
+    pub mod_fn: fn(Vec2) -> Vec2
 }
 
-impl KnockbackStrength {
-    pub fn new(mul: f32) -> Self {
-        KnockbackStrength {
-            multiplier: mul
+impl Default for KnockbackModifier {
+    fn default() -> Self {
+        Self { mod_fn: |a| a }
+    }
+}
+
+impl KnockbackModifier {
+    pub fn new(f: fn(Vec2) -> Vec2) -> Self {
+        KnockbackModifier {
+            mod_fn: f
         }
     }
 }

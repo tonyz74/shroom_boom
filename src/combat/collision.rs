@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use crate::combat::{AttackStrength, CombatEvent, CombatLayerMask};
+use crate::combat::{AttackStrength, CombatEvent, CombatLayerMask, KnockbackModifier};
+use crate::combat::knockbacks::collider_attack_knockback;
 use crate::state::GameState;
 
 #[derive(Copy, Clone, Debug, Component)]
@@ -21,6 +22,7 @@ pub struct ColliderAttackBundle {
     pub rigid_body: RigidBody,
     pub attack: ColliderAttack,
     pub strength: AttackStrength,
+    pub knockback: KnockbackModifier,
     pub combat_layer: CombatLayerMask,
 
     #[bundle]
@@ -35,6 +37,7 @@ impl ColliderAttackBundle {
             rigid_body: RigidBody::Fixed,
             attack: Default::default(),
             strength: Default::default(),
+            knockback: Default::default(),
             combat_layer: Default::default(),
             transform: Default::default()
         }
@@ -56,12 +59,13 @@ fn collider_attack_update(
         &Collider,
         &CombatLayerMask,
         &AttackStrength,
-        &ColliderAttack
+        &ColliderAttack,
+        &KnockbackModifier
     )>,
     rapier: Res<RapierContext>,
     mut hit_events: EventWriter<CombatEvent>
 ) {
-   for (transform, collider, combat_layer, atk, collider_atk) in attacks.iter() {
+   for (transform, collider, combat_layer, atk, collider_atk, kb_amp) in attacks.iter() {
        if !collider_atk.enabled {
            continue;
        }
@@ -90,7 +94,9 @@ fn collider_attack_update(
                    hit_events.send(CombatEvent {
                        target: hit,
                        damage: atk.power,
-                       kb: Vec2::new(dir.x, dir.y) * 1.5
+                       kb: (kb_amp.mod_fn)(
+                           collider_attack_knockback(Vec2::new(dir.x, dir.y))
+                       )
                    });
                }
 

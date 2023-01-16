@@ -4,6 +4,10 @@ pub fn melee_knockback(dir: Vec2) -> Vec2 {
     dir
 }
 
+pub fn collider_attack_knockback(dir: Vec2) -> Vec2 {
+    dir * 1.5
+}
+
 pub fn projectile_knockback(mut dir: Vec2, vel: Vec2) -> Vec2 {
     if (dir.x < 0.0 && vel.x > 0.0) || (dir.x > 0.0 && vel.x < 0.0) {
         dir.x *= -1.0;

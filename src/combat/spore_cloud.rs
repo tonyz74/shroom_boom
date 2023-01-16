@@ -3,7 +3,7 @@ use rand::prelude::*;
 use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::{AlwaysTrigger, Done, DoneTrigger, NotTrigger, StateMachine};
 use crate::assets::SporeAssets;
-use crate::combat::{AttackStrength, CombatEvent, CombatLayerMask};
+use crate::combat::{AttackStrength, CombatEvent, CombatLayerMask, KnockbackModifier};
 use crate::combat::knockbacks::spore_cloud_knockback;
 use crate::entity_states::*;
 use crate::fx::spore::{SporeParticle, SporeParticleBundle};
@@ -40,6 +40,7 @@ pub struct SporeCloudAttackBundle {
     pub collider: Collider,
     pub sensor: Sensor,
     pub attack: SporeCloudAttack,
+    pub knockback: KnockbackModifier,
     pub strength: AttackStrength,
     pub combat_layer: CombatLayerMask,
     pub state_machine: StateMachine
@@ -59,7 +60,6 @@ impl SporeCloudAttackBundle {
             },
 
             collider: Collider::cuboid(size.x / 2., size.y / 2.),
-
             sensor: Sensor,
 
             attack: SporeCloudAttack {
@@ -68,9 +68,8 @@ impl SporeCloudAttackBundle {
             },
 
             strength: AttackStrength::new(2),
-
+            knockback: KnockbackModifier::default(),
             combat_layer: CombatLayerMask::empty(),
-
             state_machine: spore_cloud_attack_state_machine()
         }
     }
@@ -131,18 +130,19 @@ fn spore_cloud_update(
 }
 
 fn spore_cloud_damage(
-    mut spore_clouds: Query<(
+    mut clouds: Query<(
         &GlobalTransform,
         &Collider,
         &CombatLayerMask,
         &AttackStrength,
-        &mut SporeCloudAttack
+        &mut SporeCloudAttack,
+        &KnockbackModifier
     ), Without<Die>>,
     rapier: Res<RapierContext>,
     combat_layers: Query<&CombatLayerMask>,
     mut hit_events: EventWriter<CombatEvent>,
 ) {
-    for (transform, collider, combat_layer, atk, mut spore_cloud) in spore_clouds.iter_mut() {
+    for (transform, collider, combat_layer, atk, mut spore_cloud, kb) in clouds.iter_mut() {
         if !spore_cloud.dmg_timer.finished() {
             continue;
         }
@@ -168,7 +168,7 @@ fn spore_cloud_damage(
                 hit_events.send(CombatEvent {
                     target: hit_entity,
                     damage: atk.power,
-                    kb: spore_cloud_knockback()
+                    kb: (kb.mod_fn)(spore_cloud_knockback())
                 });
 
                 true

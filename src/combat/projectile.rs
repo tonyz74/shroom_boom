@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::*;
-use crate::combat::{AttackStrength, CombatLayerMask, CombatEvent, Immunity};
+use crate::combat::{AttackStrength, CombatLayerMask, CombatEvent, Immunity, KnockbackModifier};
 use crate::combat::knockbacks::projectile_knockback;
 use crate::common::AnimTimer;
 use crate::entity_states::*;
@@ -90,6 +90,7 @@ pub struct ProjectileAttackBundle {
     pub rigid_body: RigidBody,
     pub attack: ProjectileAttack,
     pub strength: AttackStrength,
+    pub knockback: KnockbackModifier,
     pub combat_layer: CombatLayerMask,
     pub controller: KinematicCharacterController,
     pub state_machine: StateMachine
@@ -98,6 +99,7 @@ pub struct ProjectileAttackBundle {
 impl Default for ProjectileAttackBundle {
     fn default() -> Self {
        Self {
+           knockback: Default::default(),
            anim_timer: Default::default(),
            sprite_sheet: Default::default(),
            collider: Default::default(),
@@ -155,14 +157,15 @@ pub fn projectile_hit_targets(
         &Collider,
         &CombatLayerMask,
         &AttackStrength,
-        &mut ProjectileAttack
+        &mut ProjectileAttack,
+        &KnockbackModifier
     )>,
     rapier: Res<RapierContext>,
 
     combat_layers: Query<&CombatLayerMask>,
     mut hit_events: EventWriter<CombatEvent>,
 ) {
-    for (entity, collider, proj_combat_layer, strength, mut proj) in projectiles.iter_mut() {
+    for (entity, collider, proj_combat_layer, strength, mut proj, kb) in projectiles.iter_mut() {
         let transform = transforms.get(entity).unwrap();
         let proj_pos = transform.translation();
 
@@ -198,7 +201,10 @@ pub fn projectile_hit_targets(
 
                     let hit_pos = transforms.get(hit_entity).unwrap().translation();
                     let dir = (hit_pos - proj_pos).normalize();
-                    let knockback = projectile_knockback(Vec2::new(dir.x, dir.y), proj.vel);
+                    let knockback = (kb.mod_fn)(projectile_knockback(
+                        Vec2::new(dir.x, dir.y),
+                        proj.vel
+                    ));
 
                     hit_events.send(CombatEvent {
                         target: hit_entity,

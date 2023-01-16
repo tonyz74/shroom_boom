@@ -17,7 +17,7 @@ use crate::bossfight::state_machine::{boss_state_machine, register_boss_state_ma
 use crate::bossfight::summon::register_boss_summon;
 use crate::bossfight::vulnerable::register_boss_vulnerable;
 use crate::coin::drops::CoinHolder;
-use crate::combat::{AttackStrength, ColliderAttackBundle, CombatLayerMask, Health, HurtAbility, Immunity};
+use crate::combat::{AttackStrength, ColliderAttackBundle, CombatLayerMask, Health, HurtAbility, Immunity, KnockbackModifier};
 use crate::common::AnimTimer;
 use crate::enemies::Enemy;
 use crate::entity_states::*;
@@ -93,6 +93,10 @@ impl BossBundle {
         ColliderAttackBundle {
             combat_layer: CombatLayerMask::ENEMY,
             strength: AttackStrength::new(4),
+            knockback: KnockbackModifier::new(|kb| {
+                let x_dir = Vec2::new(kb.x, 0.0).normalize().x;
+                kb + Vec2::new(x_dir * 4.0, 6.0)
+            }),
             ..ColliderAttackBundle::from_size(Vec2::new(256.0, 512.0))
         }
     }

@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-use crate::combat::{AttackStrength, CombatLayerMask};
+use crate::combat::{AttackStrength, CombatLayerMask, KnockbackModifier};
 use crate::combat::events::CombatEvent;
 use crate::combat::knockbacks::melee_knockback;
 use crate::common::AnimTimer;
@@ -13,6 +13,7 @@ pub struct MeleeAttackBundle {
     pub sensor: Sensor,
     pub attack: MeleeAttack,
     pub strength: AttackStrength,
+    pub knockback: KnockbackModifier,
     pub combat_layer: CombatLayerMask
 }
 
@@ -58,12 +59,13 @@ pub fn resolve_melee_attacks(
         &Collider,
         &CombatLayerMask,
         &AttackStrength,
-        &MeleeAttack
+        &MeleeAttack,
+        &KnockbackModifier
     )>,
     rapier: Res<RapierContext>,
     mut hit_events: EventWriter<CombatEvent>
 ) {
-    for (transform, collider, combat_layer, atk, melee) in melees.iter() {
+    for (transform, collider, combat_layer, atk, melee, kb) in melees.iter() {
         let atk_pos = if let Some(source) = melee.source {
             transforms.get(source).unwrap().translation()
         } else {
@@ -92,7 +94,7 @@ pub fn resolve_melee_attacks(
                     hit_events.send(CombatEvent {
                         target: hit,
                         damage: atk.power,
-                        kb: melee_knockback(Vec2::new(diff.x, diff.y))
+                        kb: (kb.mod_fn)(melee_knockback(Vec2::new(diff.x, diff.y)))
                     });
                 }
 

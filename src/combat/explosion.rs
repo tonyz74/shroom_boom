@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::*;
 use crate::assets::ExplosionAssets;
-use crate::combat::{AttackStrength, CombatEvent, CombatLayerMask};
+use crate::combat::{AttackStrength, CombatEvent, CombatLayerMask, KnockbackModifier};
 use crate::combat::knockbacks::explosion_knockback;
 use crate::common::AnimTimer;
 use crate::entity_states::*;
@@ -41,6 +41,7 @@ pub struct ExplosionAttackBundle {
     pub collider: Collider,
     pub sensor: Sensor,
     pub attack: ExplosionAttack,
+    pub knockback: KnockbackModifier,
     pub strength: AttackStrength,
     pub combat_layer: CombatLayerMask,
     pub state_machine: StateMachine
@@ -62,15 +63,11 @@ impl ExplosionAttackBundle {
             },
 
             collider: Collider::ball(0.0),
-
             sensor: Sensor,
-
             attack: ExplosionAttack::default(),
-
             strength: AttackStrength::new(2),
-
+            knockback: KnockbackModifier::default(),
             combat_layer: CombatLayerMask::empty(),
-
             state_machine: explosion_attack_state_machine()
         }
     }
@@ -126,13 +123,14 @@ fn explosion_damage(
         &Collider,
         &CombatLayerMask,
         &AttackStrength,
+        &KnockbackModifier
     ), (With<ExplosionAttack>, Without<Die>)>,
     rapier: Res<RapierContext>,
 
     combat_layers: Query<&CombatLayerMask>,
     mut hit_events: EventWriter<CombatEvent>,
 ) {
-    for (entity, collider, combat_layer, atk) in explosions.iter_mut() {
+    for (entity, collider, combat_layer, atk, kb) in explosions.iter_mut() {
         let transform = transforms.get(entity).unwrap();
         let explosion_pos = transform.translation();
 
@@ -157,7 +155,7 @@ fn explosion_damage(
                 hit_events.send(CombatEvent {
                     target: hit_entity,
                     damage: (atk.power as f32 * percentage).abs().clamp(0.0, atk.power as f32) as i32,
-                    kb: explosion_knockback(diff, 64.0)
+                    kb: (kb.mod_fn)(explosion_knockback(diff, 64.0))
                 });
 
                 true

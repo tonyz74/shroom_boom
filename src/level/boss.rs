@@ -60,30 +60,32 @@ fn spawn_boss(
         let mut boss = BossBundle::from_assets(&assets);
 
         boss.config = {
-            let (summon_base, charge_left, charge_right, hover_base) = {
-                let mut v: [Vec2; 4] = [Vec2::ZERO; 4];
+            let (summon_base, charge_left, charge_right, hover_base, slam_base) = {
+                let mut v: [Vec2; 5] = [Vec2::ZERO; 5];
 
-                for i in 0..=3 {
+                for i in 0..v.len() {
                     let p = util::val_expect_point(&inst.field_instances[i].value).unwrap();
                     println!("{:?} {:?}", i, p);
                     v[i] = coord::grid_coord_to_translation(p, lvl_info.grid_size.as_ivec2());
                 }
 
-                (v[0], v[1], v[2], v[3])
+                (v[0], v[1], v[2], v[3], v[4])
             };
 
             let boom_region = {
-                let id = util::val_expect_ent_ref(&inst.field_instances[4].value).unwrap();
+                let id = util::val_expect_ent_ref(&inst.field_instances[5].value).unwrap();
                 boom_region_map[&id.entity_iid]
             };
 
             let rightmost = charge_right - Vec2::new(256.0 - RENDERED_TILE_SIZE, 0.0);
             let leftmost = charge_left + Vec2::new(256.0, 0.0);
+            let bottommost = slam_base + Vec2::new(0.0, 256.0 - RENDERED_TILE_SIZE);
 
             BossConfig {
                 boom_region,
                 summon_base,
                 hover_base,
+                slam_base: bottommost,
 
                 charge_left: leftmost,
                 charge_right: rightmost,
@@ -96,13 +98,14 @@ fn spawn_boss(
         };
 
         println!(
-            "config:\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}",
+            "config:\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}",
             boss.config.relocate_point,
             boss.config.charge_left,
             boss.config.charge_right,
             boss.config.hover_base,
             boss.config.summon_base,
-            boss.config.boom_region
+            boss.config.slam_base,
+            boss.config.boom_region,
         );
 
         boss.sprite_sheet.transform.translation = coord::grid_coord_to_translation(

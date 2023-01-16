@@ -11,6 +11,8 @@ pub struct BossConfig {
     pub hover_base: Vec2,
     pub summon_base: Vec2,
 
+    pub slam_base: Vec2,
+
     pub x_min: f32,
     pub x_max: f32,
 

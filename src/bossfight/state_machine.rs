@@ -215,7 +215,31 @@ macro_rules! attack_trigger {
 
 use crate::bossfight::enraged::{EnragedAttackMove, ATTACK_SEQUENCE};
 
-attack_trigger!(RestTrigger, EnragedAttackMove::Rest);
+
+#[derive(Copy, Clone, Reflect, FromReflect)]
+pub struct RestTrigger;
+
+impl Trigger for RestTrigger {
+    type Param<'w, 's> = Query<'w, 's, (&'static Boss, &'static BossStage)>;
+
+    fn trigger(&self, _: Entity, boss: &Self::Param<'_, '_>) -> bool {
+        if boss.is_empty() {
+            return false;
+        }
+
+        let (boss, stage) = boss.single();
+
+        if stage != &BossStage::Enraged {
+            return false;
+        }
+
+        match ATTACK_SEQUENCE[boss.move_index] {
+            EnragedAttackMove::Rest(_) => true,
+            _ => false
+        }
+    }
+}
+
 attack_trigger!(ChargeLeftTrigger, EnragedAttackMove::ChargeLeft);
 attack_trigger!(ChargeRightTrigger, EnragedAttackMove::ChargeRight);
 attack_trigger!(HoverTrigger, EnragedAttackMove::Hover);

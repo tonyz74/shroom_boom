@@ -16,7 +16,7 @@ pub struct RestAbility {
 impl Default for RestAbility {
     fn default() -> Self {
         Self {
-            timer: Timer::from_seconds(4.0, TimerMode::Once)
+            timer: Timer::from_seconds(0.0, TimerMode::Once)
         }
     }
 }
@@ -43,11 +43,15 @@ fn start_resting(
     }
 
     let (mut immunity, mut rest, boss) = q.single_mut();
-    if boss.current_move() != EnragedAttackMove::Rest {
-        return;
-    }
+
+    let len = match boss.current_move() {
+        EnragedAttackMove::Rest(n) => n,
+        _ => return
+    };
 
     rest.timer.reset();
+    rest.timer.set_duration(std::time::Duration::from_secs_f32(len));
+
     immunity.is_immune = false;
 }
 
@@ -62,7 +66,12 @@ fn rest_update(
 
     let (entity, mut rest, stage, boss) = q.single_mut();
 
-    if stage != &BossStage::Enraged || boss.current_move() != EnragedAttackMove::Rest {
+    let resting = match boss.current_move() {
+        EnragedAttackMove::Rest(_) => true,
+        _ => false
+    };
+
+    if stage != &BossStage::Enraged || !resting {
         return;
     }
 

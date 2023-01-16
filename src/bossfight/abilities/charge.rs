@@ -45,7 +45,6 @@ fn start_charging(
 
     let (children, mut immunity, mut charge, mut boss) = q.single_mut();
 
-
     let (facing, dir) = match boss.current_move() {
         EnragedAttackMove::ChargeLeft => (Facing::Left, -1.0),
         EnragedAttackMove::ChargeRight => (Facing::Right, 1.0),

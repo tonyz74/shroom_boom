@@ -12,6 +12,7 @@ use crate::combat::Immunity;
 use crate::common::{PHYSICS_STEP_DELTA, PHYSICS_STEPS_PER_SEC};
 use crate::enemies::Enemy;
 use crate::state::GameState;
+use crate::util::Facing;
 
 #[derive(Component, Debug, Clone)]
 pub struct LeapAbility {
@@ -44,19 +45,22 @@ fn start_leaping(
     mut q: Query<(
         &mut Immunity,
         &mut LeapAbility,
-        &Boss,
+        &mut KinematicCharacterController,
+        &mut Boss,
     ), Added<AbilityStartup>>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (mut immunity, mut leap, boss) = q.single_mut();
+    let (mut immunity, mut leap, mut cc, mut boss) = q.single_mut();
     if boss.current_move() != EnragedAttackMove::Leap {
         return;
     }
 
+    cc.filter_flags = QueryFilterFlags::EXCLUDE_SENSORS | QueryFilterFlags::EXCLUDE_FIXED;
     immunity.is_immune = true;
+    boss.facing = Facing::Left;
     leap.rotate_lag.reset();
 }
 
@@ -69,6 +73,7 @@ fn leap_update(
         &mut Transform,
         &mut Enemy,
         &mut Immunity,
+        &mut KinematicCharacterController,
         &mut LeapAbility,
         &BossConfig
     ), With<Leap>>
@@ -77,7 +82,7 @@ fn leap_update(
        return;
    }
 
-    let (entity, tf, mut mov, mut enemy, mut immunity, mut leap, cfg) = q.single_mut();
+    let (entity, tf, mut mov, mut enemy, mut immunity, mut cc, mut leap, cfg) = q.single_mut();
 
     leap.rotate_lag.tick(time.delta());
     let pos = tf.translation().xy();
@@ -89,6 +94,8 @@ fn leap_update(
         enemy.vel = Vec2::ZERO;
         mov.translation = cfg.hover_base.extend(mov.translation.z);
         mov.rotation = Quat::from_rotation_z(0.0);
+
+        cc.filter_flags = QueryFilterFlags::EXCLUDE_SENSORS;
 
         return;
     }
@@ -111,7 +118,7 @@ fn leap_rotate(
 
     if (rot * 57.29577).abs() <= 1.0 {
         transform.rotation = Quat::from_rotation_z(0.0);
-    } else {
+    } else if leap.rotate_lag.finished() {
         transform.rotate_z((3.14 / 180.0) * (-360.0 * PHYSICS_STEP_DELTA));
     }
 }

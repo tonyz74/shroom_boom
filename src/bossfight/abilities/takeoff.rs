@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use seldom_state::prelude::Done;
 use crate::bossfight::{Boss, BossConfig};
 use crate::bossfight::enraged::EnragedAttackMove;
-use crate::bossfight::stage::BossStage::Enraged;
 use crate::bossfight::state_machine::{AbilityStartup, Takeoff};
 use crate::combat::Immunity;
 use crate::enemies::Enemy;

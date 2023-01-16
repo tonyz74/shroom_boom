@@ -3,7 +3,7 @@ use seldom_state::prelude::*;
 use crate::bossfight::{Boss, BossConfig};
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::state_machine::{AbilityStartup, Relocate};
-use crate::combat::{ColliderAttack, Immunity};
+use crate::combat::Immunity;
 use crate::state::GameState;
 
 

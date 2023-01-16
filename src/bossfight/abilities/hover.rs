@@ -41,7 +41,7 @@ fn start_hover(
     }
 
 
-    immunity.is_immune = true;
+    immunity.is_immune = false;
 }
 
 fn hover_update(

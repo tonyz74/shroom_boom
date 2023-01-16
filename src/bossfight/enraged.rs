@@ -17,21 +17,21 @@ pub enum EnragedAttackMove {
 }
 
 pub const ATTACK_SEQUENCE: &[EnragedAttackMove] = &[
-    EnragedAttackMove::Rest,
-    EnragedAttackMove::Boom,
-
-    EnragedAttackMove::Rest,
+    // EnragedAttackMove::Rest,
+    // EnragedAttackMove::Boom,
+    //
+    // EnragedAttackMove::Rest,
     EnragedAttackMove::RelocateRight,
+    //
+    // EnragedAttackMove::ChargeLeft,
+    // EnragedAttackMove::ChargeRight,
+    //
+    // EnragedAttackMove::Rest,
 
-    EnragedAttackMove::ChargeLeft,
-    EnragedAttackMove::ChargeRight,
+    // EnragedAttackMove::ChargeLeft,
+    // EnragedAttackMove::ChargeRight,
 
-    EnragedAttackMove::Rest,
-
-    EnragedAttackMove::ChargeLeft,
-    EnragedAttackMove::ChargeRight,
-
-    EnragedAttackMove::Rest,
+    // EnragedAttackMove::Rest,
 
     EnragedAttackMove::Leap,
     EnragedAttackMove::Hover,

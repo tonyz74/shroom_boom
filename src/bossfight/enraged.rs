@@ -17,35 +17,35 @@ pub enum EnragedAttackMove {
 }
 
 pub const ATTACK_SEQUENCE: &[EnragedAttackMove] = &[
-    EnragedAttackMove::Boom,
-    EnragedAttackMove::Rest(1.0),
+    // EnragedAttackMove::Boom,
+    // EnragedAttackMove::Rest(1.0),
 
     EnragedAttackMove::RelocateRight,
-    EnragedAttackMove::ChargeLeft,
-    EnragedAttackMove::Rest(1.0),
-    EnragedAttackMove::ChargeRight,
-
-    EnragedAttackMove::Rest(1.0),
-    EnragedAttackMove::ChargeLeft,
-    EnragedAttackMove::Rest(1.0),
-    EnragedAttackMove::ChargeRight,
-    EnragedAttackMove::Rest(1.0),
+    // EnragedAttackMove::ChargeLeft,
+    // EnragedAttackMove::Rest(1.0),
+    // EnragedAttackMove::ChargeRight,
+    //
+    // EnragedAttackMove::Rest(1.0),
+    // EnragedAttackMove::ChargeLeft,
+    // EnragedAttackMove::Rest(1.0),
+    // EnragedAttackMove::ChargeRight,
+    // EnragedAttackMove::Rest(1.0),
 
     EnragedAttackMove::Leap,
     EnragedAttackMove::Hover,
-    EnragedAttackMove::Rest(0.25),
+    // EnragedAttackMove::Rest(0.25),
     EnragedAttackMove::Slam,
     EnragedAttackMove::Rest(1.0),
 
     EnragedAttackMove::Takeoff,
     EnragedAttackMove::Hover,
-    EnragedAttackMove::Rest(0.25),
+    // EnragedAttackMove::Rest(0.25),
     EnragedAttackMove::Slam,
     EnragedAttackMove::Rest(1.0),
 
     EnragedAttackMove::Takeoff,
     EnragedAttackMove::Hover,
-    EnragedAttackMove::Rest(0.25),
+    // EnragedAttackMove::Rest(0.25),
     EnragedAttackMove::Slam,
     EnragedAttackMove::Rest(1.0),
 

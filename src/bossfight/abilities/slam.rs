@@ -72,7 +72,6 @@ fn slam_update(
     enemy.vel.y = -30.0;
 
 
-
     let y_level = tf.translation().y;
     if (y_level - cfg.slam_base.y).abs() <= 2.0 {
         immunity.is_immune = false;

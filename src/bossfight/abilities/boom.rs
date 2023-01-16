@@ -4,6 +4,7 @@ use seldom_state::prelude::*;
 use crate::assets::ExplosionAssets;
 use crate::bossfight::Boss;
 use crate::bossfight::enraged::EnragedAttackMove;
+use crate::bossfight::stage::BossStage;
 use crate::bossfight::state_machine::{AbilityStartup, Boom};
 use crate::combat::{ExplosionAttackBundle, Immunity};
 use crate::level::coord::grid_coord_to_translation;
@@ -53,7 +54,7 @@ fn start_booming(
         return;
     }
 
-    immunity.is_immune = true;
+    immunity.is_immune = false;
 
     boom.wait_timer.reset();
     boom.sel_timer.reset();
@@ -88,28 +89,33 @@ fn boom_update(
     time: Res<Time>,
     grid: Res<PathfindingGrid>,
     mut commands: Commands,
-    mut q: Query<(Entity, &mut BoomAbility, &mut Immunity), (With<Boss>, With<Boom>)>,
+    booming: Query<&Boom>,
+    mut q: Query<(Entity, &mut BoomAbility, &mut Immunity, &Boss, &BossStage)>,
     assets: Res<ExplosionAssets>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (entity, mut boom, mut immunity) = q.single_mut();
+    let (entity, mut boom, mut immunity, boss, stage) = q.single_mut();
+    if stage != &BossStage::Enraged || boss.current_move() != EnragedAttackMove::Boom {
+        return;
+    }
 
     if boom.explosion_points.len() < N_EXPLOSIONS {
         boom.sel_timer.tick(time.delta());
 
         if boom.sel_timer.just_finished() {
             boom.explosion_points.push(pick_explosion_point(&grid));
+            println!("p: {:?}", boom.explosion_points[boom.explosion_points.len() - 1]);
         }
 
     } else {
         boom.wait_timer.tick(time.delta());
 
-        if boom.wait_timer.just_finished() {
+        if boom.wait_timer.finished() && booming.contains(entity) {
             boom_spawn_explosions(&mut commands, &boom.explosion_points, &assets);
-            immunity.is_immune = false;
+            immunity.is_immune = true;
             commands.entity(entity).insert(Done::Success);
         }
     }

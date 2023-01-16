@@ -40,8 +40,7 @@ fn start_hover(
         return;
     }
 
-
-    immunity.is_immune = false;
+    immunity.is_immune = true;
 }
 
 fn hover_update(
@@ -68,7 +67,6 @@ fn hover_update(
     if boss.current_move() != EnragedAttackMove::Hover {
         return;
     }
-
 
     let mut threshold = 8.0;
     if player_pos.x < cfg.charge_left.x + 132.0 || player_pos.x > cfg.charge_right.x - 132.0 {

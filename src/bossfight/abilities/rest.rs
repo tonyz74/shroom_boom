@@ -3,7 +3,7 @@ use seldom_state::prelude::*;
 use crate::bossfight::Boss;
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::stage::BossStage;
-use crate::bossfight::state_machine::AbilityStartup;
+use crate::bossfight::state_machine::{AbilityStartup, Rest};
 use crate::combat::Immunity;
 use crate::state::GameState;
 
@@ -58,6 +58,7 @@ fn start_resting(
 fn rest_update(
     time: Res<Time>,
     mut commands: Commands,
+    resting: Query<&Rest>,
     mut q: Query<(Entity, &mut RestAbility, &BossStage, &Boss)>
 ) {
     if q.is_empty() {
@@ -66,17 +67,17 @@ fn rest_update(
 
     let (entity, mut rest, stage, boss) = q.single_mut();
 
-    let resting = match boss.current_move() {
+    let is_resting = match boss.current_move() {
         EnragedAttackMove::Rest(_) => true,
         _ => false
     };
 
-    if stage != &BossStage::Enraged || !resting {
+    if stage != &BossStage::Enraged || !is_resting {
         return;
     }
 
     rest.timer.tick(time.delta());
-    if rest.timer.just_finished() {
+    if rest.timer.finished() && resting.contains(entity) {
         commands.entity(entity).insert(Done::Success);
     }
 }

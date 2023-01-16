@@ -51,7 +51,6 @@ pub fn boss_state_machine() -> StateMachine {
         .trans::<Charge>(DoneTrigger::Success, PickNextMove)
 
         .trans::<Idle>(HoverTrigger, Hover)
-        .trans::<Rest>(HurtTrigger, Hurt)
         .trans::<Hover>(DoneTrigger::Success, PickNextMove)
 
         .trans::<Idle>(RelocateTrigger, Relocate)
@@ -61,6 +60,7 @@ pub fn boss_state_machine() -> StateMachine {
         .trans::<Slam>(DoneTrigger::Success, PickNextMove)
 
         .trans::<Idle>(BoomTrigger, Boom)
+        .trans::<Boom>(HurtTrigger, Hurt)
         .trans::<Boom>(DoneTrigger::Success, PickNextMove)
 
 

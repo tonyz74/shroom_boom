@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use std::time::Duration;
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Reflect)]
 pub enum Facing {
     Left,
     Right

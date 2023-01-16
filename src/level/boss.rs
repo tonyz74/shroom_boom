@@ -78,7 +78,7 @@ fn spawn_boss(
             };
 
             let rightmost = charge_right - Vec2::new(256.0 - RENDERED_TILE_SIZE, 0.0);
-            let leftmost = charge_left + Vec2::new(256.0 - RENDERED_TILE_SIZE, 0.0);
+            let leftmost = charge_left + Vec2::new(256.0, 0.0);
 
             BossConfig {
                 boom_region,

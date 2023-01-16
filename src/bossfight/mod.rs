@@ -23,16 +23,18 @@ use crate::enemies::Enemy;
 use crate::entity_states::*;
 use crate::state::GameState;
 use enraged::ATTACK_SEQUENCE;
-use crate::bossfight::abilities::{BoomAbility, RelocateAbility, register_boss_abilities, RestAbility};
+use crate::bossfight::abilities::{BoomAbility, RelocateAbility, register_boss_abilities, RestAbility, ChargeAbility};
 
 pub use crate::bossfight::config::BossConfig;
+use crate::util::Facing;
 
 
 #[derive(Component, Clone, Reflect)]
 pub struct Boss {
     pub grounded: bool,
     pub vulnerability_timer: Timer,
-    pub move_index: usize
+    pub move_index: usize,
+    pub facing: Facing
 }
 
 impl Default for Boss {
@@ -40,7 +42,8 @@ impl Default for Boss {
         Self {
             grounded: false,
             vulnerability_timer: Timer::from_seconds(8.0, TimerMode::Once),
-            move_index: 0
+            move_index: 0,
+            facing: Facing::Right
         }
     }
 }
@@ -68,6 +71,7 @@ pub struct BossBundle {
     pub rest: RestAbility,
     pub hurt: HurtAbility,
     pub boom: BoomAbility,
+    pub charge: ChargeAbility,
     pub relocate: RelocateAbility,
 
     pub health: Health,
@@ -121,12 +125,15 @@ impl BossBundle {
 
             character_controller: KinematicCharacterController {
                 filter_flags: QueryFilterFlags::EXCLUDE_SENSORS,
+                snap_to_ground: None,
+                offset: CharacterLength::Relative(0.0),
                 ..default()
             },
 
             rest: RestAbility::default(),
             hurt: HurtAbility::new(0.3, Some(0.3)),
             boom: BoomAbility::default(),
+            charge: ChargeAbility::default(),
             relocate: RelocateAbility::default(),
 
             health: Health::new(200),

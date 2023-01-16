@@ -20,8 +20,6 @@ pub fn register_boss_state_machine(app: &mut App) {
         .add_plugin(TP::<HoverTrigger>::default())
         .add_plugin(TP::<SlamTrigger>::default())
         .add_plugin(TP::<BoomTrigger>::default())
-        .add_plugin(TP::<TurnRightTrigger>::default())
-        .add_plugin(TP::<TurnLeftTrigger>::default())
         .add_plugin(TP::<LeapTrigger>::default())
         .add_plugin(TP::<RelocateTrigger>::default());
 }
@@ -69,10 +67,6 @@ pub fn boss_state_machine() -> StateMachine {
         .trans::<Idle>(TakeoffTrigger, Takeoff)
         .trans::<Takeoff>(DoneTrigger::Success, PickNextMove)
 
-        .trans::<Idle>(TurnRightTrigger, Turn)
-        .trans::<Idle>(TurnLeftTrigger, Turn)
-        .trans::<Turn>(DoneTrigger::Success, PickNextMove)
-
         .trans::<Idle>(LeapTrigger, Leap)
         .trans::<Leap>(DoneTrigger::Success, PickNextMove)
 
@@ -85,7 +79,6 @@ pub fn boss_state_machine() -> StateMachine {
         .trans::<Idle>(DeathTrigger, Die::default())
         .trans::<Hurt>(DeathTrigger, Die::default())
         .trans::<Rest>(DeathTrigger, Die::default())
-        .trans::<Turn>(DeathTrigger, Die::default())
         .trans::<Leap>(DeathTrigger, Die::default())
         .trans::<Boom>(DeathTrigger, Die::default())
         .trans::<Relocate>(DeathTrigger, Die::default())
@@ -126,9 +119,6 @@ pub struct Hover;
 
 #[derive(Component, Copy, Clone, Reflect)]
 pub struct Relocate;
-
-#[derive(Component, Copy, Clone, Reflect)]
-pub struct Turn;
 
 #[derive(Component, Copy, Clone, Reflect)]
 pub struct Leap;
@@ -230,8 +220,6 @@ attack_trigger!(ChargeLeftTrigger, EnragedAttackMove::ChargeLeft);
 attack_trigger!(ChargeRightTrigger, EnragedAttackMove::ChargeRight);
 attack_trigger!(HoverTrigger, EnragedAttackMove::Hover);
 attack_trigger!(RelocateTrigger, EnragedAttackMove::RelocateRight);
-attack_trigger!(TurnRightTrigger, EnragedAttackMove::TurnRight);
-attack_trigger!(TurnLeftTrigger, EnragedAttackMove::TurnLeft);
 attack_trigger!(LeapTrigger, EnragedAttackMove::Leap);
 attack_trigger!(BoomTrigger, EnragedAttackMove::Boom);
 attack_trigger!(SlamTrigger, EnragedAttackMove::Slam);

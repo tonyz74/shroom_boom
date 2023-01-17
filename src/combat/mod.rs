@@ -105,7 +105,7 @@ fn temp_explosion(
                 color: Color::rgba(1.0, 0.2, 0.2, 0.6),
                 corner_color: Color::rgba(1.0, 0.5, 0.5, 1.0),
                 wait_time: 1.0,
-                expand_time: 0.5,
+                expand_time: 0.4,
             },
         );
     }

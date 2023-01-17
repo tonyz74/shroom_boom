@@ -8,7 +8,7 @@ use crate::pathfind::Region;
 use crate::state::GameState;
 use crate::util::quat_rot2d_deg;
 
-#[derive(Component, Copy, Clone)]
+#[derive(Component, Copy, Clone, Default)]
 pub struct Indicator {
     pub region: Region,
     pub wait_time: f32,
@@ -44,8 +44,9 @@ impl Indicator {
         }
 
         let ease_func = EaseFunction::ExponentialOut;
-        let ease_type = EasingType::Once {
-            duration: Duration::from_secs_f32(indicator.expand_time)
+        let ease_type = EasingType::PingPong {
+            duration: Duration::from_secs_f32(indicator.expand_time),
+            pause: Some(Duration::from_secs_f32(indicator.wait_time))
         };
 
         let id = commands.spawn((
@@ -53,7 +54,7 @@ impl Indicator {
                 indicator,
                 timer: IndicatorTimer {
                     total_timer: Timer::from_seconds(
-                        indicator.wait_time + indicator.expand_time,
+                        indicator.wait_time + indicator.expand_time * 2.0,
                         TimerMode::Once
                     ),
                 },
@@ -134,4 +135,17 @@ fn update_indicators(
             commands.entity(entity).despawn_recursive();
         }
     }
+}
+
+
+
+impl Indicator {
+    pub const EXPLOSION: Self = Indicator {
+        color: Color::rgba(1.0, 0.2, 0.2, 0.6),
+        corner_color: Color::rgba(1.0, 0.5, 0.5, 1.0),
+
+        region: Region { tl: Vec2::ZERO, br: Vec2::ZERO },
+        wait_time: 0.0,
+        expand_time: 0.0
+    };
 }

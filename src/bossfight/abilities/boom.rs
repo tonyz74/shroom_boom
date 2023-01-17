@@ -1,13 +1,15 @@
 use bevy::prelude::*;
 use rand::prelude::*;
 use seldom_state::prelude::*;
-use crate::assets::ExplosionAssets;
+use crate::assets::{ExplosionAssets, IndicatorAssets};
 use crate::bossfight::{Boss, BossConfig};
 use crate::bossfight::consts::{BOSS_BOOM_EXPLOSION_COUNT, BOSS_BOOM_EXPLOSION_SCALE, BOSS_BOOM_PARTITION_SIZE, BOSS_BOOM_SELECTION_TIME, BOSS_BOOM_WAIT_TIME};
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::stage::BossStage;
 use crate::bossfight::state_machine::{AbilityStartup, Boom};
 use crate::combat::{ExplosionAttackBundle, Immunity};
+use crate::fx::indicator::Indicator;
+use crate::pathfind::Region;
 use crate::state::GameState;
 
 #[derive(Component, Debug, Clone)]
@@ -89,8 +91,18 @@ fn boom_update(
     time: Res<Time>,
     mut commands: Commands,
     booming: Query<&Boom>,
-    mut q: Query<(Entity, &mut BoomAbility, &mut Immunity, &Boss, &BossStage, &BossConfig)>,
-    assets: Res<ExplosionAssets>
+    mut q: Query<(
+        Entity,
+        &mut BoomAbility,
+        &mut Immunity,
+        &Boss,
+        &BossStage,
+        &BossConfig
+    )>,
+
+    assets: Res<ExplosionAssets>,
+
+    ind_assets: Res<IndicatorAssets>
 ) {
     if q.is_empty() {
         return;
@@ -105,7 +117,34 @@ fn boom_update(
         boom.sel_timer.tick(time.delta());
 
         if boom.sel_timer.just_finished() {
-            boom.explosion_points.push(pick_explosion_point(&cfg));
+            let mut point;
+
+            loop {
+                point = pick_explosion_point(&cfg);
+
+                if !boom.explosion_points.contains(&point) {
+                    break;
+                }
+            }
+
+            let len = boom.explosion_points.len();
+            let wait = (BOSS_BOOM_SELECTION_TIME * (BOSS_BOOM_EXPLOSION_COUNT - len) as f32) - 0.1;
+
+            Indicator::spawn(
+                &ind_assets,
+                &mut commands,
+                Indicator {
+                    region: Region {
+                        tl: point,
+                        br: point + Vec2::new(80.0, -80.0),
+                    },
+                    wait_time: wait,
+                    expand_time: 0.4,
+                    ..Indicator::EXPLOSION
+                },
+            );
+
+            boom.explosion_points.push(point);
         }
 
     } else {
@@ -127,8 +166,8 @@ fn boom_spawn_explosions(
     for point in points {
         let mut explosion = ExplosionAttackBundle::new(*point, assets);
 
-        let scale = &mut explosion.sprite_sheet.transform.scale;
-        *scale = Vec2::splat(BOSS_BOOM_EXPLOSION_SCALE).extend(1.0);
+        let transform = &mut explosion.sprite_sheet.transform;
+        transform.scale = Vec2::splat(BOSS_BOOM_EXPLOSION_SCALE).extend(1.0);
 
         commands.spawn(explosion);
     }

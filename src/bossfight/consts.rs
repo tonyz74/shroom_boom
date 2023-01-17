@@ -20,7 +20,7 @@ pub const BOSS_TAKEOFF_SPEED: f32 = 30.0;
 pub const BOSS_RELOCATE_RETRACT_TIME: f32 = 0.8;
 pub const BOSS_RELOCATE_EXTEND_TIME: f32 = 0.8;
 
-pub const BOSS_BOOM_EXPLOSION_COUNT: usize = 24;
+pub const BOSS_BOOM_EXPLOSION_COUNT: usize = 16;
 pub const BOSS_BOOM_SELECTION_TIME: f32 = 0.1;
 pub const BOSS_BOOM_WAIT_TIME: f32 = 0.8;
 pub const BOSS_BOOM_PARTITION_SIZE: f32 = 128.0;

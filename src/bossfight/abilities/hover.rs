@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use crate::bossfight::{Boss, BossConfig};
+use crate::bossfight::consts::{BOSS_HALF_SIZE, BOSS_HOVER_CMP_THRESHOLD, BOSS_HOVER_SPEED};
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::state_machine::AbilityStartup;
 use crate::combat::Immunity;
@@ -68,13 +69,15 @@ fn hover_update(
         return;
     }
 
-    let mut threshold = 8.0;
-    if player_pos.x < cfg.charge_left.x + 132.0 || player_pos.x > cfg.charge_right.x - 132.0 {
-        threshold = 132.0;
+    let mut threshold = BOSS_HOVER_CMP_THRESHOLD;
+
+    if player_pos.x < cfg.charge_left.x + BOSS_HALF_SIZE.x
+        || player_pos.x > cfg.charge_right.x + BOSS_HALF_SIZE.x {
+        threshold += BOSS_HALF_SIZE.x;
     }
 
     let diff = player_pos.x - boss_pos.x;
-    enemy.vel.x = Vec2::new(diff, 0.0).normalize().x * 6.0;
+    enemy.vel.x = Vec2::new(diff, 0.0).normalize().x * BOSS_HOVER_SPEED;
 
     if diff.abs() <= threshold {
         commands.entity(entity).insert(Done::Success);

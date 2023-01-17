@@ -3,13 +3,12 @@ use rand::prelude::*;
 use seldom_state::prelude::*;
 use crate::assets::ExplosionAssets;
 use crate::bossfight::{Boss, BossConfig};
+use crate::bossfight::consts::{BOSS_BOOM_EXPLOSION_COUNT, BOSS_BOOM_EXPLOSION_SCALE, BOSS_BOOM_PARTITION_SIZE, BOSS_BOOM_SELECTION_TIME, BOSS_BOOM_WAIT_TIME};
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::stage::BossStage;
 use crate::bossfight::state_machine::{AbilityStartup, Boom};
 use crate::combat::{ExplosionAttackBundle, Immunity};
 use crate::state::GameState;
-
-const N_EXPLOSIONS: usize = 24;
 
 #[derive(Component, Debug, Clone)]
 pub struct BoomAbility {
@@ -21,9 +20,9 @@ pub struct BoomAbility {
 impl Default for BoomAbility {
     fn default() -> Self {
         Self {
-            sel_timer: Timer::from_seconds(0.1, TimerMode::Repeating),
+            sel_timer: Timer::from_seconds(BOSS_BOOM_SELECTION_TIME, TimerMode::Repeating),
             explosion_points: vec![],
-            wait_timer: Timer::from_seconds(0.8, TimerMode::Once)
+            wait_timer: Timer::from_seconds(BOSS_BOOM_WAIT_TIME, TimerMode::Once)
         }
     }
 }
@@ -69,15 +68,21 @@ fn pick_explosion_point(cfg: &BossConfig) -> Vec2 {
     let y_min = cfg.boom_region.br.y;
     let y_max = cfg.boom_region.tl.y;
 
-    let x_range = [(x_min / 128.0) as i32, (x_max / 128.0) as i32];
-    let y_range = [(y_min / 128.0) as i32, (y_max / 128.0) as i32];
+    let x_range = [
+        (x_min / BOSS_BOOM_PARTITION_SIZE) as i32,
+        (x_max / BOSS_BOOM_PARTITION_SIZE) as i32];
+
+    let y_range = [
+        (y_min / BOSS_BOOM_PARTITION_SIZE) as i32,
+        (y_max / BOSS_BOOM_PARTITION_SIZE) as i32
+    ];
 
     let coords = IVec2::new(
         rng.gen_range(x_range[0]..x_range[1]),
         rng.gen_range(y_range[0]..y_range[1])
     );
 
-    coords.as_vec2() * 128.0
+    coords.as_vec2() * BOSS_BOOM_PARTITION_SIZE
 }
 
 fn boom_update(
@@ -96,7 +101,7 @@ fn boom_update(
         return;
     }
 
-    if boom.explosion_points.len() < N_EXPLOSIONS {
+    if boom.explosion_points.len() < BOSS_BOOM_EXPLOSION_COUNT {
         boom.sel_timer.tick(time.delta());
 
         if boom.sel_timer.just_finished() {
@@ -121,7 +126,9 @@ fn boom_spawn_explosions(
 ) {
     for point in points {
         let mut explosion = ExplosionAttackBundle::new(*point, assets);
-        explosion.sprite_sheet.transform.scale = Vec2::splat(1.25).extend(1.0);
+
+        let scale = &mut explosion.sprite_sheet.transform.scale;
+        *scale = Vec2::splat(BOSS_BOOM_EXPLOSION_SCALE).extend(1.0);
 
         commands.spawn(explosion);
     }

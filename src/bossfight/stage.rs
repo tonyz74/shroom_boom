@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use crate::bossfight::consts::{BOSS_EASY_HEALTH_THRESHOLD, BOSS_HARD_HEALTH_THRESHOLD, BOSS_HEALTH, BOSS_MEDIUM_HEALTH_THRESHOLD};
 
 #[derive(Component, Copy, Clone, Reflect, PartialEq, Eq, Debug)]
 pub enum BossStage {
@@ -58,16 +59,16 @@ impl BossStage {
 
     pub const fn health_threshold(&self) -> i32 {
         match self {
-            BossStage::Waiting => 200,
+            BossStage::Waiting => BOSS_HEALTH,
 
-            BossStage::SummonEasy => 150,
-            BossStage::VulnerableEasy => 150,
+            BossStage::SummonEasy => BOSS_EASY_HEALTH_THRESHOLD,
+            BossStage::VulnerableEasy => BOSS_EASY_HEALTH_THRESHOLD,
 
-            BossStage::SummonMedium => 100,
-            BossStage::VulnerableMedium => 100,
+            BossStage::SummonMedium => BOSS_MEDIUM_HEALTH_THRESHOLD,
+            BossStage::VulnerableMedium => BOSS_MEDIUM_HEALTH_THRESHOLD,
 
-            BossStage::SummonHard => 50,
-            BossStage::VulnerableHard => 50,
+            BossStage::SummonHard => BOSS_HARD_HEALTH_THRESHOLD,
+            BossStage::VulnerableHard => BOSS_HARD_HEALTH_THRESHOLD,
 
             BossStage::Enraged => 0
         }

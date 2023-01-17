@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use crate::bossfight::{Boss, BossConfig};
+use crate::bossfight::consts::{BOSS_RELOCATE_EXTEND_TIME, BOSS_RELOCATE_RETRACT_TIME};
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::state_machine::{AbilityStartup, Relocate};
 use crate::combat::Immunity;
@@ -17,8 +18,8 @@ pub struct RelocateAbility {
 impl Default for RelocateAbility {
     fn default() -> Self {
         Self {
-            retract: Timer::from_seconds(0.8, TimerMode::Once),
-            extend: Timer::from_seconds(0.8, TimerMode::Once)
+            retract: Timer::from_seconds(BOSS_RELOCATE_RETRACT_TIME, TimerMode::Once),
+            extend: Timer::from_seconds(BOSS_RELOCATE_EXTEND_TIME, TimerMode::Once)
         }
     }
 }

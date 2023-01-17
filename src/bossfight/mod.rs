@@ -5,6 +5,7 @@ mod enraged;
 mod stage;
 mod abilities;
 mod config;
+mod consts;
 
 use bevy::prelude::*;
 use bevy_debug_text_overlay::screen_print;
@@ -17,7 +18,7 @@ use crate::bossfight::state_machine::{boss_state_machine, register_boss_state_ma
 use crate::bossfight::summon::register_boss_summon;
 use crate::bossfight::vulnerable::register_boss_vulnerable;
 use crate::coin::drops::CoinHolder;
-use crate::combat::{AttackStrength, ColliderAttackBundle, CombatLayerMask, Health, HurtAbility, Immunity, KnockbackModifier};
+use crate::combat::{AttackStrength, ColliderAttack, ColliderAttackBundle, CombatLayerMask, Health, HurtAbility, Immunity, KnockbackModifier};
 use crate::common::AnimTimer;
 use crate::enemies::Enemy;
 use crate::entity_states::*;
@@ -26,6 +27,7 @@ use enraged::ATTACK_SEQUENCE;
 use crate::bossfight::abilities::{BoomAbility, RelocateAbility, register_boss_abilities, RestAbility, ChargeAbility, LeapAbility, HoverAbility, SlamAbility, TakeoffAbility};
 
 pub use crate::bossfight::config::BossConfig;
+use crate::bossfight::consts::{BOSS_FULL_SIZE, BOSS_HALF_SIZE};
 use crate::util::Facing;
 
 
@@ -97,7 +99,8 @@ impl BossBundle {
                 let x_dir = Vec2::new(kb.x, 0.0).normalize().x;
                 kb + Vec2::new(x_dir * 4.0, 6.0)
             }),
-            ..ColliderAttackBundle::from_size(Vec2::new(256.0, 512.0))
+            attack: ColliderAttack { enabled: false },
+            ..ColliderAttackBundle::from_size(BOSS_FULL_SIZE)
         }
     }
 
@@ -112,23 +115,14 @@ impl BossBundle {
 
         Self {
             immunity: Immunity::default(),
-
             config: BossConfig::default(),
-
             boss: Boss::default(),
-
             stage: BossStage::Waiting,
-
             enemy: Enemy::default(),
-
             sensor: Sensor,
-
             anim_timer: AnimTimer::from_seconds(anim.speed),
-
-            collider: Collider::cuboid(128.0, 256.0),
-
+            collider: Collider::cuboid(BOSS_HALF_SIZE.x, BOSS_HALF_SIZE.y),
             rigid_body: RigidBody::KinematicPositionBased,
-
             state_machine: boss_state_machine(),
 
             character_controller: KinematicCharacterController {
@@ -158,7 +152,7 @@ impl BossBundle {
 
             sprite_sheet: SpriteSheetBundle {
                 sprite: TextureAtlasSprite {
-                    custom_size: Some(Vec2::new(256.0, 512.0)),
+                    custom_size: Some(BOSS_FULL_SIZE),
                     ..default()
                 },
 

@@ -1,7 +1,9 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
+use bevy_rapier2d::prelude::*;
 use bevy::math::Vec3Swizzles;
 use crate::bossfight::{Boss, BossConfig};
+use crate::bossfight::consts::{BOSS_CHARGE_SPEED, BOSS_HEAD_HALF_SIZE, BOSS_HALF_SIZE};
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::state_machine::{AbilityStartup, Charge};
 use crate::combat::{ColliderAttack, Immunity};
@@ -31,7 +33,7 @@ pub fn register_boom_ability(app: &mut App) {
 }
 
 fn start_charging(
-    mut p: Query<&mut ColliderAttack>,
+    mut p: Query<(&mut ColliderAttack, &mut Transform, &mut Collider)>,
     mut q: Query<(
         &Children,
         &mut Immunity,
@@ -55,8 +57,11 @@ fn start_charging(
     println!("setting facing to {:?}", boss.facing);
 
     for child in children {
-        if let Ok(mut atk) = p.get_mut(*child) {
+        if let Ok((mut atk, mut transform, mut collider)) = p.get_mut(*child) {
             atk.enabled = true;
+
+            *collider = Collider::cuboid(BOSS_HEAD_HALF_SIZE.x, BOSS_HEAD_HALF_SIZE.y);
+            transform.translation.y = -dir * (BOSS_HALF_SIZE.y - BOSS_HEAD_HALF_SIZE.x);
         }
     }
 
@@ -66,7 +71,7 @@ fn start_charging(
 
 fn charge_update(
     mut commands: Commands,
-    mut p: Query<&mut ColliderAttack>,
+    mut p: Query<(&mut ColliderAttack, &mut Transform, &mut Collider)>,
     mut q: Query<(
         Entity,
         &Children,
@@ -82,7 +87,7 @@ fn charge_update(
     }
 
     let (entity, children, transform, mut enemy, charge, config, boss) = q.single_mut();
-    enemy.vel = Vec2::new(30.0 * charge.dir, 0.0);
+    enemy.vel = Vec2::new(BOSS_CHARGE_SPEED * charge.dir, 0.0);
 
     let pos = transform.translation().xy();
 
@@ -95,8 +100,10 @@ fn charge_update(
         commands.entity(entity).insert(Done::Success);
 
         for child in children {
-            if let Ok(mut atk) = p.get_mut(*child) {
+            if let Ok((mut atk, mut transform, mut collider)) = p.get_mut(*child) {
                 atk.enabled = false;
+                *collider = Collider::cuboid(BOSS_HALF_SIZE.x, BOSS_HALF_SIZE.y);
+                transform.translation = Vec3::ZERO;
             }
         }
     }

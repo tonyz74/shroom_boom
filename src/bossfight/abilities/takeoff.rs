@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::Done;
 use crate::bossfight::{Boss, BossConfig};
+use crate::bossfight::consts::BOSS_TAKEOFF_SPEED;
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::state_machine::{AbilityStartup, Takeoff};
 use crate::combat::Immunity;
@@ -70,5 +71,5 @@ fn takeoff_update(
         return;
     }
 
-    enemy.vel.y = 30.0;
+    enemy.vel.y = BOSS_TAKEOFF_SPEED;
 }

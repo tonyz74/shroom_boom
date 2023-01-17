@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::Done;
 use crate::bossfight::{Boss, BossConfig};
+use crate::bossfight::consts::BOSS_SLAM_SPEED;
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::state_machine::{AbilityStartup, Slam};
 use crate::combat::{ColliderAttack, Immunity};
@@ -69,7 +70,7 @@ fn slam_update(
     }
 
     let (entity, children, tf, mut enemy, mut immunity, cfg) = q.single_mut();
-    enemy.vel.y = -30.0;
+    enemy.vel.y = -BOSS_SLAM_SPEED;
 
 
     let y_level = tf.translation().y;

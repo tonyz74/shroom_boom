@@ -6,6 +6,7 @@ use bevy_rapier2d::control::KinematicCharacterController;
 use bevy_rapier2d::prelude::QueryFilterFlags;
 
 use crate::bossfight::{Boss, BossConfig};
+use crate::bossfight::consts::{BOSS_LEAP_CMP_THRESHOLD, BOSS_LEAP_ROTATE_LAG, BOSS_LEAP_ROTATE_SPEED, BOSS_LEAP_SPEED};
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::state_machine::{AbilityStartup, Leap};
 use crate::combat::Immunity;
@@ -22,7 +23,7 @@ pub struct LeapAbility {
 impl Default for LeapAbility {
     fn default() -> Self {
         Self {
-            rotate_lag: Timer::from_seconds(0.1, TimerMode::Once)
+            rotate_lag: Timer::from_seconds(BOSS_LEAP_ROTATE_LAG, TimerMode::Once)
         }
     }
 }
@@ -87,7 +88,7 @@ fn leap_update(
     leap.rotate_lag.tick(time.delta());
     let pos = tf.translation().xy();
 
-    if pos.distance(cfg.hover_base).abs() <= 16.0 {
+    if pos.distance(cfg.hover_base).abs() <= BOSS_LEAP_CMP_THRESHOLD {
         commands.entity(entity).insert(Done::Success);
 
         immunity.is_immune = false;
@@ -100,7 +101,7 @@ fn leap_update(
         return;
     }
 
-    enemy.vel = (cfg.hover_base - pos).normalize() * 24.0;
+    enemy.vel = (cfg.hover_base - pos).normalize() * BOSS_LEAP_SPEED;
 }
 
 fn leap_rotate(
@@ -119,6 +120,6 @@ fn leap_rotate(
     if rad_to_deg(rot).abs() <= 1.0 {
         transform.rotation = quat_rot2d_deg(0.0);
     } else if leap.rotate_lag.finished() {
-        transform.rotate_z(deg_to_rad(-360.0 * PHYSICS_STEP_DELTA));
+        transform.rotate_z(deg_to_rad(-1.0 * BOSS_LEAP_ROTATE_SPEED * PHYSICS_STEP_DELTA));
     }
 }

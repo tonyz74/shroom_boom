@@ -27,7 +27,7 @@ use enraged::ATTACK_SEQUENCE;
 use crate::bossfight::abilities::{BoomAbility, RelocateAbility, register_boss_abilities, RestAbility, ChargeAbility, LeapAbility, HoverAbility, SlamAbility, TakeoffAbility};
 
 pub use crate::bossfight::config::BossConfig;
-use crate::bossfight::consts::{BOSS_FULL_SIZE, BOSS_HALF_SIZE};
+use crate::bossfight::consts::{BOSS_FULL_SIZE, BOSS_HALF_SIZE, BOSS_HEALTH};
 use crate::util::Facing;
 
 
@@ -142,7 +142,7 @@ impl BossBundle {
             takeoff: TakeoffAbility::default(),
             relocate: RelocateAbility::default(),
 
-            health: Health::new(200),
+            health: Health::new(BOSS_HEALTH),
 
             combat_layer: CombatLayerMask::ENEMY,
 

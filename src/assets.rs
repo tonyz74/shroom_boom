@@ -224,6 +224,21 @@ impl BossAssets {
     }
 }
 
+#[derive(Resource, Default, Debug)]
+pub struct IndicatorAssets {
+    pub tr: Handle<Image>,
+}
+
+impl IndicatorAssets {
+    pub fn load(
+        asset_server: Res<AssetServer>,
+        mut assets: ResMut<IndicatorAssets>,
+    ) {
+        let tr = asset_server.load("sprites/util/indicator_top_right.png");
+        assets.tr = tr;
+    }
+}
+
 pub struct AssetLoaderPlugin;
 
 impl Plugin for AssetLoaderPlugin {
@@ -237,6 +252,7 @@ impl Plugin for AssetLoaderPlugin {
             .init_resource::<SporeAssets>()
             .init_resource::<CoinAssets>()
             .init_resource::<BossAssets>()
+            .init_resource::<IndicatorAssets>()
 
             .add_state(GameState::AssetLoading)
             .add_startup_system_set(
@@ -250,6 +266,7 @@ impl Plugin for AssetLoaderPlugin {
                     .with_system(SporeAssets::load)
                     .with_system(CoinAssets::load)
                     .with_system(BossAssets::load)
+                    .with_system(IndicatorAssets::load)
             )
 
             .add_startup_system(enter_level_transition.after("assets"));

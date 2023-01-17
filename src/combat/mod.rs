@@ -23,13 +23,15 @@ pub use death::*;
 pub use explosion::*;
 pub use spore_cloud::*;
 
-use crate::assets::ExplosionAssets;
+use crate::assets::{ExplosionAssets, IndicatorAssets};
 
 use crate::camera::GameCamera;
 
 use crate::combat::collision::register_collider_attacks;
 use crate::combat::spore_cloud::SporeCloudAttackBundle;
 use crate::entity_states::*;
+use crate::fx::indicator::Indicator;
+use crate::pathfind::Region;
 
 use crate::state::GameState;
 pub struct AttackPlugin;
@@ -60,12 +62,14 @@ impl Plugin for AttackPlugin {
 
 fn temp_explosion(
     events: Res<Input<MouseButton>>,
+    input: Res<Input<KeyCode>>,
     windows: Res<Windows>,
     mut commands: Commands,
     camera: Query<&GlobalTransform, With<GameCamera>>,
-    assets: Res<ExplosionAssets>
+    assets: Res<ExplosionAssets>,
+    ind_assets: Res<IndicatorAssets>
 ) {
-    if !events.just_pressed(MouseButton::Right) || camera.is_empty() {
+    if camera.is_empty() {
         return;
     }
 
@@ -83,8 +87,28 @@ fn temp_explosion(
     let cpos = win.cursor_position().unwrap();
     let world_pos = cpos + (cam - 0.5 * Vec2::new(win.width(), win.height()));
 
-    commands.spawn(ExplosionAttackBundle::new(world_pos, &assets));
-    // commands.spawn(SporeCloudAttackBundle::new(world_pos, Vec2::new(256.0, 128.0)));
+
+    if events.just_pressed(MouseButton::Right) {
+        commands.spawn(ExplosionAttackBundle::new(world_pos, &assets));
+        // commands.spawn(SporeCloudAttackBundle::new(world_pos, Vec2::new(256.0, 128.0)));
+    }
+
+    if input.just_pressed(KeyCode::M) {
+        Indicator::spawn(
+            &ind_assets,
+            &mut commands,
+            Indicator {
+                region: Region {
+                    tl: world_pos,
+                    br: world_pos + Vec2::new(400.0, -100.0),
+                },
+                color: Color::rgba(1.0, 0.2, 0.2, 0.6),
+                corner_color: Color::rgba(1.0, 0.5, 0.5, 1.0),
+                wait_time: 1.0,
+                expand_time: 0.5,
+            },
+        );
+    }
 }
 
 fn handle_hits(

@@ -7,7 +7,7 @@ use crate::bossfight::consts::{BOSS_BOOM_EXPLOSION_COUNT, BOSS_BOOM_EXPLOSION_SC
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::stage::BossStage;
 use crate::bossfight::state_machine::{AbilityStartup, Boom};
-use crate::combat::{ExplosionAttackBundle, Immunity};
+use crate::combat::{ExplosionAttackBundle, ExplosionEvent, Immunity};
 use crate::fx::indicator::Indicator;
 use crate::pathfind::Region;
 use crate::state::GameState;
@@ -91,6 +91,7 @@ fn boom_update(
     time: Res<Time>,
     mut commands: Commands,
     booming: Query<&Boom>,
+
     mut q: Query<(
         Entity,
         &mut BoomAbility,
@@ -100,7 +101,7 @@ fn boom_update(
         &BossConfig
     )>,
 
-    assets: Res<ExplosionAssets>,
+    mut events: EventWriter<ExplosionEvent>,
     mut indicators: EventWriter<Indicator>
 ) {
     if q.is_empty() {
@@ -148,7 +149,7 @@ fn boom_update(
         boom.wait_timer.tick(time.delta());
 
         if boom.wait_timer.finished() && booming.contains(entity) {
-            boom_spawn_explosions(&mut commands, &boom.explosion_points, &assets);
+            boom_spawn_explosions(&boom.explosion_points, &mut events);
             immunity.is_immune = true;
             commands.entity(entity).insert(Done::Success);
         }
@@ -156,16 +157,14 @@ fn boom_update(
 }
 
 fn boom_spawn_explosions(
-    commands: &mut Commands,
     points: &[Vec2],
-    assets: &ExplosionAssets
+    events: &mut EventWriter<ExplosionEvent>
 ) {
     for point in points {
-        let mut explosion = ExplosionAttackBundle::new(*point, assets);
-
-        let transform = &mut explosion.sprite_sheet.transform;
-        transform.scale = Vec2::splat(BOSS_BOOM_EXPLOSION_SCALE).extend(1.0);
-
-        commands.spawn(explosion);
+        events.send(ExplosionEvent {
+            pos: *point,
+            max_damage: 20,
+            radius: 40.0
+        });
     }
 }

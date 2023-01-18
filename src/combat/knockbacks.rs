@@ -21,13 +21,13 @@ pub fn projectile_knockback(mut dir: Vec2, vel: Vec2) -> Vec2 {
 }
 
 pub fn explosion_knockback(dir: Vec2, radius: f32) -> Vec2 {
-    let y_dir = Vec2::new(0.0, dir.y).normalize_or_zero().y;
+    // let y_dir = Vec2::new(0.0, dir.y).normalize_or_zero().y;
     let percent_from_center = 1.0 - dir.length() / radius;
 
     dir.normalize_or_zero()
         * percent_from_center
-        * Vec2::new(3.0, 4.0)
-        + Vec2::new(0.0, 4.0 * y_dir)
+        * Vec2::new(3.0, 1.0)
+        + Vec2::new(0.0, 4.0)
 }
 
 pub fn spore_cloud_knockback() -> Vec2 {

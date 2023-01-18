@@ -69,7 +69,7 @@ impl ExplosionAttackBundle {
             attack: ExplosionAttack::default(),
             strength: AttackStrength::default(),
             knockback: KnockbackModifier::default(),
-            combat_layer: CombatLayerMask::empty(),
+            combat_layer: CombatLayerMask::ENEMY,
             state_machine: explosion_attack_state_machine()
         }
     }

@@ -102,7 +102,7 @@ pub fn flower_enemy_tick(
             explosions.send(
                 ExplosionEvent {
                     pos: Vec2::new(pos.x, pos.y),
-                    max_damage: 10,
+                    max_damage: 12,
                     radius: 40.0
                 }
             );

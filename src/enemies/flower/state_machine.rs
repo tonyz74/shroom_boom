@@ -2,7 +2,8 @@ use bevy::prelude::*;
 use bevy_debug_text_overlay::screen_print;
 use seldom_state::prelude::*;
 use crate::assets::ExplosionAssets;
-use crate::combat::{DeathTrigger, ExplosionAttack, ExplosionAttackBundle};
+use crate::coin::drops::CoinHolder;
+use crate::combat::{DeathTrigger, ExplosionAttack, ExplosionAttackBundle, ExplosionEvent};
 use crate::enemies::Enemy;
 use crate::enemies::flower::FlowerEnemy;
 use crate::entity_states::*;
@@ -65,8 +66,8 @@ pub fn flower_enemy_detonate(
         indicators.send(
             Indicator {
                 region: Region {
-                    tl: Vec2::new(pos.x, pos.y) + Vec2::new(-48.0, 48.0),
-                    br: Vec2::new(pos.x, pos.y) + Vec2::new(48.0, -48.0)
+                    tl: Vec2::new(pos.x, pos.y) + Vec2::new(-40.0, 40.0),
+                    br: Vec2::new(pos.x, pos.y) + Vec2::new(40.0, -40.0)
                 },
 
                 wait_time: 0.2,
@@ -81,13 +82,30 @@ pub fn flower_enemy_detonate(
 pub fn flower_enemy_tick(
     time: Res<Time>,
     mut commands: Commands,
-    mut q: Query<(Entity, &mut FlowerEnemy), With<Detonate>>,
+    mut q: Query<(
+        Entity,
+        &GlobalTransform,
+        &mut FlowerEnemy,
+        &mut CoinHolder
+    ), With<Detonate>>,
+
+    mut explosions: EventWriter<ExplosionEvent>
 ) {
-    for (entity, mut flower) in q.iter_mut() {
+    for (entity, tf, mut flower, mut coin_holder) in q.iter_mut() {
+        let pos = tf.translation();
         flower.countdown.tick(time.delta());
 
         if flower.countdown.just_finished() {
             commands.entity(entity).insert(Done::Success);
+            coin_holder.total_value = 0;
+
+            explosions.send(
+                ExplosionEvent {
+                    pos: Vec2::new(pos.x, pos.y),
+                    max_damage: 10,
+                    radius: 40.0
+                }
+            );
         }
     }
 }

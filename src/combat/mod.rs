@@ -28,6 +28,7 @@ use crate::assets::{ExplosionAssets, IndicatorAssets};
 use crate::camera::GameCamera;
 
 use crate::combat::collision::register_collider_attacks;
+use crate::combat::consts::EXPLOSION_RADIUS;
 use crate::combat::spore_cloud::SporeCloudAttackBundle;
 use crate::entity_states::*;
 use crate::fx::indicator::Indicator;
@@ -67,7 +68,8 @@ fn temp_explosion(
     mut commands: Commands,
     camera: Query<&GlobalTransform, With<GameCamera>>,
     assets: Res<ExplosionAssets>,
-    ind_assets: Res<IndicatorAssets>
+    ind_assets: Res<IndicatorAssets>,
+    mut explosions: EventWriter<ExplosionEvent>
 ) {
     if camera.is_empty() {
         return;
@@ -89,8 +91,13 @@ fn temp_explosion(
 
 
     if events.just_pressed(MouseButton::Right) {
-        commands.spawn(ExplosionAttackBundle::new(world_pos, &assets));
-        // commands.spawn(SporeCloudAttackBundle::new(world_pos, Vec2::new(256.0, 128.0)));
+        explosions.send(
+            ExplosionEvent {
+                pos: world_pos,
+                radius: EXPLOSION_RADIUS,
+                max_damage: 20
+            }
+        );
     }
 
     if input.just_pressed(KeyCode::M) {

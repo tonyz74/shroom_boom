@@ -1,5 +1,6 @@
 use bevy::math::Vec3Swizzles;
 use bevy::prelude::*;
+use bevy_inspector_egui::RegisterInspectable;
 use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::*;
 use crate::assets::ExplosionAssets;
@@ -75,13 +76,16 @@ impl ExplosionAttackBundle {
 }
 
 pub fn register_explosion_attacks(app: &mut App) {
-    app.add_system_set(
-        SystemSet::on_update(GameState::Gameplay)
-            .with_system(tick_explosion_timers)
-            .with_system(explosion_expand)
-            .with_system(explosion_death)
-            .with_system(explosion_damage)
-    );
+    app
+        .add_event::<ExplosionEvent>()
+        .add_system_set(
+            SystemSet::on_update(GameState::Gameplay)
+                .with_system(tick_explosion_timers)
+                .with_system(explosion_expand)
+                .with_system(explosion_death)
+                .with_system(explosion_damage)
+                .with_system(explosion_events)
+        );
 }
 
 
@@ -168,5 +172,26 @@ fn explosion_damage(
                 true
             }
         );
+    }
+}
+
+#[derive(Component, Copy, Clone, Resource)]
+pub struct ExplosionEvent {
+    pub pos: Vec2,
+    pub max_damage: i32,
+    pub radius: f32,
+}
+
+fn explosion_events(
+    mut commands: Commands,
+    assets: Res<ExplosionAssets>,
+    mut explosions: EventReader<ExplosionEvent>
+) {
+    for explosion in explosions.iter() {
+        let mut atk = ExplosionAttackBundle::new(explosion.pos, &assets);
+        atk.sprite_sheet.transform.scale = Vec2::splat(explosion.radius / EXPLOSION_RADIUS).extend(1.0);
+        atk.strength.power = explosion.max_damage;
+
+        commands.spawn(atk);
     }
 }

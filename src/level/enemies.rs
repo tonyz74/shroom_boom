@@ -85,7 +85,8 @@ fn spawn_enemies(
                 ),
                 patrol_region
             },
-            rand_range: 0.9..1.1
+            rand_range: 0.9..1.1,
+            extra_components: None
         };
 
         spawns.send(ev);

@@ -26,13 +26,14 @@ pub enum EnemyType {
     Mushroom
 }
 
-#[derive(Clone, Debug, Component)]
+#[derive(Clone, Component)]
 pub struct EnemySpawnEvent {
     pub ty: EnemyType,
     pub coins: i32,
     pub difficulty: EnemyDifficulty,
     pub location: EnemyLocation,
-    pub rand_range: Range<f32>
+    pub rand_range: Range<f32>,
+    pub extra_components: Option<fn(&mut Commands, Entity)>
 }
 
 #[derive(Clone, Debug, Component)]
@@ -66,7 +67,7 @@ fn spawn_enemies(
     dandelion_assets: Res<DandelionEnemyAssets>
 ) {
     for enemy in events.iter() {
-        match enemy.ty {
+        let id = match enemy.ty {
             EnemyType::Flower => {
                 let mut bundle = FlowerEnemyBundle::from_assets(&flower_assets);
                 configure_enemy(&mut bundle.enemy, &enemy);
@@ -77,7 +78,7 @@ fn spawn_enemies(
                     EnemyDifficulty::Hard => FLOWER_HARD
                 }.randomized(enemy.rand_range.clone());
 
-                FlowerEnemyBundle::spawn_with_stats(&mut commands, bundle, stats);
+                FlowerEnemyBundle::spawn_with_stats(&mut commands, bundle, stats)
             },
 
             EnemyType::Dandelion => {
@@ -90,7 +91,7 @@ fn spawn_enemies(
                     EnemyDifficulty::Hard => DANDELION_HARD
                 }.randomized(enemy.rand_range.clone());
 
-            DandelionEnemyBundle::spawn_with_stats(&mut commands, bundle, stats);
+            DandelionEnemyBundle::spawn_with_stats(&mut commands, bundle, stats)
             },
 
             EnemyType::Pumpkin => {
@@ -103,11 +104,16 @@ fn spawn_enemies(
                     EnemyDifficulty::Hard => PUMPKIN_HARD
                 }.randomized(enemy.rand_range.clone());
 
-                PumpkinEnemyBundle::spawn_with_stats(&mut commands, bundle, stats);
+                PumpkinEnemyBundle::spawn_with_stats(&mut commands, bundle, stats)
             },
 
-            _ => {}
+            _ => {
+                panic!("Unknown enemy type {:?}", enemy.ty);
+            }
         };
 
+        if let Some(func) = enemy.extra_components {
+            func(&mut commands, id);
+        }
     }
 }

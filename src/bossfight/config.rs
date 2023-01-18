@@ -7,14 +7,13 @@ pub struct BossConfig {
 
     pub charge_right: Vec2,
     pub charge_left: Vec2,
-
     pub hover_base: Vec2,
-    pub summon_base: Vec2,
 
     pub slam_base: Vec2,
 
     pub x_min: f32,
     pub x_max: f32,
 
-    pub boom_region: Region
+    pub boom_region: Region,
+    pub summon_region: Region
 }

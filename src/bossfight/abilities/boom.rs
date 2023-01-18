@@ -1,7 +1,6 @@
 use bevy::prelude::*;
-use rand::prelude::*;
 use seldom_state::prelude::*;
-use crate::bossfight::{Boss, BossConfig};
+use crate::bossfight::{Boss, BossConfig, util};
 use crate::bossfight::consts::{BOSS_BOOM_EXPLOSION_COUNT, BOSS_BOOM_PARTITION_SIZE, BOSS_BOOM_SELECTION_TIME, BOSS_BOOM_WAIT_TIME};
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::stage::BossStage;
@@ -60,32 +59,6 @@ fn start_booming(
 }
 
 
-
-fn pick_explosion_point(cfg: &BossConfig) -> Vec2 {
-    let mut rng = thread_rng();
-
-    let x_min = cfg.boom_region.tl.x;
-    let x_max = cfg.boom_region.br.x;
-    let y_min = cfg.boom_region.br.y;
-    let y_max = cfg.boom_region.tl.y;
-
-    let x_range = [
-        (x_min / BOSS_BOOM_PARTITION_SIZE) as i32,
-        (x_max / BOSS_BOOM_PARTITION_SIZE) as i32];
-
-    let y_range = [
-        (y_min / BOSS_BOOM_PARTITION_SIZE) as i32,
-        (y_max / BOSS_BOOM_PARTITION_SIZE) as i32
-    ];
-
-    let coords = IVec2::new(
-        rng.gen_range(x_range[0]..x_range[1]),
-        rng.gen_range(y_range[0]..y_range[1])
-    );
-
-    coords.as_vec2() * BOSS_BOOM_PARTITION_SIZE
-}
-
 fn boom_update(
     time: Res<Time>,
     mut commands: Commands,
@@ -119,7 +92,7 @@ fn boom_update(
             let mut point;
 
             loop {
-                point = pick_explosion_point(&cfg);
+                point = util::pick_point_in_region(cfg.boom_region, BOSS_BOOM_PARTITION_SIZE);
 
                 if !boom.explosion_points.contains(&point) {
                     break;

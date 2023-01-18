@@ -37,14 +37,14 @@ impl DandelionEnemyBundle {
         }
     }
 
-    pub fn spawn_with_stats(commands: &mut Commands, mut item: Self, stats: EnemyStats) {
+    pub fn spawn_with_stats(commands: &mut Commands, mut item: Self, stats: EnemyStats) -> Entity {
         item.enemy.health.hp = stats.health;
         item.enemy.path.pathfinder.speed = stats.speed;
         item.enemy.path.pathfinder.patrol_speed = stats.patrol_speed;
 
         commands.spawn(item).with_children(|p| {
             p.spawn(Self::collider_attack(stats.collision_damage));
-        });
+        }).id()
     }
 
 

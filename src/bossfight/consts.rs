@@ -29,3 +29,7 @@ pub const BOSS_HEALTH: i32 = 400;
 pub const BOSS_EASY_HEALTH_THRESHOLD: i32 = 300;
 pub const BOSS_MEDIUM_HEALTH_THRESHOLD: i32 = 200;
 pub const BOSS_HARD_HEALTH_THRESHOLD: i32 = 100;
+
+pub const BOSS_SUMMON_COUNT_EASY: usize = 6;
+pub const BOSS_SUMMON_COUNT_MEDIUM: usize = 9;
+pub const BOSS_SUMMON_COUNT_HARD: usize = 12;

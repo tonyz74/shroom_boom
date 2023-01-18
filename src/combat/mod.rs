@@ -88,6 +88,8 @@ fn temp_explosion(
                 max_damage: 20
             }
         );
+
+        let _ = SporeCloudAttackBundle::new(Vec2::ZERO, Vec2::ZERO);
     }
 }
 

@@ -6,6 +6,7 @@ mod stage;
 mod abilities;
 mod config;
 mod consts;
+mod util;
 
 use bevy::prelude::*;
 use bevy_debug_text_overlay::screen_print;
@@ -15,7 +16,7 @@ use crate::assets::BossAssets;
 use crate::bossfight::enraged::{EnragedAttackMove, register_boss_enraged};
 use crate::bossfight::stage::BossStage;
 use crate::bossfight::state_machine::{boss_state_machine, register_boss_state_machine};
-use crate::bossfight::summon::register_boss_summon;
+use crate::bossfight::summon::{register_boss_summon, SummonAbility};
 use crate::bossfight::vulnerable::register_boss_vulnerable;
 use crate::coin::drops::CoinHolder;
 use crate::combat::{AttackStrength, ColliderAttack, ColliderAttackBundle, CombatLayerMask, Health, HurtAbility, Immunity, KnockbackModifier};
@@ -74,6 +75,7 @@ pub struct BossBundle {
     pub state_machine: StateMachine,
     pub character_controller: KinematicCharacterController,
 
+    pub summon: SummonAbility,
     pub rest: RestAbility,
     pub hurt: HurtAbility,
     pub boom: BoomAbility,
@@ -136,6 +138,7 @@ impl BossBundle {
                 ..default()
             },
 
+            summon: SummonAbility::default(),
             rest: RestAbility::default(),
             hurt: HurtAbility::new(0.3, Some(0.3)),
             boom: BoomAbility::default(),
@@ -146,7 +149,7 @@ impl BossBundle {
             takeoff: TakeoffAbility::default(),
             relocate: RelocateAbility::default(),
 
-            health: Health::new(4),
+            health: Health::new(BOSS_HEALTH),
 
             combat_layer: CombatLayerMask::ENEMY,
 

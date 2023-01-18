@@ -57,7 +57,7 @@ impl FlowerEnemyBundle {
         }
     }
 
-    pub fn spawn_with_stats(commands: &mut Commands, mut item: Self, stats: EnemyStats) {
+    pub fn spawn_with_stats(commands: &mut Commands, mut item: Self, stats: EnemyStats) -> Entity {
         item.enemy.health.hp = stats.health;
         item.flower.explosion_power = stats.attack_damage;
         item.enemy.path.pathfinder.speed = stats.speed;
@@ -66,8 +66,7 @@ impl FlowerEnemyBundle {
 
         commands.spawn(item).with_children(|p| {
             p.spawn(Self::collider_attack(stats.collision_damage));
-        });
-
+        }).id()
     }
 
     pub fn from_assets(assets: &FlowerEnemyAssets) -> Self {

@@ -9,11 +9,11 @@ use crate::state::GameState;
 
 
 #[derive(Component, Copy, Clone, Default)]
-pub struct BoomRegionMarker;
+pub struct RegionMarker;
 
 #[derive(Bundle, Default, LdtkEntity)]
-pub struct BoomRegionBundle {
-    marker: BoomRegionMarker,
+pub struct RegionBundle {
+    marker: RegionMarker,
 
     #[from_entity_instance]
     inst: EntityInstance
@@ -33,7 +33,8 @@ pub struct BossSpawnpointBundle {
 
 pub fn register_boss_spawnpoints(app: &mut App) {
     app
-        .register_ldtk_entity::<BoomRegionBundle>("BoomRegion")
+        .register_ldtk_entity::<RegionBundle>("BoomRegion")
+        .register_ldtk_entity::<RegionBundle>("SummonRegion")
         .register_ldtk_entity::<BossSpawnpointBundle>("BossSpawnpoint")
         .add_system_set(
             SystemSet::on_update(GameState::LevelTransition)
@@ -43,14 +44,14 @@ pub fn register_boss_spawnpoints(app: &mut App) {
 
 fn spawn_boss(
     mut commands: Commands,
-    boom_regions: Query<&EntityInstance, Added<BoomRegionMarker>>,
+    regions: Query<&EntityInstance, Added<RegionMarker>>,
     boss: Query<&EntityInstance, Added<BossSpawnpointMarker>>,
     assets: Res<BossAssets>,
     lvl_info: Res<LevelInfo>,
 ) {
-    let mut boom_region_map = HashMap::new();
-    for inst in boom_regions.iter() {
-        boom_region_map.insert(
+    let mut region_map = HashMap::new();
+    for inst in regions.iter() {
+        region_map.insert(
             inst.iid.clone(),
             coord::grid_coords_to_region(inst, lvl_info.grid_size)
         );
@@ -60,8 +61,8 @@ fn spawn_boss(
         let mut boss = BossBundle::from_assets(&assets);
 
         boss.config = {
-            let (summon_base, charge_left, charge_right, hover_base, slam_base) = {
-                let mut v: [Vec2; 5] = [Vec2::ZERO; 5];
+            let (charge_left, charge_right, hover_base, slam_base) = {
+                let mut v: [Vec2; 4] = [Vec2::ZERO; 4];
 
                 for i in 0..v.len() {
                     let p = util::val_expect_point(&inst.field_instances[i].value).unwrap();
@@ -69,13 +70,20 @@ fn spawn_boss(
                     v[i] = coord::grid_coord_to_translation(p, lvl_info.grid_size.as_ivec2());
                 }
 
-                (v[0], v[1], v[2], v[3], v[4])
+                (v[0], v[1], v[2], v[3])
             };
 
             let boom_region = {
-                let id = util::val_expect_ent_ref(&inst.field_instances[5].value).unwrap();
-                boom_region_map[&id.entity_iid]
+                let id = util::val_expect_ent_ref(&inst.field_instances[4].value).unwrap();
+                region_map[&id.entity_iid]
             };
+
+            let summon_region = {
+                let id = util::val_expect_ent_ref(&inst.field_instances[5].value).unwrap();
+                region_map[&id.entity_iid]
+            };
+
+            println!("summon region: {:?}", summon_region);
 
             let rightmost = charge_right - Vec2::new(256.0 - RENDERED_TILE_SIZE, 0.0);
             let leftmost = charge_left + Vec2::new(256.0, 0.0);
@@ -83,7 +91,8 @@ fn spawn_boss(
 
             BossConfig {
                 boom_region,
-                summon_base,
+                summon_region,
+
                 hover_base,
                 slam_base: bottommost,
 

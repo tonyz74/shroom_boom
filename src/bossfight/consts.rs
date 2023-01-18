@@ -24,7 +24,6 @@ pub const BOSS_BOOM_EXPLOSION_COUNT: usize = 16;
 pub const BOSS_BOOM_SELECTION_TIME: f32 = 0.1;
 pub const BOSS_BOOM_WAIT_TIME: f32 = 0.8;
 pub const BOSS_BOOM_PARTITION_SIZE: f32 = 128.0;
-pub const BOSS_BOOM_EXPLOSION_SCALE: f32 = 1.25;
 
 pub const BOSS_HEALTH: i32 = 400;
 pub const BOSS_EASY_HEALTH_THRESHOLD: i32 = 300;

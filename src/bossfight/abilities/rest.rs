@@ -1,17 +1,14 @@
 use bevy::prelude::*;
-use bevy_debug_text_overlay::screen_print;
 use seldom_state::prelude::*;
 use crate::bossfight::{Boss, BossConfig};
 use crate::bossfight::consts::{BOSS_HALF_SIZE, BOSS_FULL_SIZE, BOSS_HEAD_HALF_SIZE};
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::stage::BossStage;
-use crate::bossfight::stage::BossStage::Enraged;
 use crate::bossfight::state_machine::{AbilityStartup, Rest};
 use crate::combat::Immunity;
 use crate::enemies::Enemy;
 use crate::fx::indicator::Indicator;
 use crate::pathfind::Region;
-use crate::player::Player;
 use crate::state::GameState;
 
 #[derive(Debug, Component, Clone)]

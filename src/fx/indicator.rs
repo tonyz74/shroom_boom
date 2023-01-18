@@ -1,6 +1,5 @@
 use std::time::Duration;
 use bevy::prelude::*;
-use bevy::sprite::Anchor;
 use bevy_easings::*;
 use crate::assets::IndicatorAssets;
 use crate::level::consts::RENDERED_TILE_SIZE;

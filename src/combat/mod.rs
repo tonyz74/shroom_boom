@@ -23,10 +23,7 @@ pub use death::*;
 pub use explosion::*;
 pub use spore_cloud::*;
 
-use crate::assets::{ExplosionAssets, IndicatorAssets};
-
 use crate::camera::GameCamera;
-
 use crate::combat::collision::register_collider_attacks;
 use crate::combat::consts::EXPLOSION_RADIUS;
 use crate::combat::spore_cloud::SporeCloudAttackBundle;
@@ -63,12 +60,9 @@ impl Plugin for AttackPlugin {
 
 fn temp_explosion(
     events: Res<Input<MouseButton>>,
-    input: Res<Input<KeyCode>>,
     windows: Res<Windows>,
     mut commands: Commands,
     camera: Query<&GlobalTransform, With<GameCamera>>,
-    assets: Res<ExplosionAssets>,
-    ind_assets: Res<IndicatorAssets>,
     mut explosions: EventWriter<ExplosionEvent>
 ) {
     if camera.is_empty() {
@@ -89,7 +83,6 @@ fn temp_explosion(
     let cpos = win.cursor_position().unwrap();
     let world_pos = cpos + (cam - 0.5 * Vec2::new(win.width(), win.height()));
 
-
     if events.just_pressed(MouseButton::Right) {
         explosions.send(
             ExplosionEvent {
@@ -97,22 +90,6 @@ fn temp_explosion(
                 radius: EXPLOSION_RADIUS,
                 max_damage: 20
             }
-        );
-    }
-
-    if input.just_pressed(KeyCode::M) {
-        Indicator::spawn(
-            &ind_assets,
-            &mut commands,
-            Indicator {
-                region: Region {
-                    tl: world_pos,
-                    br: world_pos + Vec2::new(400.0, -100.0),
-                },
-                wait_time: 1.0,
-                expand_time: 0.4,
-                ..Indicator::SPAWNER
-            },
         );
     }
 }

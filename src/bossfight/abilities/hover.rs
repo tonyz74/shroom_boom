@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_debug_text_overlay::screen_print;
 use seldom_state::prelude::*;
 use crate::bossfight::{Boss, BossConfig};
 use crate::bossfight::consts::{BOSS_HALF_SIZE, BOSS_HOVER_CMP_THRESHOLD, BOSS_HOVER_SPEED};

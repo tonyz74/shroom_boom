@@ -1,9 +1,8 @@
 use bevy::prelude::*;
 use bevy_debug_text_overlay::screen_print;
 use seldom_state::prelude::*;
-use crate::assets::ExplosionAssets;
 use crate::coin::drops::CoinHolder;
-use crate::combat::{DeathTrigger, ExplosionAttack, ExplosionAttackBundle, ExplosionEvent};
+use crate::combat::ExplosionEvent;
 use crate::enemies::Enemy;
 use crate::enemies::flower::FlowerEnemy;
 use crate::entity_states::*;

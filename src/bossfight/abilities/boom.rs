@@ -1,13 +1,12 @@
 use bevy::prelude::*;
 use rand::prelude::*;
 use seldom_state::prelude::*;
-use crate::assets::{ExplosionAssets, IndicatorAssets};
 use crate::bossfight::{Boss, BossConfig};
-use crate::bossfight::consts::{BOSS_BOOM_EXPLOSION_COUNT, BOSS_BOOM_EXPLOSION_SCALE, BOSS_BOOM_PARTITION_SIZE, BOSS_BOOM_SELECTION_TIME, BOSS_BOOM_WAIT_TIME};
+use crate::bossfight::consts::{BOSS_BOOM_EXPLOSION_COUNT, BOSS_BOOM_PARTITION_SIZE, BOSS_BOOM_SELECTION_TIME, BOSS_BOOM_WAIT_TIME};
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::stage::BossStage;
 use crate::bossfight::state_machine::{AbilityStartup, Boom};
-use crate::combat::{ExplosionAttackBundle, ExplosionEvent, Immunity};
+use crate::combat::{ExplosionEvent, Immunity};
 use crate::fx::indicator::Indicator;
 use crate::pathfind::Region;
 use crate::state::GameState;

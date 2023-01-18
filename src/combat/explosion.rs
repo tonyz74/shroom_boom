@@ -1,6 +1,5 @@
 use bevy::math::Vec3Swizzles;
 use bevy::prelude::*;
-use bevy_inspector_egui::RegisterInspectable;
 use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::*;
 use crate::assets::ExplosionAssets;

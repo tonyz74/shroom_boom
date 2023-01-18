@@ -97,17 +97,6 @@ fn spawn_boss(
             }
         };
 
-        println!(
-            "config:\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}\n{:?}",
-            boss.config.relocate_point,
-            boss.config.charge_left,
-            boss.config.charge_right,
-            boss.config.hover_base,
-            boss.config.summon_base,
-            boss.config.slam_base,
-            boss.config.boom_region,
-        );
-
         boss.sprite_sheet.transform.translation = coord::grid_coord_to_translation(
             inst.grid,
             lvl_info.grid_size.as_ivec2()

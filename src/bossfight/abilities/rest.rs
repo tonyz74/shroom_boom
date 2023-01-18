@@ -1,10 +1,17 @@
 use bevy::prelude::*;
+use bevy_debug_text_overlay::screen_print;
 use seldom_state::prelude::*;
-use crate::bossfight::Boss;
+use crate::bossfight::{Boss, BossConfig};
+use crate::bossfight::consts::{BOSS_HALF_SIZE, BOSS_FULL_SIZE, BOSS_HEAD_HALF_SIZE};
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::stage::BossStage;
+use crate::bossfight::stage::BossStage::Enraged;
 use crate::bossfight::state_machine::{AbilityStartup, Rest};
 use crate::combat::Immunity;
+use crate::enemies::Enemy;
+use crate::fx::indicator::Indicator;
+use crate::pathfind::Region;
+use crate::player::Player;
 use crate::state::GameState;
 
 #[derive(Debug, Component, Clone)]
@@ -33,26 +40,95 @@ pub fn register_rest_ability(app: &mut App) {
 
 fn start_resting(
     mut q: Query<(
+        &GlobalTransform,
         &mut Immunity,
         &mut RestAbility,
-        &Boss
-    ), Added<AbilityStartup>>
+        &mut Enemy,
+        &Boss,
+        &BossConfig
+    ), Added<AbilityStartup>>,
+
+    mut indicators: EventWriter<Indicator>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (mut immunity, mut rest, boss) = q.single_mut();
+    let (transform, mut immunity, mut rest, mut enemy, boss, cfg) = q.single_mut();
+    let pos = transform.translation();
 
     let len = match boss.current_move() {
         EnragedAttackMove::Rest(n) => n,
         _ => return
     };
 
+    enemy.vel = Vec2::ZERO;
+
     rest.timer.reset();
     rest.timer.set_duration(std::time::Duration::from_secs_f32(len));
 
     immunity.is_immune = false;
+
+
+    // Preemptively draw indicators
+    let next = boss.next_move();
+    match next {
+        EnragedAttackMove::ChargeLeft | EnragedAttackMove::ChargeRight => {
+            let region = match next {
+                EnragedAttackMove::ChargeLeft => Region {
+                    tl: Vec2::new(
+                        cfg.charge_left.x - BOSS_HALF_SIZE.y,
+                        cfg.charge_left.y + BOSS_HEAD_HALF_SIZE.y
+                    ),
+                    br: Vec2::new(
+                        cfg.charge_left.x + BOSS_FULL_SIZE.x,
+                        cfg.charge_left.y - BOSS_HEAD_HALF_SIZE.y
+                    ),
+                },
+                EnragedAttackMove::ChargeRight => Region {
+                    tl: Vec2::new(
+                        cfg.charge_right.x - BOSS_FULL_SIZE.x,
+                        cfg.charge_right.y + BOSS_HEAD_HALF_SIZE.y
+                    ),
+                    br: Vec2::new(
+                        cfg.charge_right.x + BOSS_FULL_SIZE.x,
+                        cfg.charge_right.y - BOSS_HEAD_HALF_SIZE.y
+                    ),
+                },
+                _ => panic!("")
+            };
+
+            indicators.send(Indicator {
+                region,
+                wait_time: 1.5,
+                expand_time: 0.5,
+                ..Indicator::ATTACK
+            });
+        },
+
+        EnragedAttackMove::Slam => {
+            indicators.send(
+                Indicator {
+                    region: Region {
+                        tl: Vec2::new(
+                            pos.x - BOSS_HALF_SIZE.x,
+                            cfg.slam_base.y - BOSS_HALF_SIZE.y + 64.0
+                        ),
+
+                        br: Vec2::new(
+                            pos.x + BOSS_HALF_SIZE.x,
+                            cfg.slam_base.y - BOSS_HALF_SIZE.y
+                        )
+                    },
+                    wait_time: 1.0,
+                    expand_time: 0.2,
+                    ..Indicator::ATTACK
+                }
+            );
+        },
+
+        _ => {}
+    }
 }
 
 fn rest_update(

@@ -54,6 +54,10 @@ impl Boss {
     pub fn current_move(&self) -> EnragedAttackMove {
         ATTACK_SEQUENCE[self.move_index]
     }
+    pub fn next_move(&self) -> EnragedAttackMove {
+        let next = (self.move_index + 1) % ATTACK_SEQUENCE.len();
+        ATTACK_SEQUENCE[next]
+    }
 }
 
 #[derive(Bundle, Clone)]

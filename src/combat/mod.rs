@@ -102,10 +102,9 @@ fn temp_explosion(
                     tl: world_pos,
                     br: world_pos + Vec2::new(400.0, -100.0),
                 },
-                color: Color::rgba(1.0, 0.2, 0.2, 0.6),
-                corner_color: Color::rgba(1.0, 0.5, 0.5, 1.0),
                 wait_time: 1.0,
                 expand_time: 0.4,
+                ..Indicator::SPAWNER
             },
         );
     }

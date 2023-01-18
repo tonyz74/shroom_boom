@@ -38,6 +38,7 @@ pub fn register_coin(app: &mut App) {
 fn coin_fall(mut coins: Query<&mut CoinMovement, With<Idle>>) {
     for mut mover in coins.iter_mut() {
         if mover.grounded {
+            mover.vel.y = 0.0;
             continue;
         }
 

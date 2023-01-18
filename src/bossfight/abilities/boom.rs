@@ -101,8 +101,7 @@ fn boom_update(
     )>,
 
     assets: Res<ExplosionAssets>,
-
-    ind_assets: Res<IndicatorAssets>
+    mut indicators: EventWriter<Indicator>
 ) {
     if q.is_empty() {
         return;
@@ -130,13 +129,11 @@ fn boom_update(
             let len = boom.explosion_points.len();
             let wait = (BOSS_BOOM_SELECTION_TIME * (BOSS_BOOM_EXPLOSION_COUNT - len) as f32) - 0.1;
 
-            Indicator::spawn(
-                &ind_assets,
-                &mut commands,
+            indicators.send(
                 Indicator {
                     region: Region {
-                        tl: point,
-                        br: point + Vec2::new(80.0, -80.0),
+                        tl: point + Vec2::new(-40.0, 40.0),
+                        br: point + Vec2::new(40.0, -40.0),
                     },
                     wait_time: wait,
                     expand_time: 0.4,

@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_debug_text_overlay::screen_print;
 use seldom_state::prelude::*;
 use crate::bossfight::{Boss, BossConfig};
 use crate::bossfight::consts::{BOSS_HALF_SIZE, BOSS_HOVER_CMP_THRESHOLD, BOSS_HOVER_SPEED};
@@ -80,6 +81,7 @@ fn hover_update(
     enemy.vel.x = Vec2::new(diff, 0.0).normalize().x * BOSS_HOVER_SPEED;
 
     if diff.abs() <= threshold {
+        enemy.vel = Vec2::ZERO;
         commands.entity(entity).insert(Done::Success);
         immunity.is_immune = false;
     }

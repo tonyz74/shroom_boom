@@ -21,6 +21,7 @@ pub const ATTACK_SEQUENCE: &[EnragedAttackMove] = &[
     EnragedAttackMove::Rest(1.0),
 
     EnragedAttackMove::RelocateRight,
+    EnragedAttackMove::Rest(1.0),
     EnragedAttackMove::ChargeLeft,
     EnragedAttackMove::Rest(1.0),
     EnragedAttackMove::ChargeRight,

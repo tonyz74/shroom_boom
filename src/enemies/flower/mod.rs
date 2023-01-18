@@ -14,17 +14,28 @@ use crate::{
 };
 use crate::coin::drops::CoinHolder;
 use crate::combat::{AttackStrength, ColliderAttackBundle, Immunity};
+use crate::enemies::flower::state_machine::register_flower_enemy_state_machine;
 
 pub struct FlowerEnemyPlugin;
 
 impl Plugin for FlowerEnemyPlugin {
     fn build(&self, app: &mut App) {
-        let _ = app;
+        register_flower_enemy_state_machine(app);
     }
 }
 
-#[derive(Component, Default, Debug)]
-pub struct FlowerEnemy;
+#[derive(Component, Debug)]
+pub struct FlowerEnemy {
+    pub countdown: Timer
+}
+
+impl Default for FlowerEnemy {
+    fn default() -> Self {
+        Self {
+            countdown: Timer::from_seconds(1.0, TimerMode::Once)
+        }
+    }
+}
 
 #[derive(Bundle)]
 pub struct FlowerEnemyBundle {
@@ -104,7 +115,7 @@ impl FlowerEnemyBundle {
                 health: Health::new(10),
             },
 
-            flower: FlowerEnemy,
+            flower: FlowerEnemy::default(),
 
             walk: WalkPathfinder {
                 jump_speed: thread_rng().gen_range(7.0..9.0),

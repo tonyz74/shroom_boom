@@ -44,6 +44,10 @@ fn melee_pathfinder_move(
     let mut colliding_enemies: HashSet<(Entity, Entity)> = HashSet::new();
 
     for (ent, collider, mut enemy, mut pathfinder, mut walk, patrol) in pathfinders.iter_mut() {
+        if !pathfinder.active {
+            continue;
+        }
+
         let self_transform = transforms.get(ent).unwrap();
 
         let self_pos = Vec2::new(

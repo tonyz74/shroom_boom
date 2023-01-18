@@ -249,6 +249,10 @@ fn walk_pathfinder_patrol(
     let mut all_should_start_patrolling = false;
 
     for (tf, collider, mut enemy, pathfinder, mut walk, mut patrol) in pathfinders.iter_mut() {
+        if !pathfinder.active {
+            continue;
+        }
+
         let self_pos = tf.translation();
 
         if pathfinder.target.is_some() || !patrol.can_patrol {

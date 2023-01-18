@@ -24,8 +24,9 @@ use crate::player::Player;
 
 pub struct PathfindingPlugin;
 
-#[derive(Component, Debug, Default, Clone)]
+#[derive(Component, Debug, Clone)]
 pub struct Pathfinder {
+    pub active: bool,
     pub region: Region,
     pub within_region: bool,
 
@@ -33,6 +34,20 @@ pub struct Pathfinder {
     pub patrol_speed: f32,
     pub bb: BoundingBox,
     pub target: Option<Vec2>,
+}
+
+impl Default for Pathfinder {
+    fn default() -> Self {
+        Self {
+            active: true,
+            region: Default::default(),
+            within_region: false,
+            speed: 0.0,
+            patrol_speed: 0.0,
+            bb: Default::default(),
+            target: None
+        }
+    }
 }
 
 #[derive(Bundle, Debug, Default, Clone)]

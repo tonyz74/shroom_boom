@@ -105,6 +105,10 @@ pub fn ranged_pathfinder_move(
     let _ = rapier;
 
     for (ent, collider, mut enemy, mut pathfinder, mut walk, mut patrol) in pathfinders.iter_mut() {
+        if !pathfinder.active {
+            continue;
+        }
+
         patrol.can_patrol = true;
         walk.needs_jump = false;
 

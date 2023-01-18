@@ -137,6 +137,10 @@ pub fn fly_pathfinder_chase(
     rapier: Res<RapierContext>
 ) {
     for (pos, mut enemy, collider, mut pathfinder, mut fly, patrol) in fly.iter_mut() {
+        if !pathfinder.active {
+            continue;
+        }
+
         let self_pos = Vec2::new(
             pos.translation().x,
             pos.translation().y
@@ -258,6 +262,10 @@ pub fn fly_pathfinder_patrol(
     let mut all_should_start_patrolling = false;
 
     for (tf, mut enemy, pathfinder, mut fly, mut patrol) in fly.iter_mut() {
+        if !pathfinder.active {
+            continue;
+        }
+
         let self_pos = Vec2::new(
             tf.translation().x,
             tf.translation().y

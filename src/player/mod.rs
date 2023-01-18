@@ -155,13 +155,13 @@ fn setup_player(
             state_machine: state_machine::player_state_machine(),
 
             combat_layer: CombatLayerMask::PLAYER,
-            health: Health::new(100000),
+            health: Health::new(100),
 
             immunity: Immunity::default()
         }
     ).with_children(|p| {
         p.spawn(ColliderAttackBundle {
-            strength: AttackStrength::new(80),
+            strength: AttackStrength::new(2),
             combat_layer: CombatLayerMask::PLAYER,
             attack: ColliderAttack { enabled: false },
             ..ColliderAttackBundle::from_size(Vec2::new(32.0, 40.0))

@@ -56,8 +56,8 @@ fn summon_enemies(
         };
         flower.enemy.sprite_sheet.transform.translation = Vec3::new(400.0, 200.0, 10.0);
 
-        let id = FlowerEnemyBundle::spawn(&mut commands, flower);
-        commands.entity(id).insert(SummonedEnemy);
+        // let id = FlowerEnemyBundle::spawn(&mut commands, flower);
+        // commands.entity(id).insert(SummonedEnemy);
 
         commands.entity(e).insert(FinishedSummoning);
     }

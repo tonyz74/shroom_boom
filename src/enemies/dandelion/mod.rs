@@ -1,5 +1,5 @@
 pub mod state_machine;
-use rand::prelude::*;
+pub mod stats;
 
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -13,6 +13,7 @@ use crate::coin::drops::CoinHolder;
 use crate::combat::{AttackStrength, ColliderAttackBundle, CombatLayerMask, Health, HurtAbility, Immunity};
 use crate::common::AnimTimer;
 use crate::enemies::Enemy;
+use crate::enemies::stats::EnemyStats;
 use crate::pathfind::{util::BoundingBox, Pathfinder, PathfinderBundle};
 
 
@@ -28,18 +29,22 @@ pub struct DandelionEnemyBundle {
 }
 
 impl DandelionEnemyBundle {
-    pub fn collider_attack() -> ColliderAttackBundle {
+    pub fn collider_attack(power: i32) -> ColliderAttackBundle {
         ColliderAttackBundle {
             combat_layer: CombatLayerMask::ENEMY,
-            strength: AttackStrength::new(2),
+            strength: AttackStrength::new(power),
             ..ColliderAttackBundle::from_size(Vec2::new(36.0, 36.0))
         }
     }
 
-    pub fn spawn(commands: &mut Commands, enemy: Self) -> Entity {
-        commands.spawn(enemy).with_children(|p| {
-            p.spawn(Self::collider_attack());
-        }).id()
+    pub fn spawn_with_stats(commands: &mut Commands, mut item: Self, stats: EnemyStats) {
+        item.enemy.health.hp = stats.health;
+        item.enemy.path.pathfinder.speed = stats.speed;
+        item.enemy.path.pathfinder.patrol_speed = stats.patrol_speed;
+
+        commands.spawn(item).with_children(|p| {
+            p.spawn(Self::collider_attack(stats.collision_damage));
+        });
     }
 
 
@@ -81,8 +86,6 @@ impl DandelionEnemyBundle {
 
                 path: PathfinderBundle {
                     pathfinder: Pathfinder {
-                        speed: thread_rng().gen_range(1.5..2.5),
-                        patrol_speed: thread_rng().gen_range(0.8..1.2),
                         bb: BoundingBox::new(24.0, 24.0),
                         ..default()
                     },

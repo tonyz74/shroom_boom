@@ -1,9 +1,9 @@
 pub mod state_machine;
+pub mod stats;
 
+use std::time::Duration;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-
-use rand::prelude::*;
 
 use crate::{
     common::AnimTimer,
@@ -14,6 +14,8 @@ use crate::{
 };
 use crate::coin::drops::CoinHolder;
 use crate::combat::{AttackStrength, ColliderAttackBundle, Immunity, ProjectileAttack, ProjectileAttackBundle};
+use crate::enemies::stats::{CustomEnemyStats, EnemyStats};
+use crate::util::deg_to_rad;
 
 
 #[derive(Component, Copy, Clone, Debug)]
@@ -40,31 +42,42 @@ pub struct PumpkinEnemyBundle {
 }
 
 impl PumpkinEnemyBundle {
-    pub fn collider_attack() -> ColliderAttackBundle {
+    pub fn collider_attack(power: i32) -> ColliderAttackBundle {
         ColliderAttackBundle {
             combat_layer: CombatLayerMask::ENEMY,
-            strength: AttackStrength::new(2),
+            strength: AttackStrength::new(power),
             ..ColliderAttackBundle::from_size(Vec2::new(36.0, 36.0))
         }
     }
 
-    pub fn spawn(commands: &mut Commands, enemy: Self) -> Entity {
-        commands.spawn(enemy).with_children(|p| {
-            p.spawn(Self::collider_attack());
-        }).id()
+    pub fn spawn_with_stats(commands: &mut Commands, mut item: Self, stats: EnemyStats) {
+        item.enemy.health.hp = stats.health;
+        item.enemy.path.pathfinder.speed = stats.speed;
+        item.enemy.path.pathfinder.patrol_speed = stats.patrol_speed;
+        item.walk.jump_speed = stats.jump_speed;
+        item.ranged_pathfinder.projectile.strength.power = stats.attack_damage;
+
+        let extra = match stats.custom {
+            CustomEnemyStats::Ranged(ranged) => ranged,
+            _ => panic!("Ranged pathfinder not configured with ranged stats!")
+        };
+
+        item.ranged_pathfinder.max_shoot_distance = extra.max_shoot_dist;
+        item.ranged_pathfinder.shoot_pause.set_duration(Duration::from_secs_f32(extra.atk_freq));
+        item.ranged_pathfinder.projectile.attack.speed = extra.proj_speed;
+
+        commands.spawn(item).with_children(|p| {
+            p.spawn(Self::collider_attack(stats.collision_damage));
+        });
     }
 
     pub fn from_assets(assets: &PumpkinEnemyAssets) -> Self {
         PumpkinEnemyBundle {
             enemy: EnemyBundle {
                 immunity: Immunity::default(),
-
                 coins: CoinHolder::default(),
-
                 anim_timer: AnimTimer::from_seconds(assets.anims["IDLE"].speed),
-
                 collider: Collider::cuboid(24.0, 24.0),
-
                 rigid_body: RigidBody::KinematicPositionBased,
 
                 character_controller: KinematicCharacterController {
@@ -88,13 +101,10 @@ impl PumpkinEnemyBundle {
                 },
 
                 enemy: Enemy::default(),
-
                 sensor: Sensor,
 
                 path: PathfinderBundle {
                     pathfinder: Pathfinder {
-                        speed: thread_rng().gen_range(1.5..2.5),
-                        patrol_speed: thread_rng().gen_range(0.8..1.2),
                         bb: BoundingBox::new(24.0, 24.0),
                         ..default()
                     },
@@ -102,32 +112,29 @@ impl PumpkinEnemyBundle {
                 },
 
                 combat_layer: CombatLayerMask::ENEMY,
-
                 hurt_ability: HurtAbility::new(0.5, None),
-
-                health: Health::new(10),
+                health: Health::default()
             },
 
             pumpkin: PumpkinEnemy,
 
             walk: WalkPathfinder {
-                jump_speed: 8.0,
                 ..default()
             },
 
             ranged_pathfinder: RangedPathfinder {
                 shoot_startup: Timer::from_seconds(0.1, TimerMode::Once),
                 shoot_pause: Timer::from_seconds(0.1, TimerMode::Once),
-                shoot_cooldown: Timer::from_seconds(1.5, TimerMode::Once),
+                shoot_cooldown: Timer::from_seconds(0.0, TimerMode::Once),
 
-                max_shoot_angle: 45.0 * (std::f32::consts::PI / 180.0),
-                max_shoot_distance: 320.0,
+                max_shoot_angle: deg_to_rad(45.0),
+                max_shoot_distance: 0.0,
 
                 extra_spawn: |cmd, e| { cmd.entity(e).insert(PumpkinProjectileAttack); },
 
                 projectile: ProjectileAttackBundle {
                     attack: ProjectileAttack {
-                        speed: 8.0,
+                        speed: 0.0,
                         ..default()
                     },
 
@@ -142,10 +149,8 @@ impl PumpkinEnemyBundle {
                         ..default()
                     },
 
-                    strength: AttackStrength::new(5),
-
+                    strength: AttackStrength::new(0),
                     combat_layer: CombatLayerMask::ENEMY,
-
                     ..ProjectileAttackBundle::from_size(Vec2::new(16.0, 16.0))
                 },
 

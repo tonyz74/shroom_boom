@@ -3,20 +3,11 @@ use bevy_ecs_ldtk::prelude::*;
 
 use crate::{
     state::GameState,
-    assets::FlowerEnemyAssets,
-    enemies::{
-        pumpkin::PumpkinEnemyBundle,
-        flower::FlowerEnemyBundle
-    },
-    pathfind::util::Region,
     level::{util, coord},
 };
 
 use std::collections::HashMap;
-use crate::assets::{DandelionEnemyAssets, PumpkinEnemyAssets};
-use crate::coin::drops::CoinHolder;
-use crate::enemies::dandelion::DandelionEnemyBundle;
-use crate::enemies::EnemyBundle;
+use crate::enemies::spawner::{EnemyDifficulty, EnemyLocation, EnemySpawnEvent, EnemyType};
 use crate::level::LevelInfo;
 
 #[derive(Component, Default)]
@@ -50,14 +41,12 @@ pub fn register_enemy_spawnpoints(app: &mut App) {
 }
 
 fn spawn_enemies(
-    mut commands: Commands,
+    // mut commands: Commands,
     enemies: Query<&EntityInstance, Added<EnemySpawnpointMarker>>,
     patrol_regions: Query<&EntityInstance, Added<PatrolRegionMarker>>,
     lvl_info: Res<LevelInfo>,
 
-    flower_assets: Res<FlowerEnemyAssets>,
-    pumpkin_assets: Res<PumpkinEnemyAssets>,
-    dandelion_assets: Res<DandelionEnemyAssets>
+    mut spawns: EventWriter<EnemySpawnEvent>
 ) {
     let mut patrol_regions_map = HashMap::new();
 
@@ -77,100 +66,28 @@ fn spawn_enemies(
             _ => panic!()
         };
 
-        let coins = util::val_expect_i32(&inst.field_instances[2].value).unwrap();
+        let n_coins = util::val_expect_i32(&inst.field_instances[2].value).unwrap();
 
-        match enemy_type.as_str() {
-            "Flower" => {
-                spawn_flower(
-                    &mut commands,
-                    &inst,
-                    coins,
-                    patrol_region,
-                    &lvl_info,
-                    &flower_assets
-                )
-            },
-            "Pumpkin" => {
-                spawn_pumpkin(
-                    &mut commands,
-                    &inst,
-                    coins,
-                    patrol_region,
-                    &lvl_info,
-                    &pumpkin_assets
-                )
-            },
-            "Dandelion" => {
-                spawn_dandelion(
-                    &mut commands,
-                    &inst,
-                    coins,
-                    patrol_region,
-                    &lvl_info,
-                    &dandelion_assets
-                )
-            },
+        let enemy_ty = match enemy_type.as_str() {
+            "Flower" => EnemyType::Flower,
+            "Pumpkin" => EnemyType::Pumpkin,
+            "Dandelion" => EnemyType::Dandelion,
             _ => panic!()
-        }
+        };
+        
+        let ev = EnemySpawnEvent {
+            ty: enemy_ty,
+            coins: n_coins,
+            difficulty: EnemyDifficulty::Hard,
+            location: EnemyLocation {
+                pos: coord::grid_coord_to_translation(
+                    inst.grid, lvl_info.grid_size.as_ivec2()
+                ),
+                patrol_region
+            },
+            rand_range: 0.9..1.1
+        };
+
+        spawns.send(ev);
     }
-}
-
-
-fn configure_enemy(
-    enemy: &mut EnemyBundle,
-    inst: &EntityInstance,
-    coins: i32,
-    patrol_region: Region,
-    lvl_info: &Res<LevelInfo>,
-) {
-    enemy.path.pathfinder.region = patrol_region;
-
-    enemy.sprite_sheet.transform.translation = coord::grid_coord_to_translation(
-        inst.grid,
-        lvl_info.grid_size.as_ivec2()
-    ).extend(1.0);
-
-    enemy.coins = CoinHolder { total_value: coins };
-}
-
-pub fn spawn_flower(
-    commands: &mut Commands,
-    inst: &EntityInstance,
-    coins: i32,
-    patrol_region: Region,
-    lvl_info: &Res<LevelInfo>,
-    assets: &Res<FlowerEnemyAssets>
-) {
-    let mut enemy = FlowerEnemyBundle::from_assets(&assets);
-    configure_enemy(&mut enemy.enemy, inst, coins, patrol_region, lvl_info);
-
-    FlowerEnemyBundle::spawn(commands, enemy);
-}
-
-pub fn spawn_pumpkin(
-    commands: &mut Commands,
-    inst: &EntityInstance,
-    coins: i32,
-    patrol_region: Region,
-    lvl_info: &Res<LevelInfo>,
-    assets: &Res<PumpkinEnemyAssets>
-) {
-    let mut enemy = PumpkinEnemyBundle::from_assets(&assets);
-    configure_enemy(&mut enemy.enemy, inst, coins, patrol_region, lvl_info);
-
-    PumpkinEnemyBundle::spawn(commands, enemy);
-}
-
-pub fn spawn_dandelion(
-    commands: &mut Commands,
-    inst: &EntityInstance,
-    coins: i32,
-    patrol_region: Region,
-    lvl_info: &Res<LevelInfo>,
-    assets: &Res<DandelionEnemyAssets>
-) {
-    let mut enemy = DandelionEnemyBundle::from_assets(&assets);
-    configure_enemy(&mut enemy.enemy, inst, coins, patrol_region, lvl_info);
-
-    DandelionEnemyBundle::spawn(commands, enemy);
 }

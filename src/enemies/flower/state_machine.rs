@@ -1,8 +1,7 @@
 use bevy::prelude::*;
-use bevy_debug_text_overlay::screen_print;
 use seldom_state::prelude::*;
 use crate::coin::drops::CoinHolder;
-use crate::combat::ExplosionEvent;
+use crate::combat::{ColliderAttack, ExplosionEvent, Immunity};
 use crate::enemies::Enemy;
 use crate::enemies::flower::FlowerEnemy;
 use crate::entity_states::*;
@@ -33,7 +32,6 @@ impl Trigger for DetonateTrigger {
 
         if let Some(target) = pathfinder.target {
             let dist = target.distance(Vec2::new(pos.x, pos.y));
-            screen_print!("{:?} {:?}", entity, dist);
             return dist <= 48.0;
         }
 
@@ -52,14 +50,30 @@ pub fn register_flower_enemy_state_machine(app: &mut App) {
 }
 
 pub fn flower_enemy_detonate(
-    mut q: Query<(&GlobalTransform, &mut Pathfinder, &mut Enemy, &mut FlowerEnemy), Added<Detonate>>,
+    mut p: Query<&mut ColliderAttack>,
+    mut q: Query<(
+        &Children,
+        &GlobalTransform,
+        &mut Pathfinder,
+        &mut Enemy,
+        &mut FlowerEnemy,
+        &mut Immunity
+    ), Added<Detonate>>,
     mut indicators: EventWriter<Indicator>
 ) {
-    for (transform, mut pathfinder, mut enemy, mut flower) in q.iter_mut() {
+    for (kids, transform, mut pathfinder, mut enemy, mut flower, mut immunity) in q.iter_mut() {
+
+        for child in kids {
+            if let Ok(mut atk) = p.get_mut(*child) {
+                atk.enabled = false;
+            }
+        }
+
         let pos = transform.translation();
 
         pathfinder.active = false;
         enemy.vel = Vec2::ZERO;
+        immunity.is_immune = true;
         flower.countdown.reset();
 
         indicators.send(
@@ -101,7 +115,7 @@ pub fn flower_enemy_tick(
             explosions.send(
                 ExplosionEvent {
                     pos: Vec2::new(pos.x, pos.y),
-                    max_damage: 12,
+                    max_damage: flower.explosion_power,
                     radius: 40.0
                 }
             );

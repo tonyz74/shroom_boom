@@ -1,9 +1,8 @@
+pub mod stats;
 pub mod state_machine;
 
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
-
-use rand::prelude::*;
 
 use crate::{
     common::AnimTimer,
@@ -15,6 +14,7 @@ use crate::{
 use crate::coin::drops::CoinHolder;
 use crate::combat::{AttackStrength, ColliderAttackBundle, Immunity};
 use crate::enemies::flower::state_machine::register_flower_enemy_state_machine;
+use crate::enemies::stats::EnemyStats;
 
 pub struct FlowerEnemyPlugin;
 
@@ -26,12 +26,14 @@ impl Plugin for FlowerEnemyPlugin {
 
 #[derive(Component, Debug)]
 pub struct FlowerEnemy {
-    pub countdown: Timer
+    pub countdown: Timer,
+    pub explosion_power: i32
 }
 
 impl Default for FlowerEnemy {
     fn default() -> Self {
         Self {
+            explosion_power: 0,
             countdown: Timer::from_seconds(1.0, TimerMode::Once)
         }
     }
@@ -47,31 +49,34 @@ pub struct FlowerEnemyBundle {
 }
 
 impl FlowerEnemyBundle {
-    pub fn collider_attack() -> ColliderAttackBundle {
+    pub fn collider_attack(collision_dmg: i32) -> ColliderAttackBundle {
         ColliderAttackBundle {
             combat_layer: CombatLayerMask::ENEMY,
-            strength: AttackStrength::new(2),
+            strength: AttackStrength::new(collision_dmg),
             ..ColliderAttackBundle::from_size(Vec2::new(36.0, 36.0))
         }
     }
 
-    pub fn spawn(commands: &mut Commands, enemy: Self) -> Entity {
-        commands.spawn(enemy).with_children(|p| {
-            p.spawn(Self::collider_attack());
-        }).id()
+    pub fn spawn_with_stats(commands: &mut Commands, mut item: Self, stats: EnemyStats) {
+        item.enemy.health.hp = stats.health;
+        item.flower.explosion_power = stats.attack_damage;
+        item.enemy.path.pathfinder.speed = stats.speed;
+        item.enemy.path.pathfinder.patrol_speed = stats.patrol_speed;
+        item.walk.jump_speed = stats.jump_speed;
+
+        commands.spawn(item).with_children(|p| {
+            p.spawn(Self::collider_attack(stats.collision_damage));
+        });
+
     }
 
     pub fn from_assets(assets: &FlowerEnemyAssets) -> Self {
         FlowerEnemyBundle {
             enemy: EnemyBundle {
                 immunity: Immunity::default(),
-
                 coins: CoinHolder::default(),
-
                 anim_timer: AnimTimer::from_seconds(assets.anims["IDLE"].speed),
-
                 collider: Collider::cuboid(24.0, 24.0),
-
                 rigid_body: RigidBody::KinematicPositionBased,
 
                 character_controller: KinematicCharacterController {
@@ -95,13 +100,10 @@ impl FlowerEnemyBundle {
                 },
 
                 enemy: Enemy::default(),
-
                 sensor: Sensor,
 
                 path: PathfinderBundle {
                     pathfinder: Pathfinder {
-                        speed: thread_rng().gen_range(1.5..2.5),
-                        patrol_speed: thread_rng().gen_range(0.8..1.2),
                         bb: BoundingBox::new(24.0, 24.0),
                         ..default()
                     },
@@ -109,19 +111,12 @@ impl FlowerEnemyBundle {
                 },
 
                 combat_layer: CombatLayerMask::ENEMY,
-
                 hurt_ability: HurtAbility::new(0.5, None),
-
-                health: Health::new(10),
+                health: Health::default(),
             },
 
             flower: FlowerEnemy::default(),
-
-            walk: WalkPathfinder {
-                jump_speed: thread_rng().gen_range(7.0..9.0),
-                ..default()
-            },
-
+            walk: WalkPathfinder::default(),
             melee_pathfinder: MeleePathfinder,
         }
     }

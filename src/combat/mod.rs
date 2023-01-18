@@ -28,8 +28,6 @@ use crate::combat::collision::register_collider_attacks;
 use crate::combat::consts::EXPLOSION_RADIUS;
 use crate::combat::spore_cloud::SporeCloudAttackBundle;
 use crate::entity_states::*;
-use crate::fx::indicator::Indicator;
-use crate::pathfind::Region;
 
 use crate::state::GameState;
 pub struct AttackPlugin;
@@ -61,7 +59,6 @@ impl Plugin for AttackPlugin {
 fn temp_explosion(
     events: Res<Input<MouseButton>>,
     windows: Res<Windows>,
-    mut commands: Commands,
     camera: Query<&GlobalTransform, With<GameCamera>>,
     mut explosions: EventWriter<ExplosionEvent>
 ) {

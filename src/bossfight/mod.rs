@@ -146,12 +146,12 @@ impl BossBundle {
             takeoff: TakeoffAbility::default(),
             relocate: RelocateAbility::default(),
 
-            health: Health::new(101),
+            health: Health::new(4),
 
             combat_layer: CombatLayerMask::ENEMY,
 
             coins: CoinHolder {
-                total_value: 120
+                total_value: 1000
             },
 
             sprite_sheet: SpriteSheetBundle {

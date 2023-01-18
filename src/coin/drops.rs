@@ -50,17 +50,18 @@ fn drop_coins_on_death(
 
         let mut rng = thread_rng();
 
-        let value_split = drop.total_value / 2;
-        let remaining = drop.total_value % 2;
+        const COIN_SPLIT: usize = 10;
+
+        let value_split = drop.total_value / (COIN_SPLIT as i32);
+        let remaining = drop.total_value % (COIN_SPLIT as i32);
 
         for _ in 0..value_split {
-            spawn_random_coin(&mut rng, &mut commands, 2, pos, &assets);
+            spawn_random_coin(&mut rng, &mut commands, COIN_SPLIT as i32, pos, &assets);
         }
 
         if remaining != 0 {
             spawn_random_coin(&mut rng, &mut commands, remaining, pos, &assets);
         }
-
 
         println!("dropping {:?}", drop);
     }

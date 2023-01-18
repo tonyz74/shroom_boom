@@ -5,6 +5,7 @@ use crate::coin::drops::CoinHolder;
 use crate::combat::{ColliderAttack, CombatLayerMask, Health, HurtAbility, Immunity};
 
 use crate::common::AnimTimer;
+use crate::enemies::spawner::register_enemy_spawner;
 use crate::entity_states::Die;
 use crate::pathfind::PathfinderBundle;
 use crate::state::GameState;
@@ -12,6 +13,8 @@ use crate::state::GameState;
 pub mod flower;
 pub mod pumpkin;
 pub mod dandelion;
+pub mod stats;
+pub mod spawner;
 
 #[derive(Default, Component, Clone, Copy)]
 pub struct Enemy {
@@ -54,6 +57,8 @@ impl Plugin for EnemyPlugin {
                     .with_system(move_enemies)
                     .with_system(enemies_died)
             );
+
+        register_enemy_spawner(app);
     }
 }
 

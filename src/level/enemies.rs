@@ -78,7 +78,7 @@ fn spawn_enemies(
         let ev = EnemySpawnEvent {
             ty: enemy_ty,
             coins: n_coins,
-            difficulty: EnemyDifficulty::Hard,
+            difficulty: EnemyDifficulty::Easy,
             location: EnemyLocation {
                 pos: coord::grid_coord_to_translation(
                     inst.grid, lvl_info.grid_size.as_ivec2()

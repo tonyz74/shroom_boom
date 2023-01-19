@@ -22,10 +22,10 @@ impl InputAction {
         use KeyCode as KC;
 
         InputMap::new([
-            (Keyboard(KC::A), RunLeft),
-            (Keyboard(KC::D), RunRight),
-            (Keyboard(KC::S), Crouch),
-            (Keyboard(KC::Space), Jump),
+            (Keyboard(KC::Left), RunLeft),
+            (Keyboard(KC::Right), RunRight),
+            (Keyboard(KC::Down), Crouch),
+            (Keyboard(KC::Up), Jump),
 
             (Keyboard(KC::J), Slash),
             (Keyboard(KC::K), Dash),

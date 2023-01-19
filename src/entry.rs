@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::*;
 use kayak_ui::prelude::*;
-use kayak_ui::widgets::*;
 
 use bevy_egui::EguiPlugin;
 use bevy_inspector_egui::WorldInspectorPlugin;

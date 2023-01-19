@@ -134,12 +134,10 @@ fn summon_update(
         let len = summon.enemies.len();
         let wait = (0.1 * (summon.target_count - len) as f32) - 0.1;
 
-        println!("picked {:?}", p);
-
         indicators.send(Indicator {
             region: Region {
-                tl: p + Vec2::new(-36.0, 36.0),
-                br: p + Vec2::new(36.0, -36.0),
+                tl: p + Vec2::new(-24.0, 24.0),
+                br: p + Vec2::new(24.0, -24.0),
             },
             wait_time: wait,
             expand_time: 0.4,

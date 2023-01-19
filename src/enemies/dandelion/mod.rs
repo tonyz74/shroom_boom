@@ -33,7 +33,7 @@ impl DandelionEnemyBundle {
         ColliderAttackBundle {
             combat_layer: CombatLayerMask::ENEMY,
             strength: AttackStrength::new(power),
-            ..ColliderAttackBundle::from_size(Vec2::new(36.0, 36.0))
+            ..ColliderAttackBundle::from_size(Vec2::new(24.0, 24.0))
         }
     }
 

@@ -269,10 +269,10 @@ impl Plugin for AssetLoaderPlugin {
                     .with_system(IndicatorAssets::load)
             )
 
-            .add_startup_system(enter_level_transition.after("assets"));
+            .add_startup_system(enter_main_menu.after("assets"));
     }
 }
 
-fn enter_level_transition(mut state: ResMut<State<GameState>>) {
-    state.overwrite_set(GameState::LevelTransition).unwrap();
+fn enter_main_menu(mut state: ResMut<State<GameState>>) {
+    state.overwrite_set(GameState::MainMenu).unwrap();
 }

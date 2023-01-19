@@ -1,11 +1,13 @@
 use bevy::prelude::*;
-
 use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::*;
+use kayak_ui::prelude::*;
+use kayak_ui::widgets::*;
 
 use bevy_egui::EguiPlugin;
 use bevy_inspector_egui::WorldInspectorPlugin;
 use bevy_easings::EasingsPlugin;
+use kayak_ui::widgets::KayakWidgets;
 
 use crate::{
     assets::AssetLoaderPlugin,
@@ -18,7 +20,8 @@ use crate::{
     combat::AttackPlugin,
     fx::EffectsPlugin,
     coin::CoinPlugin,
-    bossfight::BossPlugin
+    bossfight::BossPlugin,
+    ui::GameUiPlugin
 };
 
 pub struct ShadePlugin;
@@ -30,6 +33,9 @@ impl Plugin for ShadePlugin {
                 DefaultPlugins
                     .set(ImagePlugin::default_nearest())
             )
+
+            .add_plugin(KayakContextPlugin)
+            .add_plugin(KayakWidgets)
 
             // physics
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
@@ -58,8 +64,7 @@ impl Plugin for ShadePlugin {
             .add_plugin(AttackPlugin)
             .add_plugin(CoinPlugin)
             .add_plugin(BossPlugin)
-
-            // polish
+            .add_plugin(GameUiPlugin)
             .add_plugin(EffectsPlugin)
 
             .add_startup_system(setup_rapier);

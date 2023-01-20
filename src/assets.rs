@@ -283,6 +283,31 @@ impl UiAssets {
     }
 }
 
+#[derive(Resource, Default, Debug)]
+pub struct ShopAssets {
+    pub shopkeeper: Anim,
+}
+
+impl ShopAssets {
+    pub fn load(
+        asset_server: Res<AssetServer>,
+        mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+        mut assets: ResMut<ShopAssets>,
+    ) {
+        const SIZE: Vec2 = Vec2::new(180., 148.);
+        let sheet = asset_server.load("sprites/shop/shopkeeper.png");
+
+        let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
+        let atlas_handle = texture_atlases.add(atlas);
+
+        assets.shopkeeper = Anim {
+            tex: atlas_handle,
+            speed: 0.2
+        };
+    }
+}
+
+
 pub struct AssetLoaderPlugin;
 
 impl Plugin for AssetLoaderPlugin {
@@ -298,6 +323,7 @@ impl Plugin for AssetLoaderPlugin {
             .init_resource::<BossAssets>()
             .init_resource::<IndicatorAssets>()
             .init_resource::<UiAssets>()
+            .init_resource::<ShopAssets>()
 
             .add_state(GameState::AssetLoading)
             .add_startup_system_set(
@@ -313,6 +339,7 @@ impl Plugin for AssetLoaderPlugin {
                     .with_system(BossAssets::load)
                     .with_system(IndicatorAssets::load)
                     .with_system(UiAssets::load)
+                    .with_system(ShopAssets::load)
             )
 
             .add_startup_system(enter_main_menu.after("assets"));

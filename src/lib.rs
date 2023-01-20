@@ -20,3 +20,5 @@ pub mod fx;
 pub mod coin;
 pub mod bossfight;
 pub mod ui;
+pub mod shop;
+pub mod interact;

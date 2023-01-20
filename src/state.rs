@@ -4,6 +4,7 @@ pub enum GameState {
     AssetLoading,
     MainMenu,
     PauseMenu,
+    ShopMenu,
     Gameplay,
     LevelTransition
 }

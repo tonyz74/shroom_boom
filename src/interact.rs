@@ -34,6 +34,7 @@ impl Plugin for InteractPlugin {
 
 #[derive(Component, Clone, Debug)]
 pub struct Interact {
+    pub content: Text,
     pub text: Option<Entity>,
     pub max_dist: f32,
     pub within: bool,
@@ -47,6 +48,7 @@ impl Default for Interact {
         util::timer_tick_to_finish(&mut interacted);
 
         Self {
+            content: Text::default(),
             text: None,
             max_dist: 360.0,
             within: false,
@@ -94,14 +96,7 @@ pub fn interact_spawn_text(
     mut commands: Commands,
     mut q: Query<(Entity, &mut Interact)>,
     mut r: Query<&mut InteractText>,
-    assets: Res<UiAssets>,
 ) {
-    let text_style = TextStyle {
-        font: assets.font.clone(),
-        font_size: 24.0,
-        color: Color::WHITE
-    };
-
     for (entity, mut interact) in q.iter_mut() {
         let transform = Transform::from_translation(interact.text_offset.extend(10.0));
         let visible = transform.with_scale(Vec3::splat(1.0));
@@ -111,7 +106,7 @@ pub fn interact_spawn_text(
             let id = commands.spawn((
                 InteractTextBundle {
                     text: Text2dBundle {
-                        text: Text::from_section("Interact [E]", text_style.clone())
+                        text: interact.content.clone()
                             .with_alignment(TextAlignment::CENTER),
                         ..default()
                     },
@@ -185,9 +180,10 @@ fn interact_with(
     let input = p.single();
 
     for mut interact in q.iter_mut() {
-        if input.just_pressed(InputAction::Interact) {
+        if interact.within && input.just_pressed(InputAction::Interact) {
+            // Only allow for one interaction at a time
             interact.interacted.reset();
-            println!("yes");
+            return;
         }
     }
 }

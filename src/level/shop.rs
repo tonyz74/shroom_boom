@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::EntityInstance;
 use bevy_ecs_ldtk::prelude::*;
-use crate::assets::ShopAssets;
+use crate::assets::{ShopAssets, UiAssets};
 use crate::common::AnimTimer;
 use crate::interact::Interact;
 use crate::level::{coord, LevelInfo};
@@ -30,33 +30,17 @@ pub fn register_shop_spawnpoints(app: &mut App) {
 fn spawn_shops(
     mut commands: Commands,
     assets: Res<ShopAssets>,
+    ui_assets: Res<UiAssets>,
     q: Query<&EntityInstance, Added<ShopSpawnpointMarker>>,
     lvl_info: Res<LevelInfo>
 ) {
     for inst in q.iter() {
-        println!("got instance");
-
-        let pos_vec3 = coord::grid_coord_to_translation(
+        let pos_vec2 = coord::grid_coord_to_translation(
             inst.grid,
             lvl_info.grid_size.as_ivec2()
-        ).extend(0.0);
+        );
+        info!("Spawning shop at {:?}", pos_vec2);
 
-        commands.spawn(ShopBundle {
-            sprite_sheet: SpriteSheetBundle {
-                sprite: TextureAtlasSprite {
-                    custom_size: Some(Vec2::new(180.0, 148.0)),
-                    ..default()
-                },
-                texture_atlas: assets.shopkeeper.tex.clone(),
-                transform: Transform::from_translation(pos_vec3),
-                ..default()
-            },
-            anim_timer: AnimTimer::from_seconds(assets.shopkeeper.speed),
-            interact: Interact {
-                max_dist: 128.0,
-                ..default()
-            },
-            ..default()
-        });
+        commands.spawn(ShopBundle::new(&assets, &ui_assets, pos_vec2));
     }
 }

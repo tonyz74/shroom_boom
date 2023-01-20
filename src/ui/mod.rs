@@ -4,6 +4,7 @@ pub mod hud;
 pub mod shop;
 pub mod style;
 pub mod ui;
+pub mod event_handlers;
 
 use kayak_ui::prelude::*;
 use kayak_ui::widgets::*;
@@ -21,6 +22,7 @@ impl Plugin for GameUiPlugin {
         menu::register_menu_ui_systems(app);
         pause::register_pause_systems(app);
         hud::register_hud_ui_systems(app);
+        shop::register_shop_menu_ui_systems(app);
     }
 }
 
@@ -36,6 +38,7 @@ fn startup_ui(
     ui::register_ui(&mut widget_context);
     menu::register_menu_ui(&mut widget_context);
     pause::register_pause_ui(&mut widget_context);
+    shop::register_shop_menu_ui(&mut widget_context);
 
     let parent_id = None;
 

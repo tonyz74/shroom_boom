@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy_egui::egui::FontSelection::Style;
 use kayak_ui::prelude::*;
 use kayak_ui::widgets::*;
-use crate::ui::{menu, pause};
+use crate::ui::{menu, pause, shop};
 use crate::ui::style::background_style;
 
 #[derive(Debug, Component, PartialEq, Clone)]
@@ -98,13 +98,19 @@ fn ui_render(
         <ElementBundle>
             {if state.state == Some(GameState::MainMenu) {
                 constructor! {
-                    <menu::MainMenuBundle />
+                    <menu::MainMenuBundle/>
                 }
             }}
 
             {if state.state == Some(GameState::PauseMenu) {
                 constructor! {
-                    <pause::PauseMenuBundle />
+                    <pause::PauseMenuBundle/>
+                }
+            }}
+
+            {if state.state == Some(GameState::ShopMenu) {
+                constructor! {
+                    <shop::ShopMenuBundle/>
                 }
             }}
         </ElementBundle>

@@ -3,6 +3,7 @@ use kayak_ui::prelude::*;
 use kayak_ui::widgets::*;
 
 use crate::state::GameState;
+use crate::ui::event_handlers::{goto_state_event, StateTransition};
 use crate::ui::EventInput;
 use crate::ui::style::{background_style, button_style};
 
@@ -63,7 +64,6 @@ pub fn main_menu_render(
 
     let click_quit = OnEvent::new(
         move |In((event_dispatcher_context, _, event, _entity)): EventInput| {
-
             match event.event_type {
                 EventType::Click(_) => {
                     std::process::exit(0);
@@ -75,21 +75,7 @@ pub fn main_menu_render(
         }
     );
 
-    let click_new_game = OnEvent::new(move |
-            In((event_dispatcher_context, _, event, _entity)): EventInput,
-            mut state: ResMut<State<GameState>>,
-        | {
-            match event.event_type {
-                EventType::Click(_) => {
-                    state.set(GameState::LevelTransition).unwrap();
-                }
-                _ => {}
-            }
-
-            (event_dispatcher_context, event)
-        }
-    );
-
+    let click_new_game = goto_state_event(StateTransition::Set(GameState::LevelTransition));
 
     let parent_id = Some(entity);
 

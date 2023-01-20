@@ -244,7 +244,8 @@ pub struct UiAssets {
     pub health: Vec<Handle<Image>>,
     pub ammo: Vec<Handle<Image>>,
     pub coins: Handle<Image>,
-    pub font: Handle<Font>
+    pub font: Handle<Font>,
+    pub text_style: TextStyle
 }
 
 impl UiAssets {
@@ -283,12 +284,19 @@ impl UiAssets {
         assets.font = asset_server.load("fonts/FiraCode-Regular.ttf");
 
         assets.coins = asset_server.load("ui/hud/coins.png");
+
+        assets.text_style = TextStyle {
+            font: assets.font.clone(),
+            font_size: 24.0,
+            color: Color::WHITE
+        };
     }
 }
 
 #[derive(Resource, Default, Debug)]
 pub struct ShopAssets {
     pub shopkeeper: Anim,
+    pub tonics: Vec<Handle<Image>>
 }
 
 impl ShopAssets {
@@ -307,6 +315,12 @@ impl ShopAssets {
             tex: atlas_handle,
             speed: 0.2
         };
+
+        assets.tonics = vec![
+            asset_server.load("sprites/item/coin.png"),
+            asset_server.load("sprites/item/coin.png"),
+            asset_server.load("sprites/item/coin.png")
+        ];
     }
 }
 

@@ -51,12 +51,17 @@ impl AttackStrength {
 
 #[derive(Component, Debug, Copy, Clone, Default)]
 pub struct Health {
-    pub hp: i32
+    pub hp: i32,
+    pub max_hp: i32
 }
 
 impl Health {
     pub fn new(hp: i32) -> Self {
-        Health { hp }
+        Self::new_with_max(hp, hp)
+    }
+
+    pub fn new_with_max(hp: i32, max_hp: i32) -> Self {
+        Health { hp, max_hp }
     }
 }
 

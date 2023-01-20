@@ -239,6 +239,50 @@ impl IndicatorAssets {
     }
 }
 
+#[derive(Resource, Default, Debug)]
+pub struct UiAssets {
+    pub health: Vec<Handle<Image>>,
+    pub ammo: Vec<Handle<Image>>,
+    pub coins: Handle<Image>
+}
+
+impl UiAssets {
+    pub fn load(
+        asset_server: Res<AssetServer>,
+        mut assets: ResMut<UiAssets>,
+    ) {
+        assets.health = vec![
+            asset_server.load("ui/hud/health/0%.png"),
+            asset_server.load("ui/hud/health/10%.png"),
+            asset_server.load("ui/hud/health/20%.png"),
+            asset_server.load("ui/hud/health/30%.png"),
+            asset_server.load("ui/hud/health/40%.png"),
+            asset_server.load("ui/hud/health/50%.png"),
+            asset_server.load("ui/hud/health/60%.png"),
+            asset_server.load("ui/hud/health/70%.png"),
+            asset_server.load("ui/hud/health/80%.png"),
+            asset_server.load("ui/hud/health/90%.png"),
+            asset_server.load("ui/hud/health/100%.png"),
+        ];
+
+        assets.ammo = vec![
+            asset_server.load("ui/hud/ammo/0%.png"),
+            asset_server.load("ui/hud/ammo/10%.png"),
+            asset_server.load("ui/hud/ammo/20%.png"),
+            asset_server.load("ui/hud/ammo/30%.png"),
+            asset_server.load("ui/hud/ammo/40%.png"),
+            asset_server.load("ui/hud/ammo/50%.png"),
+            asset_server.load("ui/hud/ammo/60%.png"),
+            asset_server.load("ui/hud/ammo/70%.png"),
+            asset_server.load("ui/hud/ammo/80%.png"),
+            asset_server.load("ui/hud/ammo/90%.png"),
+            asset_server.load("ui/hud/ammo/100%.png"),
+        ];
+
+        assets.coins = asset_server.load("ui/hud/coins.png");
+    }
+}
+
 pub struct AssetLoaderPlugin;
 
 impl Plugin for AssetLoaderPlugin {
@@ -253,6 +297,7 @@ impl Plugin for AssetLoaderPlugin {
             .init_resource::<CoinAssets>()
             .init_resource::<BossAssets>()
             .init_resource::<IndicatorAssets>()
+            .init_resource::<UiAssets>()
 
             .add_state(GameState::AssetLoading)
             .add_startup_system_set(
@@ -267,6 +312,7 @@ impl Plugin for AssetLoaderPlugin {
                     .with_system(CoinAssets::load)
                     .with_system(BossAssets::load)
                     .with_system(IndicatorAssets::load)
+                    .with_system(UiAssets::load)
             )
 
             .add_startup_system(enter_main_menu.after("assets"));

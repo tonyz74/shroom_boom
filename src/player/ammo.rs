@@ -5,13 +5,15 @@ use crate::state::GameState;
 
 #[derive(Component, Copy, Clone, Debug)]
 pub struct Ammo {
-    pub rounds_left: u32
+    pub rounds_left: u32,
+    pub max_rounds: u32
 }
 
 impl Default for Ammo {
     fn default() -> Self {
         Self {
-            rounds_left: 1000
+            rounds_left: 1000,
+            max_rounds: 1000
         }
     }
 }

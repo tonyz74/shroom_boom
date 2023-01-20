@@ -1,8 +1,10 @@
 use crate::state::GameState;
 use bevy::prelude::*;
+use bevy_egui::egui::FontSelection::Style;
 use kayak_ui::prelude::*;
 use kayak_ui::widgets::*;
-use crate::ui::{menu, pause, style::background_style};
+use crate::ui::{menu, pause};
+use crate::ui::style::background_style;
 
 #[derive(Debug, Component, PartialEq, Clone)]
 pub struct UiState {

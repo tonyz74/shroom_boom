@@ -20,6 +20,7 @@ impl Plugin for GameUiPlugin {
         ui::register_ui_systems(app);
         menu::register_menu_ui_systems(app);
         pause::register_pause_systems(app);
+        hud::register_hud_ui_systems(app);
     }
 }
 
@@ -40,7 +41,7 @@ fn startup_ui(
 
     rsx! {
         <KayakAppBundle>
-            <ui::UiBundle/>
+            <ui::UiBundle />
         </KayakAppBundle>
     };
 

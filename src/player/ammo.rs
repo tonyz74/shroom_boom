@@ -12,8 +12,8 @@ pub struct Ammo {
 impl Default for Ammo {
     fn default() -> Self {
         Self {
-            rounds_left: 1000,
-            max_rounds: 1000
+            rounds_left: 100,
+            max_rounds: 100
         }
     }
 }

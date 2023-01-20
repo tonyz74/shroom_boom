@@ -43,7 +43,7 @@ fn setup_hud(
     mut commands: Commands,
     mut hud: ResMut<Hud>,
     assets: Res<AssetServer>,
-    ui_assets: Res<UiAssets>
+    ui_assets: Res<UiAssets>,
 ) {
     if hud.entity != Entity::from_raw(0) {
         return;

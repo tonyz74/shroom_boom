@@ -28,3 +28,26 @@ pub const PLAYER_TERMINAL_VELOCITY: f32 = -20.0;
 
 pub const PLAYER_COYOTE_TIME: f32 = 0.15;
 pub const PLAYER_JUMP_BUFFER_TIME: f32 = 0.1;
+
+
+
+
+// STATS
+
+pub const HEALTH_LEVELS: [i32; 6] = [
+    100,
+    115,
+    130,
+    155,
+    180,
+    200
+];
+
+pub const AMMO_LEVELS: [i32; 6] = [
+    100,
+    115,
+    130,
+    155,
+    180,
+    200
+];

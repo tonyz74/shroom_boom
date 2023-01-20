@@ -28,7 +28,7 @@ impl Default for ShopMenuState {
 }
 
 fn update_shop_menu_state(
-    p: Query<&PlayerSkillLevels, Changed<PlayerSkillLevels>>,
+    p: Query<&PlayerSkillLevels>,
     mut q: Query<&mut ShopMenuState>
 ) {
     if p.is_empty() || q.is_empty() {

@@ -1,5 +1,6 @@
 pub mod stock;
 pub mod info;
+pub mod purchase;
 
 use bevy::prelude::*;
 use crate::assets::{ShopAssets, UiAssets};
@@ -18,6 +19,7 @@ impl Plugin for ShopPlugin {
         app.add_system_set(
             SystemSet::new()
                 .with_system(shop_open_menu)
+                .with_system(purchase::shop_apply_purchases)
         );
     }
 }

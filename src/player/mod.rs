@@ -29,7 +29,7 @@ use crate::player::abilities::slash::SlashAbility;
 use crate::player::abilities::jump::JumpAbility;
 use crate::player::abilities::shoot::ShootAbility;
 use crate::player::ammo::Ammo;
-use crate::player::skill::PlayerSkillLevels;
+use crate::player::skill::{PlayerSkillLevels, upgrade_player_from_skills};
 use crate::util::Facing;
 
 #[derive(Bundle)]
@@ -84,7 +84,9 @@ impl Plugin for PlayerPlugin {
                 .with_system(setup_player)
         );
 
-        app.add_system(player_print_health);
+        app
+            .add_system(player_print_health)
+            .add_system(upgrade_player_from_skills);
 
         anim::player_setup_anim(app);
         logic::player_setup_logic(app);
@@ -152,7 +154,7 @@ fn setup_player(
 
             skill_levels: PlayerSkillLevels::default(),
 
-            coin_holder: CoinHolder::default(),
+            coin_holder: CoinHolder { total_value: 100 },
             coin_collector: CoinCollector,
 
             input: InputAction::input_manager_bundle(),

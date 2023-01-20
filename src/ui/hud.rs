@@ -34,7 +34,7 @@ pub fn register_hud_ui_systems(app: &mut App) {
                 .with_system(setup_hud)
         )
         .add_system_set(
-            SystemSet::on_update(GameState::Gameplay)
+            SystemSet::new()
                 .with_system(sync_hud)
         );
 }
@@ -159,6 +159,10 @@ fn sync_hud(
     mut health_bar: Query<&mut UiImage, (With<HealthBar>, Without<AmmoBar>)>,
     mut wallet_text: Query<&mut Text, With<WalletText>>
 ) {
+    if ammo_bar.is_empty() || health_bar.is_empty() || wallet_text.is_empty() {
+        return;
+    }
+
     for (coin, health, ammo) in player_stats.iter() {
         let mut health_bar = health_bar.single_mut();
         let index = index_for_value(health.hp, health.max_hp);

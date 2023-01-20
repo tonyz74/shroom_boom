@@ -252,9 +252,19 @@ pub fn shop_menu_render(
         let purchase = ShopPurchaseEvent { cost: info.cost, order: *i };
 
         if lvl < 5 {
-            Some((info.icon, info.cost, info.name, lvl, on_purchase(purchase)))
+            Some((
+                info.icon,
+                info.cost.to_string(),
+                format!("{} (Lv. {})", info.name, lvl + 1),
+                on_purchase(purchase))
+            )
         } else {
-            None
+            Some((
+                info.icon,
+                "".to_string(),
+                format!("{} (MAX)", info.name),
+                OnEvent::default())
+            )
         }
     });
 
@@ -276,7 +286,7 @@ pub fn shop_menu_render(
                     }}/>
 
                     <BackgroundBundle styles={items_styles.clone()}>
-                    {upgrades.for_each(|(icon, cost, content, lvl, on_event)| {
+                    {upgrades.for_each(|(icon, cost, content, on_event)| {
                         constructor! {
                         <BackgroundBundle styles={sale_styles.clone()}>
 
@@ -288,7 +298,7 @@ pub fn shop_menu_render(
                             <TextWidgetBundle
                                 styles={item_label_styles.clone()}
                                 text={TextProps {
-                                    content: format!("{} (Lv. {})", content, lvl + 1),
+                                    content,
                                     ..Default::default()
                                 }}
                             />
@@ -296,7 +306,7 @@ pub fn shop_menu_render(
                             <TextWidgetBundle
                                 styles={cost_label_styles.clone()}
                                 text={TextProps {
-                                    content: cost.to_string(),
+                                    content: cost,
                                     ..Default::default()
                                 }}
                             />
@@ -307,10 +317,10 @@ pub fn shop_menu_render(
                             />
 
                         </BackgroundBundle>
-                        }
+                        };
                         constructor! {
                         <BackgroundBundle styles={h_sep_styles.clone()}/>
-                        }
+                        };
                     })}
 
                     </BackgroundBundle>

@@ -243,7 +243,8 @@ impl IndicatorAssets {
 pub struct UiAssets {
     pub health: Vec<Handle<Image>>,
     pub ammo: Vec<Handle<Image>>,
-    pub coins: Handle<Image>
+    pub coins: Handle<Image>,
+    pub font: Handle<Font>
 }
 
 impl UiAssets {
@@ -278,6 +279,8 @@ impl UiAssets {
             asset_server.load("ui/hud/ammo/90%.png"),
             asset_server.load("ui/hud/ammo/100%.png"),
         ];
+
+        assets.font = asset_server.load("fonts/FiraCode-Regular.ttf");
 
         assets.coins = asset_server.load("ui/hud/coins.png");
     }

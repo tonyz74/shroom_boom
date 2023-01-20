@@ -8,6 +8,7 @@ pub enum InputAction {
     RunRight,
     Crouch,
     Jump,
+    Interact,
 
     Slash,
     Dash,
@@ -26,6 +27,7 @@ impl InputAction {
             (Keyboard(KC::Right), RunRight),
             (Keyboard(KC::Down), Crouch),
             (Keyboard(KC::Up), Jump),
+            (Keyboard(KC::E), Interact),
 
             (Keyboard(KC::J), Slash),
             (Keyboard(KC::K), Dash),

@@ -20,7 +20,9 @@ use crate::{
     fx::EffectsPlugin,
     coin::CoinPlugin,
     bossfight::BossPlugin,
-    ui::GameUiPlugin
+    ui::GameUiPlugin,
+    shop::ShopPlugin,
+    interact::InteractPlugin
 };
 
 pub struct ShadePlugin;
@@ -65,6 +67,8 @@ impl Plugin for ShadePlugin {
             .add_plugin(BossPlugin)
             .add_plugin(GameUiPlugin)
             .add_plugin(EffectsPlugin)
+            .add_plugin(ShopPlugin)
+            .add_plugin(InteractPlugin)
 
             .add_startup_system(setup_rapier);
     }

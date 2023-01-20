@@ -3,6 +3,7 @@ use bevy_ecs_ldtk::EntityInstance;
 use bevy_ecs_ldtk::prelude::*;
 use crate::assets::ShopAssets;
 use crate::common::AnimTimer;
+use crate::interact::Interact;
 use crate::level::{coord, LevelInfo};
 use crate::shop::ShopBundle;
 use crate::state::GameState;
@@ -51,6 +52,10 @@ fn spawn_shops(
                 ..default()
             },
             anim_timer: AnimTimer::from_seconds(assets.shopkeeper.speed),
+            interact: Interact {
+                max_dist: 128.0,
+                ..default()
+            },
             ..default()
         });
     }

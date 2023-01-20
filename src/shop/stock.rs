@@ -9,8 +9,8 @@ pub enum ShopItem {
     JugOfWaterItem,
     BucketOfWaterItem,
 
-    MaxHealthUpgrade,
-    MaxAmmoUpgrade,
+    HealthUpgrade,
+    AmmoUpgrade,
     SlashUpgrade,
     DashUpgrade,
     ShootUpgrade
@@ -25,8 +25,8 @@ pub const SHOP_CATALOG_ALL: &[ShopItem] = &[
     ShopItem::JugOfWaterItem,
     ShopItem::BucketOfWaterItem,
 
-    ShopItem::MaxHealthUpgrade,
-    ShopItem::MaxAmmoUpgrade,
+    ShopItem::HealthUpgrade,
+    ShopItem::AmmoUpgrade,
     ShopItem::SlashUpgrade,
     ShopItem::DashUpgrade,
     ShopItem::ShootUpgrade
@@ -42,8 +42,8 @@ pub const SHOP_CATALOG_ITEMS: &[ShopItem] = &[
 ];
 
 pub const SHOP_CATALOG_UPGRADES: &[ShopItem] = &[
-    ShopItem::MaxHealthUpgrade,
-    ShopItem::MaxAmmoUpgrade,
+    ShopItem::HealthUpgrade,
+    ShopItem::AmmoUpgrade,
     ShopItem::SlashUpgrade,
     ShopItem::DashUpgrade,
     ShopItem::ShootUpgrade

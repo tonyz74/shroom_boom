@@ -10,7 +10,7 @@ pub struct ShopItemInfo {
 }
 
 impl ShopItemInfo {
-    pub fn for_item(assets: &ShopAssets, order: ShopItem) -> Self {
+    pub fn for_item(assets: &ShopAssets, order: ShopItem, lvl: Option<u8>) -> Self {
         match order {
             // ITEMS
 
@@ -52,35 +52,39 @@ impl ShopItemInfo {
 
             // UPGRADES
 
-            ShopItem::MaxHealthUpgrade => Self {
-                cost: 15,
-                name: "Max Health",
+            ShopItem::HealthUpgrade => Self {
+                cost: cost_for_upgrading(lvl.unwrap()),
+                name: "Health",
                 icon: assets.tonics[0].clone(),
             },
 
-            ShopItem::MaxAmmoUpgrade => Self {
-                cost: 15,
-                name: "Max Ammo",
+            ShopItem::AmmoUpgrade => Self {
+                cost: cost_for_upgrading(lvl.unwrap()),
+                name: "Ammo",
                 icon: assets.tonics[0].clone(),
             },
 
             ShopItem::SlashUpgrade => Self {
-                cost: 15,
+                cost: cost_for_upgrading(lvl.unwrap()),
                 name: "Slash",
                 icon: assets.tonics[0].clone(),
             },
 
             ShopItem::DashUpgrade => Self {
-                cost: 15,
+                cost: cost_for_upgrading(lvl.unwrap()),
                 name: "Dash",
                 icon: assets.tonics[0].clone(),
             },
 
             ShopItem::ShootUpgrade => Self {
-                cost: 15,
+                cost: cost_for_upgrading(lvl.unwrap()),
                 name: "Shoot",
                 icon: assets.tonics[0].clone(),
             },
         }
     }
+}
+
+fn cost_for_upgrading(lvl: u8) -> i32 {
+    (lvl as i32 + 1) * 5
 }

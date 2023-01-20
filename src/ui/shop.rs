@@ -1,9 +1,8 @@
-use std::iter::Map;
 use bevy::prelude::*;
 use kayak_ui::prelude::*;
-use kayak_ui::prelude::StyleProp::Value;
 use kayak_ui::widgets::*;
 use crate::assets::ShopAssets;
+use crate::player::skill::PlayerSkillLevels;
 use crate::shop::{Shop, ShopPurchaseEvent};
 use crate::shop::info::ShopItemInfo;
 use crate::shop::stock::{SHOP_CATALOG_ITEMS, SHOP_CATALOG_UPGRADES, ShopItem};
@@ -12,6 +11,36 @@ use crate::state::GameState;
 use crate::ui::event_handlers::{goto_state_event, StateTransition};
 use crate::ui::EventInput;
 use crate::ui::style::{background_style, button_style};
+
+
+
+#[derive(Debug, Component, PartialEq, Clone)]
+pub struct ShopMenuState {
+    pub skill_levels: PlayerSkillLevels
+}
+
+impl Default for ShopMenuState {
+    fn default() -> Self {
+        Self {
+            skill_levels: PlayerSkillLevels::default()
+        }
+    }
+}
+
+fn update_shop_menu_state(
+    p: Query<&PlayerSkillLevels, Changed<PlayerSkillLevels>>,
+    mut q: Query<&mut ShopMenuState>
+) {
+    if p.is_empty() || q.is_empty() {
+        return;
+    }
+
+    let skill_levels = p.single();
+    for mut state in q.iter_mut() {
+        state.skill_levels = *skill_levels;
+    }
+}
+
 
 #[derive(Component, Clone, PartialEq, Default)]
 pub struct ShopMenuProps {
@@ -44,9 +73,28 @@ impl Default for ShopMenuBundle {
 }
 
 
+
+fn on_purchase(purchase: ShopPurchaseEvent) -> OnEvent {
+    OnEvent::new(move |
+        In((event_dispatcher_context, _, event, _entity)): EventInput,
+        mut evw: EventWriter<ShopPurchaseEvent>
+    | {
+        match event.event_type {
+            EventType::Click(_) => {
+                evw.send(purchase);
+            }
+            _ => {}
+        }
+
+        (event_dispatcher_context, event)
+    })
+}
+
+
 pub fn register_shop_menu_ui_systems(app: &mut App) {
     app.add_system_set(
         SystemSet::new()
+            .with_system(update_shop_menu_state)
     );
 }
 
@@ -64,9 +112,21 @@ pub fn register_shop_menu_ui(widget_context: &mut KayakRootContext) {
 pub fn shop_menu_render(
     In((widget_context, entity)): In<(KayakWidgetContext, Entity)>,
     mut commands: Commands,
-    assets: Res<ShopAssets>
+    assets: Res<ShopAssets>,
+    state_query: Query<&ShopMenuState>
 ) -> bool {
     use StyleProp::Value;
+
+    let state_entity = widget_context.use_state(
+        &mut commands,
+        entity,
+        ShopMenuState::default()
+    );
+
+    let state = match state_query.get(state_entity) {
+        Ok(s) => s,
+        _ => return false
+    };
 
     let window_styles = KStyle {
         width: Value(Units::Pixels(1024.0)),
@@ -117,7 +177,7 @@ pub fn shop_menu_render(
 
     let items_styles = KStyle {
         layout_type: Value(LayoutType::Column),
-        width: Value(Units::Percentage(80.0)),
+        width: Value(Units::Percentage(85.0)),
         height: Value(Units::Percentage(80.0)),
         background_color: Value(Color::PURPLE),
         offset: Value(Edge::all(Units::Stretch(1.0))),
@@ -172,37 +232,31 @@ pub fn shop_menu_render(
 
     let click_return_to_gameplay = goto_state_event(StateTransition::Pop);
 
-    let info_for_items = |items: &[ShopItem]| {
-        items.iter().map(|i| {
-            let info = ShopItemInfo::for_item(&assets, *i);
+    let items = SHOP_CATALOG_ITEMS.iter().map(|i| {
+        let info = ShopItemInfo::for_item(&assets, *i, None);
+        let purchase = ShopPurchaseEvent { cost: info.cost, order: *i };
+        (info.icon, info.cost, info.name, on_purchase(purchase))
+    });
 
-            let purchase = ShopPurchaseEvent {
-                cost: info.cost,
-                order: *i
-            };
+    let upgrades = SHOP_CATALOG_UPGRADES.iter().filter_map(|i| {
+        let lvl = match i {
+            ShopItem::HealthUpgrade => state.skill_levels.health_lvl,
+            ShopItem::AmmoUpgrade => state.skill_levels.ammo_lvl,
+            ShopItem::ShootUpgrade => state.skill_levels.shoot_lvl,
+            ShopItem::SlashUpgrade => state.skill_levels.slash_lvl,
+            ShopItem::DashUpgrade => state.skill_levels.dash_lvl,
+            _ => panic!("Unknown upgrade {:?}!", i)
+        };
 
-            let on_event = OnEvent::new(
-                move |
-                    In((event_dispatcher_context, _, event, _entity)): EventInput,
-                    mut evw: EventWriter<ShopPurchaseEvent>
-                | {
-                    match event.event_type {
-                        EventType::Click(_) => {
-                            evw.send(purchase);
-                        }
-                        _ => {}
-                    }
+        let info = ShopItemInfo::for_item(&assets, *i, Some(lvl));
+        let purchase = ShopPurchaseEvent { cost: info.cost, order: *i };
 
-                    (event_dispatcher_context, event)
-                }
-            );
-
-            (info.icon, info.cost, info.name, on_event)
-        }).collect::<Vec<_>>()
-    };
-
-    let items = info_for_items(SHOP_CATALOG_ITEMS);
-    let upgrades = info_for_items(SHOP_CATALOG_UPGRADES);
+        if lvl < 5 {
+            Some((info.icon, info.cost, info.name, lvl, on_purchase(purchase)))
+        } else {
+            None
+        }
+    });
 
     rsx! {
         <BackgroundBundle styles={window_styles}>
@@ -221,6 +275,46 @@ pub fn shop_menu_render(
                         ..Default::default()
                     }}/>
 
+                    <BackgroundBundle styles={items_styles.clone()}>
+                    {upgrades.for_each(|(icon, cost, content, lvl, on_event)| {
+                        constructor! {
+                        <BackgroundBundle styles={sale_styles.clone()}>
+
+                            <KImageBundle
+                                styles={icon_styles.clone()}
+                                image={KImage(icon.clone())}
+                            />
+
+                            <TextWidgetBundle
+                                styles={item_label_styles.clone()}
+                                text={TextProps {
+                                    content: format!("{} (Lv. {})", content, lvl + 1),
+                                    ..Default::default()
+                                }}
+                            />
+
+                            <TextWidgetBundle
+                                styles={cost_label_styles.clone()}
+                                text={TextProps {
+                                    content: cost.to_string(),
+                                    ..Default::default()
+                                }}
+                            />
+
+                            <KButtonBundle
+                                styles={purchase_button_styles.clone()}
+                                on_event={on_event.clone()}
+                            />
+
+                        </BackgroundBundle>
+                        }
+                        constructor! {
+                        <BackgroundBundle styles={h_sep_styles.clone()}/>
+                        }
+                    })}
+
+                    </BackgroundBundle>
+
                 </BackgroundBundle>
 
                 <BackgroundBundle styles={container_styles.clone()}>
@@ -232,7 +326,7 @@ pub fn shop_menu_render(
                     }}/>
 
                     <BackgroundBundle styles={items_styles.clone()}>
-                    {items.iter().for_each(|(icon, cost, content, on_event)| {
+                    {items.for_each(|(icon, cost, content, on_event)| {
                         constructor! {
                         <BackgroundBundle styles={sale_styles.clone()}>
 

@@ -18,6 +18,7 @@ pub mod triggers;
 pub mod state_machine;
 pub mod abilities;
 pub mod ammo;
+pub mod skill;
 
 use abilities::dash::DashAbility;
 use crate::coin::drops::CoinHolder;
@@ -28,6 +29,7 @@ use crate::player::abilities::slash::SlashAbility;
 use crate::player::abilities::jump::JumpAbility;
 use crate::player::abilities::shoot::ShootAbility;
 use crate::player::ammo::Ammo;
+use crate::player::skill::PlayerSkillLevels;
 use crate::util::Facing;
 
 #[derive(Bundle)]
@@ -40,6 +42,8 @@ pub struct PlayerBundle {
     pub shoot: ShootAbility,
     pub hurt: HurtAbility,
 
+    pub skill_levels: PlayerSkillLevels,
+
     pub character_controller: KinematicCharacterController,
     pub rigid_body: RigidBody,
     pub sensor: Sensor,
@@ -48,7 +52,6 @@ pub struct PlayerBundle {
     pub anim_timer: AnimTimer,
 
     pub ammo: Ammo,
-
     pub immunity: Immunity,
     pub combat_layer: CombatLayerMask,
     pub health: Health,
@@ -146,6 +149,8 @@ fn setup_player(
             jump: JumpAbility::default(),
             shoot: ShootAbility::default(),
             hurt: HurtAbility::new(0.3, Some(0.3)),
+
+            skill_levels: PlayerSkillLevels::default(),
 
             coin_holder: CoinHolder::default(),
             coin_collector: CoinCollector,

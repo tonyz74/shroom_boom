@@ -7,14 +7,12 @@ use crate::{
     assets::PlayerAssets,
     combat::{MeleeAttack, MeleeAttackBundle},
     common::AnimTimer,
-    player::{
-        Player,
-        consts::PLAYER_ATTACK_COOLDOWN,
-    }
+    player::Player,
 };
 use crate::combat::{AttackStrength, CombatLayerMask};
 use crate::entity_states::Die;
 use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_direction, direction_for_facing, get_closest_target};
+use crate::player::consts::SLASH_LEVELS;
 use crate::player::state_machine::Slash;
 use crate::util::quat_rot2d_deg;
 
@@ -25,7 +23,7 @@ pub struct PlayerMeleeAttack;
 
 #[derive(Component)]
 pub struct SlashAbility {
-    pub damage: u32,
+    pub damage: i32,
     pub cd: Timer,
     pub dur: Timer,
 }
@@ -33,8 +31,8 @@ pub struct SlashAbility {
 impl Default for SlashAbility {
     fn default() -> Self {
         Self {
-            damage: 1,
-            cd: Timer::from_seconds(PLAYER_ATTACK_COOLDOWN, TimerMode::Once),
+            damage: SLASH_LEVELS[0].1,
+            cd: Timer::from_seconds(SLASH_LEVELS[0].0, TimerMode::Once),
             dur: Timer::from_seconds(0.15, TimerMode::Once)
         }
     }
@@ -162,7 +160,7 @@ fn slash_ability_trigger(
                 },
 
                 strength: AttackStrength {
-                    power: slash.damage as i32
+                    power: slash.damage
                 },
 
                 combat_layer: CombatLayerMask::PLAYER,

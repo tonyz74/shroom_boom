@@ -6,32 +6,39 @@ use crate::{
     state::GameState,
     player::{
         Player,
-        consts::{
-            PLAYER_DASH_LENGTH,
-            PLAYER_DASH_COOLDOWN,
-            PLAYER_DASH_SPEED
-        },
+        consts::PLAYER_DASH_LENGTH,
         state_machine::*
     }
 };
-use crate::combat::{ColliderAttack, CombatLayerMask, HurtAbility, Immunity};
+use crate::combat::{AttackStrength, ColliderAttack, CombatLayerMask, HurtAbility, Immunity};
 use crate::entity_states::Die;
 use crate::player::abilities::autotarget;
-use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_direction, direction_for_facing, direction_to_vec};
+use crate::player::abilities::autotarget::{
+    AttackDirection,
+    change_facing_for_direction,
+    direction_for_facing,
+    direction_to_vec
+};
+use crate::player::consts::DASH_LEVELS;
 
 // Ability
 
 #[derive(Component)]
 pub struct DashAbility {
     pub dur: Timer,
-    pub cd: Timer
+    pub cd: Timer,
+    pub speed: f32,
+    pub damage: i32
 }
 
 impl Default for DashAbility {
     fn default() -> Self {
         Self {
             dur: Timer::from_seconds(PLAYER_DASH_LENGTH, TimerMode::Once),
-            cd: Timer::from_seconds(PLAYER_DASH_COOLDOWN, TimerMode::Once)
+
+            speed: DASH_LEVELS[0].0,
+            cd: Timer::from_seconds(DASH_LEVELS[0].1, TimerMode::Once),
+            damage: DASH_LEVELS[0].2,
         }
     }
 }
@@ -42,10 +49,27 @@ pub fn register_dash_ability(app: &mut App) {
             .with_system(dash_ability_trigger)
             .with_system(dash_ability_update)
             .with_system(dash_ability_cooldown_update)
+            .with_system(dash_ability_update_damage)
     );
 }
 
 // Systems
+
+fn dash_ability_update_damage(
+    mut colliders: Query<&mut AttackStrength, With<ColliderAttack>>,
+    q: Query<(&Children, &DashAbility)>
+) {
+    if q.is_empty() {
+        return;
+    }
+
+    let (children, dash) = q.single();
+    for child in children {
+        if let Ok(mut strength) = colliders.get_mut(*child) {
+            strength.power = dash.damage;
+        }
+    }
+}
 
 fn dash_ability_trigger(
     mut q: Query<(
@@ -99,10 +123,10 @@ fn dash_ability_trigger(
         change_facing_for_direction(&mut player, dir);
         let x = direction_to_vec(dir).x;
 
-        player.vel.x = x * PLAYER_DASH_SPEED;
+        player.vel.x = x * dash.speed;
     } else {
         // Player already has requested direction
-        player.vel.x = Vec2::new(player.vel.x, 0.0).normalize().x * PLAYER_DASH_SPEED;
+        player.vel.x = Vec2::new(player.vel.x, 0.0).normalize().x * dash.speed;
     }
 }
 

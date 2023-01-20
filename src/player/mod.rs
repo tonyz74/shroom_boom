@@ -154,7 +154,7 @@ fn setup_player(
 
             skill_levels: PlayerSkillLevels::default(),
 
-            coin_holder: CoinHolder { total_value: 100 },
+            coin_holder: CoinHolder { total_value: 1000 },
             coin_collector: CoinCollector,
 
             input: InputAction::input_manager_bundle(),
@@ -168,7 +168,7 @@ fn setup_player(
         }
     ).with_children(|p| {
         p.spawn(ColliderAttackBundle {
-            strength: AttackStrength::new(2),
+            strength: AttackStrength::new(0),
             combat_layer: CombatLayerMask::PLAYER,
             attack: ColliderAttack { enabled: false },
             ..ColliderAttackBundle::from_size(Vec2::new(32.0, 40.0))

@@ -106,6 +106,10 @@ fn handle_hits(
                 continue;
             }
 
+            if hurt.hit_event.is_some() {
+                continue;
+            }
+
             health.hp -= hit.damage.abs();
             hurt.hit_event = Some(*hit);
         }

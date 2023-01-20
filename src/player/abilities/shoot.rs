@@ -8,6 +8,7 @@ use crate::common::AnimTimer;
 use crate::entity_states::Shoot;
 use crate::player::abilities::autotarget;
 use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_direction, direction_for_facing, direction_to_vec};
+use crate::player::consts::{PLAYER_SHOOT_EXPIRATION_TIME, SHOOT_LEVELS};
 use crate::player::Player;
 use crate::state::GameState;
 
@@ -17,18 +18,21 @@ pub struct PlayerProjectileAttack;
 
 #[derive(Component, Debug)]
 pub struct ShootAbility {
-    pub damage: u32,
-    pub startup: Timer,
+    pub damage: i32,
+    pub proj_speed: f32,
     pub cd: Timer,
+    pub startup: Timer,
     pub shoot_target: Option<(Vec2, AttackDirection)>
 }
 
 impl Default for ShootAbility {
     fn default() -> Self {
         Self {
-            damage: 2,
+            cd: Timer::from_seconds(SHOOT_LEVELS[0].0, TimerMode::Once),
+            proj_speed: SHOOT_LEVELS[0].1,
+            damage: SHOOT_LEVELS[0].2,
+
             startup: Timer::from_seconds(0.1, TimerMode::Once),
-            cd: Timer::from_seconds(0.5, TimerMode::Once),
             shoot_target: None
         }
     }
@@ -65,7 +69,7 @@ fn start_shoot(
         &rapier
     );
 
-    screen_print!("{:?}", shoot.shoot_target);
+    info!("Player shooting at {:?}", shoot.shoot_target);
 }
 
 fn spawn_player_projectile(
@@ -102,9 +106,9 @@ fn spawn_player_projectile(
             },
 
             attack: ProjectileAttack {
-                vel: dir.normalize() * 12.0,
-                speed: 12.0,
-                expiration: Some(Timer::from_seconds(0.5, TimerMode::Once)),
+                vel: dir.normalize() * shoot.proj_speed,
+                speed: shoot.proj_speed,
+                expiration: Some(Timer::from_seconds(PLAYER_SHOOT_EXPIRATION_TIME, TimerMode::Once)),
                 ..default()
             },
 

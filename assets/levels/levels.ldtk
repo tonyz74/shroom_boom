@@ -2863,6 +2863,23 @@
 							"defUid": 87,
 							"px": [192,168],
 							"fieldInstances": []
+						},
+						{
+							"__identifier": "Exit",
+							"__grid": [45,19],
+							"__pivot": [0.5,0.5],
+							"__tags": [],
+							"__tile": null,
+							"__smartColor": "#94D9B3",
+							"iid": "8cadd1c0-7820-11ed-8e4c-d100c5943bab",
+							"width": 64,
+							"height": 64,
+							"defUid": 46,
+							"px": [364,156],
+							"fieldInstances": [
+								{ "__identifier": "NextLevel", "__value": 0, "__type": "Int", "__tile": null, "defUid": 47, "realEditorValues": [] },
+								{ "__identifier": "EntryPoint_ID", "__value": 0, "__type": "Int", "__tile": null, "defUid": 49, "realEditorValues": [] }
+							]
 						}
 					]
 				},

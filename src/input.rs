@@ -18,15 +18,14 @@ pub enum InputAction {
 impl InputAction {
     pub fn input_map() -> InputMap<Self> {
         use InputAction::*;
-
         use InputKind::*;
         use KeyCode as KC;
 
         InputMap::new([
-            (Keyboard(KC::Left), RunLeft),
-            (Keyboard(KC::Right), RunRight),
-            (Keyboard(KC::Down), Crouch),
-            (Keyboard(KC::Up), Jump),
+            (Keyboard(KC::A), RunLeft),
+            (Keyboard(KC::D), RunRight),
+            (Keyboard(KC::S), Crouch),
+            (Keyboard(KC::Space), Jump),
             (Keyboard(KC::E), Interact),
 
             (Keyboard(KC::J), Slash),

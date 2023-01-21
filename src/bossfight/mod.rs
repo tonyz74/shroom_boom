@@ -149,7 +149,7 @@ impl BossBundle {
             takeoff: TakeoffAbility::default(),
             relocate: RelocateAbility::default(),
 
-            health: Health::new(BOSS_HEALTH),
+            health: Health::new(4),
 
             combat_layer: CombatLayerMask::ENEMY,
 
@@ -202,7 +202,7 @@ impl Plugin for BossPlugin {
 pub fn print_stage(
     q: Query<(&Boss, &BossStage)>
 ) {
-    for (boss, stage) in q.iter() {
+    for (boss, stage)in q.iter() {
         screen_print!(
             "boss stage: {:?}, current move: {:?}",
             stage, boss.current_move()

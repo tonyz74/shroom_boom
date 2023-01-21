@@ -8,6 +8,9 @@ use crate::player::Player;
 use crate::state::GameState;
 
 
+pub const PLAYER_HUD_DISPLAY_CHUNKS: usize = 24;
+
+
 #[derive(Component, Debug, Copy, Clone)]
 pub struct HealthBar;
 
@@ -30,7 +33,7 @@ pub fn register_hud_ui_systems(app: &mut App) {
             entity: Entity::from_raw(0),
         })
         .add_system_set(
-            SystemSet::on_enter(GameState::Gameplay)
+            SystemSet::on_enter(GameState::LevelTransition)
                 .with_system(setup_hud)
         )
         .add_system_set(
@@ -42,19 +45,13 @@ pub fn register_hud_ui_systems(app: &mut App) {
 fn setup_hud(
     mut commands: Commands,
     mut hud: ResMut<Hud>,
-    assets: Res<AssetServer>,
     ui_assets: Res<UiAssets>,
 ) {
     if hud.entity != Entity::from_raw(0) {
         return;
     }
 
-    let text_style = TextStyle {
-        font: assets.load("fonts/FiraCode-Regular.ttf"),
-        font_size: 25.0,
-        color: Color::WHITE,
-        ..default()
-    };
+    let text_style = ui_assets.text_style.clone();
 
     let entity = commands
         .spawn(NodeBundle {
@@ -81,24 +78,32 @@ fn setup_hud(
                 parent.spawn((
                     ImageBundle {
                         style: Style {
-                            size: Size::new(Val::Px(128.0), Val::Px(48.0)),
-                            justify_content: JustifyContent::Center,
-                            align_items: AlignItems::Center,
+                            size: Size::new(Val::Px(192.0), Val::Px(48.0)),
                             ..default()
                         },
-                        image: ui_assets.health[10].clone().into(),
+                        image: ui_assets.health[PLAYER_HUD_DISPLAY_CHUNKS].clone().into(),
                         ..default()
                     },
                     HealthBar
                 ));
 
+                parent.spawn(
+                    NodeBundle {
+                        style: Style {
+                            size: Size::new(Val::Px(192.0), Val::Px(4.0)),
+                            ..default()
+                        },
+                        ..default()
+                    },
+                );
+
                 parent.spawn((
                     ImageBundle {
                         style: Style {
-                            size: Size::new(Val::Px(128.0), Val::Px(48.0)),
+                            size: Size::new(Val::Px(192.0), Val::Px(48.0)),
                             ..default()
                         },
-                        image: ui_assets.ammo[10].clone().into(),
+                        image: ui_assets.ammo[PLAYER_HUD_DISPLAY_CHUNKS].clone().into(),
                         ..default()
                     },
                     AmmoBar
@@ -130,6 +135,12 @@ fn setup_hud(
                         TextBundle::from_section("0".to_string(), text_style)
                             .with_style(Style {
                                 margin: UiRect::all(Val::Px(8.0)),
+                                align_self: AlignSelf::FlexStart,
+                                position: UiRect {
+                                    top: Val::Percent(55.0),
+                                    bottom: Val::Percent(45.0),
+                                    ..default()
+                                },
                                 ..default()
                             }),
                         WalletText
@@ -179,8 +190,8 @@ fn sync_hud(
 
 fn index_for_value(val: i32, max: i32) -> usize {
     if val > 0 {
-        let percent = (val as f32 / max as f32) * 100.0;
-        (percent / 10.0).ceil() as usize
+        let percent = (val as f32 / max as f32);
+        (percent * PLAYER_HUD_DISPLAY_CHUNKS as f32).ceil() as usize
     } else {
         0
     }

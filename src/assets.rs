@@ -2,6 +2,7 @@ use crate::{common::Anim, state::GameState};
 use bevy::prelude::*;
 
 use std::collections::HashMap;
+use crate::ui::hud::PLAYER_HUD_DISPLAY_CHUNKS;
 
 #[derive(Resource, Default, Debug)]
 pub struct PlayerAssets {
@@ -252,38 +253,22 @@ impl UiAssets {
     pub fn load(
         asset_server: Res<AssetServer>,
         mut assets: ResMut<UiAssets>,
+
     ) {
-        assets.health = vec![
-            asset_server.load("ui/hud/health/0%.png"),
-            asset_server.load("ui/hud/health/10%.png"),
-            asset_server.load("ui/hud/health/20%.png"),
-            asset_server.load("ui/hud/health/30%.png"),
-            asset_server.load("ui/hud/health/40%.png"),
-            asset_server.load("ui/hud/health/50%.png"),
-            asset_server.load("ui/hud/health/60%.png"),
-            asset_server.load("ui/hud/health/70%.png"),
-            asset_server.load("ui/hud/health/80%.png"),
-            asset_server.load("ui/hud/health/90%.png"),
-            asset_server.load("ui/hud/health/100%.png"),
-        ];
+        let mut health_images = Vec::with_capacity(PLAYER_HUD_DISPLAY_CHUNKS + 1);
+        for i in 0..=PLAYER_HUD_DISPLAY_CHUNKS {
+            health_images.push(asset_server.load(format!("art/hud/health{}.png", i + 1)));
+        }
+        assets.health = health_images;
 
-        assets.ammo = vec![
-            asset_server.load("ui/hud/ammo/0%.png"),
-            asset_server.load("ui/hud/ammo/10%.png"),
-            asset_server.load("ui/hud/ammo/20%.png"),
-            asset_server.load("ui/hud/ammo/30%.png"),
-            asset_server.load("ui/hud/ammo/40%.png"),
-            asset_server.load("ui/hud/ammo/50%.png"),
-            asset_server.load("ui/hud/ammo/60%.png"),
-            asset_server.load("ui/hud/ammo/70%.png"),
-            asset_server.load("ui/hud/ammo/80%.png"),
-            asset_server.load("ui/hud/ammo/90%.png"),
-            asset_server.load("ui/hud/ammo/100%.png"),
-        ];
+        let mut ammo_images = Vec::with_capacity(PLAYER_HUD_DISPLAY_CHUNKS + 1);
+        for i in 0..=PLAYER_HUD_DISPLAY_CHUNKS {
+            ammo_images.push(asset_server.load(format!("art/hud/ammo{}.png", i + 1)));
+        }
+        assets.ammo = ammo_images;
 
-        assets.font = asset_server.load("fonts/FiraCode-Regular.ttf");
-
-        assets.coins = asset_server.load("ui/hud/coins.png");
+        assets.font = asset_server.load("fonts/PixelFont.ttf");
+        assets.coins = asset_server.load("art/hud/coins.png");
 
         assets.text_style = TextStyle {
             font: assets.font.clone(),

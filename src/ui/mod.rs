@@ -31,7 +31,7 @@ fn startup_ui(
     mut font_mapping: ResMut<FontMapping>,
     asset_server: Res<AssetServer>,
 ) {
-    font_mapping.set_default(asset_server.load("fonts/roboto.kayak_font"));
+    font_mapping.set_default(asset_server.load("fonts/PixelFont.kttf"));
     let mut widget_context = KayakRootContext::new();
     widget_context.add_plugin(KayakWidgetsContextPlugin);
 

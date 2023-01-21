@@ -1,10 +1,12 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use crate::camera::GameCamera;
+use crate::combat::ProjectileAttack;
 use crate::enemies::Enemy;
 use crate::level::{FinishedTransitioning, exit::LevelExit};
 use crate::state::GameState;
 use crate::player::Player;
+use crate::shop::Shop;
 
 #[derive(Resource, Default)]
 pub struct LevelTransition {
@@ -70,7 +72,9 @@ pub fn transition_cleanup_old(
     mut commands: Commands,
     exits: Query<Entity, With<LevelExit>>,
     mut player: Query<(Entity, &mut Player)>,
-    enemies: Query<Entity, With<Enemy>>
+    enemies: Query<Entity, With<Enemy>>,
+    shopkeepers: Query<Entity, With<Shop>>,
+    projectiles: Query<Entity, With<ProjectileAttack>>
 ) {
     for exit in exits.iter() {
         commands.entity(exit).despawn();
@@ -83,6 +87,14 @@ pub fn transition_cleanup_old(
 
     for enemy in enemies.iter() {
         commands.entity(enemy).despawn_recursive();
+    }
+
+    for shopkeeper in shopkeepers.iter() {
+        commands.entity(shopkeeper).despawn_recursive();
+    }
+
+    for proj in projectiles.iter() {
+        commands.entity(proj).despawn_recursive();
     }
 }
 

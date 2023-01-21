@@ -49,27 +49,9 @@ pub fn register_dash_ability(app: &mut App) {
             .with_system(dash_ability_trigger)
             .with_system(dash_ability_update)
             .with_system(dash_ability_cooldown_update)
-            .with_system(dash_ability_update_damage)
     );
 }
 
-// Systems
-
-fn dash_ability_update_damage(
-    mut colliders: Query<&mut AttackStrength, With<ColliderAttack>>,
-    q: Query<(&Children, &DashAbility)>
-) {
-    if q.is_empty() {
-        return;
-    }
-
-    let (children, dash) = q.single();
-    for child in children {
-        if let Ok(mut strength) = colliders.get_mut(*child) {
-            strength.power = dash.damage;
-        }
-    }
-}
 
 fn dash_ability_trigger(
     mut q: Query<(
@@ -141,7 +123,7 @@ fn dash_ability_update(
         &mut Immunity,
         &HurtAbility
     ), (With<Dash>, Without<Die>)>,
-    mut collider_attacks: Query<&mut ColliderAttack>
+    mut collider_attacks: Query<(&mut ColliderAttack, &mut AttackStrength)>
 ) {
     if q.is_empty() {
         return;
@@ -166,8 +148,9 @@ fn dash_ability_update(
         }
 
         for child in children.iter() {
-            if let Ok(mut collider_attack) = collider_attacks.get_mut(*child) {
+            if let Ok((mut collider_attack, mut strength)) = collider_attacks.get_mut(*child) {
                 collider_attack.enabled = false;
+                strength.power = dash.damage;
             }
         }
 

@@ -130,7 +130,7 @@ pub fn shop_menu_render(
 
     let window_styles = KStyle {
         width: Value(Units::Pixels(1024.0)),
-        height: Value(Units::Pixels(640.0)),
+        height: Value(Units::Pixels(680.0)),
         background_color: Value(Color::WHITE),
         offset: Value(Edge::all(Units::Stretch(1.0))),
         border_radius: Value(Corner::all(32.0)),
@@ -138,12 +138,22 @@ pub fn shop_menu_render(
         ..default()
     };
 
+    let title_styles = KStyle {
+        width: Value(Units::Percentage(10.0)),
+        height: Value(Units::Pixels(64.0)),
+        color: Value(Color::BLACK),
+        line_height: Value(256.0),
+        font_size: Value(32.0),
+        top: Value(Units::Stretch(0.0)),
+        ..default()
+    };
+
     let label_styles = KStyle {
         width: Value(Units::Percentage(10.0)),
-        height: Value(Units::Pixels(48.0)),
+        height: Value(Units::Pixels(32.0)),
         color: Value(Color::ORANGE_RED),
-        font_size: Value(30.0),
-        top: Value(Units::Stretch(1.0)),
+        font_size: Value(32.0),
+        top: Value(Units::Pixels(-24.0)),
         ..default()
     };
 
@@ -178,7 +188,7 @@ pub fn shop_menu_render(
     let items_styles = KStyle {
         layout_type: Value(LayoutType::Column),
         width: Value(Units::Percentage(85.0)),
-        height: Value(Units::Percentage(80.0)),
+        height: Value(Units::Percentage(85.0)),
         background_color: Value(Color::PURPLE),
         offset: Value(Edge::all(Units::Stretch(1.0))),
         ..default()
@@ -187,14 +197,15 @@ pub fn shop_menu_render(
     let sale_styles = KStyle {
         layout_type: Value(LayoutType::Row),
         width: Value(Units::Percentage(100.0)),
-        height: Value(Units::Pixels(48.0)),
+        height: Value(Units::Pixels(64.0)),
         background_color: Value(Color::AQUAMARINE),
         ..default()
     };
 
     let item_label_styles = KStyle {
         color: Value(Color::ORANGE_RED),
-        font_size: Value(24.0),
+        font_size: Value(20.0),
+        line_height: Value(64.0),
         offset: Value(Edge::all(Units::Stretch(1.0))),
         left: Value(Units::Pixels(8.0)),
         ..default()
@@ -202,7 +213,8 @@ pub fn shop_menu_render(
 
     let cost_label_styles = KStyle {
         color: Value(Color::GOLD),
-        font_size: Value(24.0),
+        font_size: Value(20.0),
+        line_height: Value(64.0),
         offset: Value(Edge::all(Units::Stretch(1.0))),
         right: Value(Units::Pixels(8.0)),
         ..default()
@@ -216,14 +228,15 @@ pub fn shop_menu_render(
     };
 
     let icon_styles = KStyle {
-        width: Value(Units::Pixels(48.0)),
-        height: Value(Units::Pixels(48.0)),
+        width: Value(Units::Pixels(64.0)),
+        height: Value(Units::Pixels(64.0)),
+        border: Value(Edge::all(4.0)),
         ..default()
     };
 
     let purchase_button_styles = KStyle {
-        width: Value(Units::Pixels(48.0)),
-        height: Value(Units::Pixels(48.0)),
+        width: Value(Units::Pixels(64.0)),
+        height: Value(Units::Pixels(64.0)),
         border_radius: Value(Corner::all(0.0)),
         ..default()
     };
@@ -270,7 +283,7 @@ pub fn shop_menu_render(
 
     rsx! {
         <BackgroundBundle styles={window_styles}>
-            <TextWidgetBundle styles={label_styles.clone()} text={TextProps {
+            <TextWidgetBundle styles={title_styles.clone()} text={TextProps {
                 content: "Toadstool".into(),
                 alignment: Alignment::Middle,
                 ..Default::default()

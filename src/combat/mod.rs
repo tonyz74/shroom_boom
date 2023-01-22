@@ -85,7 +85,8 @@ fn temp_explosion(
             ExplosionEvent {
                 pos: world_pos,
                 radius: EXPLOSION_RADIUS,
-                max_damage: 20
+                max_damage: 20,
+                combat_layer: CombatLayerMask::PLAYER
             }
         );
 

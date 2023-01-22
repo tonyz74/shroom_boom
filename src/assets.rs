@@ -152,11 +152,12 @@ impl ExplosionAssets {
         mut texture_atlases: ResMut<Assets<TextureAtlas>>,
         mut assets: ResMut<ExplosionAssets>,
     ) {
-        const SIZE: Vec2 = Vec2::new(16., 16.);
-        let sheet = asset_server.load("sprites/attacks/explosion.png");
-        let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
+        const SIZE: Vec2 = Vec2::new(32., 32.);
+        let sheet = asset_server.load("art/misc/Explosion-Sheet.png");
+        let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, None);
+
         let atlas_handle = texture_atlases.add(atlas);
-        assets.anims = HashMap::from([("BOOM".to_string(), Animation::new(atlas_handle, 0.1))]);
+        assets.anims = HashMap::from([("BOOM".to_string(), Animation::new(atlas_handle, 0.08))]);
     }
 }
 

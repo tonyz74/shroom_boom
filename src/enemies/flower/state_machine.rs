@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use crate::coin::drops::CoinHolder;
-use crate::combat::{ColliderAttack, ExplosionEvent, Immunity};
+use crate::combat::{ColliderAttack, CombatLayerMask, ExplosionEvent, Immunity};
 use crate::enemies::Enemy;
 use crate::enemies::flower::FlowerEnemy;
 use crate::entity_states::*;
@@ -83,8 +83,8 @@ pub fn flower_enemy_detonate(
                     br: Vec2::new(pos.x, pos.y) + Vec2::new(40.0, -40.0)
                 },
 
-                wait_time: 0.2,
-                expand_time: 0.3,
+                wait_time: 0.0,
+                expand_time: 0.2,
 
                 ..Indicator::EXPLOSION
             }
@@ -116,7 +116,8 @@ pub fn flower_enemy_tick(
                 ExplosionEvent {
                     pos: Vec2::new(pos.x, pos.y),
                     max_damage: flower.explosion_power,
-                    radius: 40.0
+                    radius: 40.0,
+                    combat_layer: CombatLayerMask::empty()
                 }
             );
         }
@@ -127,6 +128,5 @@ pub fn flower_enemy_tick(
 pub fn flower_enemy_state_machine() -> StateMachine {
     walk_pathfinder_state_machine()
         .trans::<Move>(DetonateTrigger, Detonate)
-        .trans::<Fall>(DetonateTrigger, Detonate)
         .trans::<Detonate>(DoneTrigger::Success, Die::default())
 }

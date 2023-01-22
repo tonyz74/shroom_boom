@@ -1257,7 +1257,7 @@
 									"entityIid": "501375c0-7820-11ed-b5e1-e7b6d16893d4",
 									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
 									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
-									"worldIid": "83cd3340-7820-11ed-a9de-c13afb7d7b2b"
+									"worldIid": "fb69c1f0-7820-11ed-9c1e-db95eef99196"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["501375c0-7820-11ed-b5e1-e7b6d16893d4"]
@@ -1314,7 +1314,7 @@
 									"entityIid": "8afc10c0-7820-11ed-ba3b-fd2c95729cf4",
 									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
 									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
-									"worldIid": "83cd3340-7820-11ed-a9de-c13afb7d7b2b"
+									"worldIid": "fb69c1f0-7820-11ed-9c1e-db95eef99196"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["8afc10c0-7820-11ed-ba3b-fd2c95729cf4"]
@@ -1343,7 +1343,7 @@
 									"entityIid": "8c40ecd0-7820-11ed-ba3b-314c014df5b9",
 									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
 									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
-									"worldIid": "83cd3340-7820-11ed-a9de-c13afb7d7b2b"
+									"worldIid": "fb69c1f0-7820-11ed-9c1e-db95eef99196"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["8c40ecd0-7820-11ed-ba3b-314c014df5b9"]
@@ -1366,6 +1366,35 @@
 							"fieldInstances": [
 								{ "__identifier": "NextLevel", "__value": 2, "__type": "Int", "__tile": null, "defUid": 47, "realEditorValues": [{ "id": "V_Int", "params": [2] }] },
 								{ "__identifier": "EntryPoint_ID", "__value": 0, "__type": "Int", "__tile": null, "defUid": 49, "realEditorValues": [] }
+							]
+						},
+						{
+							"__identifier": "EnemySpawnpoint",
+							"__grid": [9,30],
+							"__pivot": [0.5,0.5],
+							"__tags": [],
+							"__tile": { "tilesetUid": 65, "x": 96, "y": 0, "w": 16, "h": 16 },
+							"__smartColor": "#33A164",
+							"iid": "07e4f2b0-7820-11ed-9c1e-e71398dd1756",
+							"width": 8,
+							"height": 8,
+							"defUid": 51,
+							"px": [76,244],
+							"fieldInstances": [
+								{ "__identifier": "EnemyType", "__value": "Pumpkin", "__type": "LocalEnum.EnemyType", "__tile": null, "defUid": 54, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["Pumpkin"]
+								}] },
+								{ "__identifier": "Entity_ref", "__value": {
+									"entityIid": "8afc10c0-7820-11ed-ba3b-fd2c95729cf4",
+									"layerIid": "f9de5860-7820-11ed-9a8c-7fe7879f6745",
+									"levelIid": "980300b0-7820-11ed-8083-5d78bc0d3c5f",
+									"worldIid": "fb69c1f0-7820-11ed-9c1e-db95eef99196"
+								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["8afc10c0-7820-11ed-ba3b-fd2c95729cf4"]
+								}] },
+								{ "__identifier": "Coins", "__value": 100, "__type": "Int", "__tile": null, "defUid": 68, "realEditorValues": [{ "id": "V_Int", "params": [100] }] }
 							]
 						}
 					]

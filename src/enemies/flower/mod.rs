@@ -34,7 +34,7 @@ impl Default for FlowerEnemy {
     fn default() -> Self {
         Self {
             explosion_power: 0,
-            countdown: Timer::from_seconds(1.0, TimerMode::Once)
+            countdown: Timer::from_seconds(0.5, TimerMode::Once)
         }
     }
 }

@@ -179,6 +179,7 @@ pub struct ExplosionEvent {
     pub pos: Vec2,
     pub max_damage: i32,
     pub radius: f32,
+    pub combat_layer: CombatLayerMask
 }
 
 fn explosion_events(
@@ -190,6 +191,7 @@ fn explosion_events(
         let mut atk = ExplosionAttackBundle::new(explosion.pos, &assets);
         atk.sprite_sheet.transform.scale = Vec2::splat(explosion.radius / EXPLOSION_RADIUS).extend(1.0);
         atk.strength.power = explosion.max_damage;
+        atk.combat_layer = explosion.combat_layer;
 
         commands.spawn(atk);
     }

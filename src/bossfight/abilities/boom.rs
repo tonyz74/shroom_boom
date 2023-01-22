@@ -5,7 +5,7 @@ use crate::bossfight::consts::{BOSS_BOOM_EXPLOSION_COUNT, BOSS_BOOM_PARTITION_SI
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::stage::BossStage;
 use crate::bossfight::state_machine::{AbilityStartup, Boom};
-use crate::combat::{ExplosionEvent, Immunity};
+use crate::combat::{CombatLayerMask, ExplosionEvent, Immunity};
 use crate::fx::indicator::Indicator;
 use crate::pathfind::Region;
 use crate::state::GameState;
@@ -136,7 +136,8 @@ fn boom_spawn_explosions(
         events.send(ExplosionEvent {
             pos: *point,
             max_damage: 20,
-            radius: 40.0
+            radius: 40.0,
+            combat_layer: CombatLayerMask::ENEMY
         });
     }
 }

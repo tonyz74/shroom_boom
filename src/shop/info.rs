@@ -17,24 +17,24 @@ impl ShopItemInfo {
             ShopItem::CupOfWaterItem => Self {
                 cost: 5,
                 name: "Cup of Water",
-                icon: assets.tonics[0].clone(),
-            },
-
-            ShopItem::JugOfWaterItem => Self {
-                cost: 10,
-                name: "Jug of Water",
-                icon: assets.tonics[0].clone(),
+                icon: assets.waters[0].clone(),
             },
 
             ShopItem::BucketOfWaterItem => Self {
-                cost: 20,
+                cost: 10,
                 name: "Bucket of Water",
-                icon: assets.tonics[0].clone(),
+                icon: assets.waters[1].clone(),
             },
 
-            ShopItem::OddPopsicleItem => Self {
+            ShopItem::TankOfWaterItem => Self {
+                cost: 20,
+                name: "Tank of Water",
+                icon: assets.waters[2].clone(),
+            },
+
+            ShopItem::OddTonicItem => Self {
                 cost: 5,
-                name: "Odd Popsicle",
+                name: "Odd Tonic",
                 icon: assets.tonics[0].clone(),
             },
 
@@ -55,31 +55,31 @@ impl ShopItemInfo {
             ShopItem::HealthUpgrade => Self {
                 cost: cost_for_upgrading(lvl.unwrap()),
                 name: "Health",
-                icon: assets.tonics[0].clone(),
+                icon: assets.health_up.clone(),
             },
 
             ShopItem::AmmoUpgrade => Self {
                 cost: cost_for_upgrading(lvl.unwrap()),
                 name: "Ammo",
-                icon: assets.tonics[0].clone(),
+                icon: assets.ammo_up.clone(),
             },
 
             ShopItem::SlashUpgrade => Self {
                 cost: cost_for_upgrading(lvl.unwrap()),
                 name: "Slash",
-                icon: assets.tonics[0].clone(),
+                icon: assets.slash_up.clone(),
             },
 
             ShopItem::DashUpgrade => Self {
                 cost: cost_for_upgrading(lvl.unwrap()),
                 name: "Dash",
-                icon: assets.tonics[0].clone(),
+                icon: assets.dash_up.clone(),
             },
 
             ShopItem::ShootUpgrade => Self {
                 cost: cost_for_upgrading(lvl.unwrap()),
                 name: "Shoot",
-                icon: assets.tonics[0].clone(),
+                icon: assets.shoot_up.clone(),
             },
         }
     }

@@ -63,6 +63,7 @@ impl ShopBundle {
             interact: Interact {
                 content: Text::from_section("See stock [E]", ui_assets.text_style.clone()),
                 max_dist: 256.0,
+                text_offset: Vec2::new(0.0, 96.0),
                 ..default()
             },
             ..default()

@@ -267,7 +267,7 @@ impl UiAssets {
         }
         assets.ammo = ammo_images;
 
-        assets.font = asset_server.load("fonts/PixelFont.ttf");
+        assets.font = asset_server.load("fonts/FutilePro.ttf");
         assets.coins = asset_server.load("art/hud/coins.png");
 
         assets.text_style = TextStyle {
@@ -281,7 +281,14 @@ impl UiAssets {
 #[derive(Resource, Default, Debug)]
 pub struct ShopAssets {
     pub shopkeeper: Anim,
-    pub tonics: Vec<Handle<Image>>
+    pub tonics: Vec<Handle<Image>>,
+    pub waters: Vec<Handle<Image>>,
+
+    pub health_up: Handle<Image>,
+    pub ammo_up: Handle<Image>,
+    pub slash_up: Handle<Image>,
+    pub dash_up: Handle<Image>,
+    pub shoot_up: Handle<Image>
 }
 
 impl ShopAssets {
@@ -302,10 +309,22 @@ impl ShopAssets {
         };
 
         assets.tonics = vec![
-            asset_server.load("sprites/item/coin.png"),
-            asset_server.load("sprites/item/coin.png"),
-            asset_server.load("sprites/item/coin.png")
+            asset_server.load("art/shop/OddTonic.png"),
+            asset_server.load("art/shop/StrangeTonic.png"),
+            asset_server.load("art/shop/SuspiciousTonic.png"),
         ];
+
+        assets.waters = vec![
+            asset_server.load("art/shop/CupOfWater.png"),
+            asset_server.load("art/shop/BucketOfWater.png"),
+            asset_server.load("art/shop/TankOfWater.png"),
+        ];
+
+        assets.health_up = asset_server.load("art/shop/HealthUp.png");
+        assets.ammo_up = asset_server.load("art/shop/AmmoUp.png");
+        assets.slash_up = asset_server.load("art/shop/SlashUp.png");
+        assets.dash_up = asset_server.load("art/shop/DashUp.png");
+        assets.shoot_up = asset_server.load("art/shop/ShootUp.png");
     }
 }
 

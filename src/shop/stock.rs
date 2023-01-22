@@ -2,12 +2,12 @@ use bevy::prelude::*;
 
 #[derive(Copy, Clone, Debug, Component)]
 pub enum ShopItem {
-    OddPopsicleItem,
+    OddTonicItem,
     StrangeTonicItem,
     SuspiciousTonicItem,
     CupOfWaterItem,
-    JugOfWaterItem,
     BucketOfWaterItem,
+    TankOfWaterItem,
 
     HealthUpgrade,
     AmmoUpgrade,
@@ -18,12 +18,12 @@ pub enum ShopItem {
 
 
 pub const SHOP_CATALOG_ALL: &[ShopItem] = &[
-    ShopItem::OddPopsicleItem,
+    ShopItem::OddTonicItem,
     ShopItem::StrangeTonicItem,
     ShopItem::SuspiciousTonicItem,
     ShopItem::CupOfWaterItem,
-    ShopItem::JugOfWaterItem,
     ShopItem::BucketOfWaterItem,
+    ShopItem::TankOfWaterItem,
 
     ShopItem::HealthUpgrade,
     ShopItem::AmmoUpgrade,
@@ -33,12 +33,12 @@ pub const SHOP_CATALOG_ALL: &[ShopItem] = &[
 ];
 
 pub const SHOP_CATALOG_ITEMS: &[ShopItem] = &[
-    ShopItem::OddPopsicleItem,
+    ShopItem::OddTonicItem,
     ShopItem::StrangeTonicItem,
     ShopItem::SuspiciousTonicItem,
     ShopItem::CupOfWaterItem,
-    ShopItem::JugOfWaterItem,
-    ShopItem::BucketOfWaterItem
+    ShopItem::BucketOfWaterItem,
+    ShopItem::TankOfWaterItem
 ];
 
 pub const SHOP_CATALOG_UPGRADES: &[ShopItem] = &[

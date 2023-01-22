@@ -227,10 +227,17 @@ pub fn shop_menu_render(
         ..default()
     };
 
-    let icon_styles = KStyle {
+    let frame_styles = KStyle {
         width: Value(Units::Pixels(64.0)),
         height: Value(Units::Pixels(64.0)),
-        border: Value(Edge::all(4.0)),
+        background_color: Value(Color::rgb_u8(0x42, 0x45, 0x57)),
+        ..default()
+    };
+
+    let icon_styles = KStyle {
+        width: Value(Units::Pixels(52.0)),
+        height: Value(Units::Pixels(52.0)),
+        offset: Value(Edge::all(Units::Stretch(1.0))),
         ..default()
     };
 
@@ -268,14 +275,14 @@ pub fn shop_menu_render(
             Some((
                 info.icon,
                 info.cost.to_string(),
-                format!("{} (Lv. {})", info.name, lvl + 1),
+                format!("{} lv. {}", info.name, lvl + 1),
                 on_purchase(purchase))
             )
         } else {
             Some((
                 info.icon,
                 "".to_string(),
-                format!("{} (MAX)", info.name),
+                format!("{} MAX", info.name),
                 OnEvent::default())
             )
         }
@@ -303,10 +310,12 @@ pub fn shop_menu_render(
                         constructor! {
                         <BackgroundBundle styles={sale_styles.clone()}>
 
-                            <KImageBundle
-                                styles={icon_styles.clone()}
-                                image={KImage(icon.clone())}
-                            />
+                            <BackgroundBundle styles={frame_styles.clone()}>
+                                <KImageBundle
+                                    styles={icon_styles.clone()}
+                                    image={KImage(icon.clone())}
+                                />
+                            </BackgroundBundle>
 
                             <TextWidgetBundle
                                 styles={item_label_styles.clone()}
@@ -353,10 +362,12 @@ pub fn shop_menu_render(
                         constructor! {
                         <BackgroundBundle styles={sale_styles.clone()}>
 
-                            <KImageBundle
-                                styles={icon_styles.clone()}
-                                image={KImage(icon.clone())}
-                            />
+                            <BackgroundBundle styles={frame_styles.clone()}>
+                                <KImageBundle
+                                    styles={icon_styles.clone()}
+                                    image={KImage(icon.clone())}
+                                />
+                            </BackgroundBundle>
 
                             <TextWidgetBundle
                                 styles={item_label_styles.clone()}
@@ -392,7 +403,14 @@ pub fn shop_menu_render(
                 </BackgroundBundle>
             </BackgroundBundle>
 
-            <KButtonBundle styles={button_styles} on_event={click_return_to_gameplay}/>
+            <KButtonBundle
+                button={KButton {
+                    text: "Ok".into(),
+                    ..default()
+                }}
+                styles={button_styles}
+                on_event={click_return_to_gameplay}
+            />
         </BackgroundBundle>
     };
 

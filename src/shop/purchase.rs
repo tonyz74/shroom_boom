@@ -34,26 +34,26 @@ pub fn shop_apply_purchases(
 
         match buy.order {
             // Items
-            Item::OddPopsicleItem | Item::StrangeTonicItem | Item::SuspiciousTonicItem => {
+            Item::OddTonicItem | Item::StrangeTonicItem | Item::SuspiciousTonicItem => {
                 let hp = match buy.order {
-                    Item::OddPopsicleItem => 10,
+                    Item::OddTonicItem => 10,
                     Item::StrangeTonicItem => 15,
                     Item::SuspiciousTonicItem => 25,
                     _ => panic!()
                 };
 
                 health.hp = (health.hp + hp).clamp(0, health.max_hp);
-            },
-            Item::CupOfWaterItem | Item::JugOfWaterItem | Item::BucketOfWaterItem => {
+            }
+            Item::CupOfWaterItem | Item::BucketOfWaterItem | Item::TankOfWaterItem => {
                 let rounds = match buy.order {
                     Item::CupOfWaterItem => 10,
-                    Item::JugOfWaterItem => 15,
-                    Item::BucketOfWaterItem => 25,
+                    Item::BucketOfWaterItem => 15,
+                    Item::TankOfWaterItem => 25,
                     _ => panic!()
                 };
 
                 ammo.rounds_left = (ammo.rounds_left + rounds).clamp(0, ammo.max_rounds);
-            },
+            }
 
             // UPGRADES
             Item::ShootUpgrade => {

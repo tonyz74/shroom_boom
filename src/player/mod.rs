@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use leafwing_input_manager::InputManagerBundle;
 use seldom_state::prelude::StateMachine;
-use crate::anim::AnimationPlayer;
+use crate::anim::Animator;
 
 use crate::{
     state::GameState,
@@ -49,7 +49,7 @@ pub struct PlayerBundle {
     pub sensor: Sensor,
     pub collider: Collider,
     pub state_machine: StateMachine,
-    pub anim: AnimationPlayer,
+    pub anim: Animator,
 
     pub ammo: Ammo,
     pub immunity: Immunity,
@@ -121,7 +121,7 @@ fn setup_player(
                 ..default()
             },
 
-            anim: AnimationPlayer::new(anim.clone()),
+            anim: Animator::new(anim.clone()),
 
             ammo: Ammo::default(),
 

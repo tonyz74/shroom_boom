@@ -32,13 +32,13 @@ impl Animation {
 }
 
 #[derive(Component, Clone, Debug)]
-pub struct AnimationPlayer {
+pub struct Animator {
     pub timer: Timer,
     pub total_frames: u32
 }
 
-impl AnimationPlayer {
-    pub fn new(anim: Animation) -> AnimationPlayer {
+impl Animator {
+    pub fn new(anim: Animation) -> Animator {
         Self {
             timer: Timer::from_seconds(anim.speed, TimerMode::Repeating),
             total_frames: 0
@@ -46,7 +46,7 @@ impl AnimationPlayer {
     }
 }
 
-impl Default for AnimationPlayer {
+impl Default for Animator {
     fn default() -> Self {
         Self {
             timer: Timer::new(Duration::MAX, TimerMode::Once),
@@ -59,7 +59,7 @@ impl Default for AnimationPlayer {
 pub fn animation_tick(
     time: Res<Time>,
     texture_atlases: Res<Assets<TextureAtlas>>,
-    mut q: Query<(&mut TextureAtlasSprite, &mut AnimationPlayer, &Handle<TextureAtlas>)>,
+    mut q: Query<(&mut TextureAtlasSprite, &mut Animator, &Handle<TextureAtlas>)>,
 ) {
     for (mut spr, mut anim, handle) in q.iter_mut() {
         anim.timer.tick(time.delta());
@@ -79,7 +79,7 @@ pub struct AnimationChangeEvent {
 }
 
 pub fn handle_animation_change_events(
-    mut animations: Query<(&mut TextureAtlasSprite, &mut AnimationPlayer, &mut Handle<TextureAtlas>)>,
+    mut animations: Query<(&mut TextureAtlasSprite, &mut Animator, &mut Handle<TextureAtlas>)>,
     mut events: EventReader<AnimationChangeEvent>
 ) {
     for event in events.iter() {

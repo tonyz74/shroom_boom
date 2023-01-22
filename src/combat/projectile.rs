@@ -6,7 +6,7 @@ use crate::combat::knockbacks::projectile_knockback;
 use crate::entity_states::*;
 use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 use crate::state::GameState;
-use crate::anim::AnimationPlayer;
+use crate::anim::Animator;
 
 #[derive(Copy, Clone, Reflect, FromReflect)]
 pub struct CollidedTrigger;
@@ -83,7 +83,7 @@ pub struct ProjectileAttack {
 
 #[derive(Bundle, Clone)]
 pub struct ProjectileAttackBundle {
-    pub anim: AnimationPlayer,
+    pub anim: Animator,
     pub sprite_sheet: SpriteSheetBundle,
     pub collider: Collider,
     pub sensor: Sensor,

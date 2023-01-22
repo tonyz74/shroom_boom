@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
-use crate::anim::AnimationPlayer;
+use crate::anim::Animator;
 use crate::coin::drops::CoinHolder;
 use crate::combat::{ColliderAttack, CombatLayerMask, Health, HurtAbility, Immunity};
 
@@ -25,7 +25,7 @@ pub struct Enemy {
 pub struct EnemyBundle {
     pub enemy: Enemy,
     pub sensor: Sensor,
-    pub anim: AnimationPlayer,
+    pub anim: Animator,
     pub collider: Collider,
     pub rigid_body: RigidBody,
     pub state_machine: StateMachine,

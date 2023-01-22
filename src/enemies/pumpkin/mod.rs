@@ -15,7 +15,7 @@ use crate::coin::drops::CoinHolder;
 use crate::combat::{AttackStrength, ColliderAttackBundle, Immunity, ProjectileAttack, ProjectileAttackBundle};
 use crate::enemies::stats::{CustomEnemyStats, EnemyStats};
 use crate::util::deg_to_rad;
-use crate::anim::AnimationPlayer;
+use crate::anim::Animator;
 
 
 #[derive(Component, Copy, Clone, Debug)]
@@ -76,7 +76,7 @@ impl PumpkinEnemyBundle {
             enemy: EnemyBundle {
                 immunity: Immunity::default(),
                 coins: CoinHolder::default(),
-                anim: AnimationPlayer::new(assets.anims["IDLE"].clone()),
+                anim: Animator::new(assets.anims["IDLE"].clone()),
                 collider: Collider::cuboid(24.0, 24.0),
                 rigid_body: RigidBody::KinematicPositionBased,
 
@@ -138,7 +138,7 @@ impl PumpkinEnemyBundle {
                         ..default()
                     },
 
-                    anim: AnimationPlayer::default(),
+                    anim: Animator::default(),
 
                     sprite_sheet: SpriteSheetBundle {
                         sprite: TextureAtlasSprite {

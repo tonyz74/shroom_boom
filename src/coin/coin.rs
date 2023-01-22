@@ -8,7 +8,7 @@ use crate::coin::pickup::CoinCollector;
 use crate::coin::state_machine::{coin_state_machine, Follow, register_coin_state_machine};
 use crate::common::{PHYSICS_STEP_DELTA, PHYSICS_STEPS_PER_SEC};
 use crate::state::GameState;
-use crate::anim::AnimationPlayer;
+use crate::anim::Animator;
 
 pub fn register_coin(app: &mut App) {
     register_coin_state_machine(app);
@@ -234,7 +234,7 @@ impl Default for CoinMovement {
 pub struct CoinBundle {
     pub coin: Coin,
     pub coin_movement: CoinMovement,
-    pub anim: AnimationPlayer,
+    pub anim: Animator,
 
     pub sensor: Sensor,
     pub collider: Collider,
@@ -266,7 +266,7 @@ impl CoinBundle {
 
             sensor: Sensor,
 
-            anim: AnimationPlayer::new(anim.clone()),
+            anim: Animator::new(anim.clone()),
 
             sprite_sheet: SpriteSheetBundle {
                 sprite: TextureAtlasSprite {

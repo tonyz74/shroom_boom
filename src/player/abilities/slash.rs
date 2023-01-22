@@ -14,7 +14,7 @@ use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_di
 use crate::player::consts::SLASH_LEVELS;
 use crate::player::state_machine::Slash;
 use crate::util::quat_rot2d_deg;
-use crate::anim::AnimationPlayer;
+use crate::anim::Animator;
 
 // MAIN
 
@@ -165,7 +165,7 @@ fn slash_ability_trigger(
 
                 combat_layer: CombatLayerMask::PLAYER,
 
-                anim: AnimationPlayer::new(assets.slash_anim.clone()),
+                anim: Animator::new(assets.slash_anim.clone()),
 
                 ..MeleeAttackBundle::from_size(Vec2::new(72.0, 48.0))
             }

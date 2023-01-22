@@ -15,7 +15,7 @@ use crate::enemies::Enemy;
 use crate::enemies::stats::EnemyStats;
 use crate::pathfind::{util::BoundingBox, Pathfinder, PathfinderBundle};
 
-use crate::anim::AnimationPlayer;
+use crate::anim::Animator;
 
 #[derive(Component, Copy, Clone)]
 pub struct DandelionEnemy;
@@ -55,7 +55,7 @@ impl DandelionEnemyBundle {
 
                 coins: CoinHolder::default(),
 
-                anim: AnimationPlayer::new(assets.anims["IDLE"].clone()),
+                anim: Animator::new(assets.anims["IDLE"].clone()),
 
                 collider: Collider::cuboid(24.0, 24.0),
 

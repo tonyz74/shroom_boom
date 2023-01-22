@@ -10,7 +10,7 @@ use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_di
 use crate::player::consts::{PLAYER_SHOOT_EXPIRATION_TIME, SHOOT_LEVELS};
 use crate::player::Player;
 use crate::state::GameState;
-use crate::anim::AnimationPlayer;
+use crate::anim::Animator;
 
 
 #[derive(Component, Default, Debug)]
@@ -89,7 +89,7 @@ fn spawn_player_projectile(
     commands.spawn((
         PlayerProjectileAttack,
         ProjectileAttackBundle {
-            anim: AnimationPlayer::default(),
+            anim: Animator::default(),
 
             sprite_sheet: SpriteSheetBundle {
 

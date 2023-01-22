@@ -3,7 +3,7 @@ use bevy::time::FixedTimestep;
 use crate::assets::SporeAssets;
 use crate::common::{PHYSICS_STEP_DELTA, PHYSICS_STEPS_PER_SEC};
 use crate::state::GameState;
-use crate::anim::AnimationPlayer;
+use crate::anim::Animator;
 
 #[derive(Component, Clone)]
 pub struct SporeParticle {
@@ -28,7 +28,7 @@ pub struct SporeParticleBundle {
     #[bundle]
     pub sprite_sheet: SpriteSheetBundle,
     pub spore: SporeParticle,
-    pub anim: AnimationPlayer,
+    pub anim: Animator,
 }
 
 impl SporeParticleBundle {
@@ -52,7 +52,7 @@ impl SporeParticleBundle {
                 lifetime: Timer::default()
             },
 
-            anim: AnimationPlayer::new(anim.clone())
+            anim: Animator::new(anim.clone())
         }
     }
 }

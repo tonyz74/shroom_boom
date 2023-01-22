@@ -3,11 +3,11 @@ use bevy_rapier2d::prelude::*;
 use crate::combat::{AttackStrength, CombatLayerMask, KnockbackModifier};
 use crate::combat::events::CombatEvent;
 use crate::combat::knockbacks::melee_knockback;
-use crate::anim::AnimationPlayer;
+use crate::anim::Animator;
 
 #[derive(Bundle, Default)]
 pub struct MeleeAttackBundle {
-    pub anim: AnimationPlayer,
+    pub anim: Animator,
     pub sprite_sheet: SpriteSheetBundle,
     pub collider: Collider,
     pub sensor: Sensor,

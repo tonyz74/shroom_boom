@@ -299,15 +299,15 @@ impl ShopAssets {
         mut texture_atlases: ResMut<Assets<TextureAtlas>>,
         mut assets: ResMut<ShopAssets>,
     ) {
-        const SIZE: Vec2 = Vec2::new(180., 148.);
-        let sheet = asset_server.load("sprites/shop/shopkeeper.png");
+        const SIZE: Vec2 = Vec2::new(32., 32.);
+        let sheet = asset_server.load("art/shop/Shopkeeper-Sheet.png");
 
-        let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
+        let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 2, 1, None, None);
         let atlas_handle = texture_atlases.add(atlas);
 
         assets.shopkeeper = Animation {
             tex: atlas_handle,
-            speed: 0.2
+            speed: 0.75
         };
 
         assets.tonics = vec![

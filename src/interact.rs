@@ -108,6 +108,7 @@ pub fn interact_spawn_text(
                     text: Text2dBundle {
                         text: interact.content.clone()
                             .with_alignment(TextAlignment::CENTER),
+                        transform: not_visible,
                         ..default()
                     },
 

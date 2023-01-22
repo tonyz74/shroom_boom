@@ -3,10 +3,10 @@ use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::*;
 use crate::combat::{AttackStrength, CombatLayerMask, CombatEvent, Immunity, KnockbackModifier};
 use crate::combat::knockbacks::projectile_knockback;
-use crate::common::AnimTimer;
 use crate::entity_states::*;
 use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 use crate::state::GameState;
+use crate::anim::AnimationPlayer;
 
 #[derive(Copy, Clone, Reflect, FromReflect)]
 pub struct CollidedTrigger;
@@ -83,7 +83,7 @@ pub struct ProjectileAttack {
 
 #[derive(Bundle, Clone)]
 pub struct ProjectileAttackBundle {
-    pub anim_timer: AnimTimer,
+    pub anim: AnimationPlayer,
     pub sprite_sheet: SpriteSheetBundle,
     pub collider: Collider,
     pub sensor: Sensor,
@@ -100,7 +100,7 @@ impl Default for ProjectileAttackBundle {
     fn default() -> Self {
        Self {
            knockback: Default::default(),
-           anim_timer: Default::default(),
+           anim: Default::default(),
            sprite_sheet: Default::default(),
            collider: Default::default(),
            rigid_body: Default::default(),

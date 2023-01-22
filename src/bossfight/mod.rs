@@ -20,7 +20,6 @@ use crate::bossfight::summon::{register_boss_summon, SummonAbility};
 use crate::bossfight::vulnerable::register_boss_vulnerable;
 use crate::coin::drops::CoinHolder;
 use crate::combat::{AttackStrength, ColliderAttack, ColliderAttackBundle, CombatLayerMask, Health, HurtAbility, Immunity, KnockbackModifier};
-use crate::common::AnimTimer;
 use crate::enemies::Enemy;
 use crate::entity_states::*;
 use crate::state::GameState;
@@ -30,6 +29,7 @@ use crate::bossfight::abilities::{BoomAbility, RelocateAbility, register_boss_ab
 pub use crate::bossfight::config::BossConfig;
 use crate::bossfight::consts::{BOSS_FULL_SIZE, BOSS_HALF_SIZE, BOSS_HEALTH};
 use crate::util::Facing;
+use crate::anim::AnimationPlayer;
 
 
 #[derive(Component, Clone, Reflect)]
@@ -69,7 +69,7 @@ pub struct BossBundle {
 
     pub enemy: Enemy,
     pub sensor: Sensor,
-    pub anim_timer: AnimTimer,
+    pub anim: AnimationPlayer,
     pub collider: Collider,
     pub rigid_body: RigidBody,
     pub state_machine: StateMachine,
@@ -126,7 +126,7 @@ impl BossBundle {
             stage: BossStage::Waiting,
             enemy: Enemy::default(),
             sensor: Sensor,
-            anim_timer: AnimTimer::from_seconds(anim.speed),
+            anim: AnimationPlayer::new(anim.clone()),
             collider: Collider::cuboid(BOSS_HALF_SIZE.x, BOSS_HALF_SIZE.y),
             rigid_body: RigidBody::KinematicPositionBased,
             state_machine: boss_state_machine(),

@@ -3,11 +3,11 @@ use bevy_rapier2d::prelude::*;
 use crate::combat::{AttackStrength, CombatLayerMask, KnockbackModifier};
 use crate::combat::events::CombatEvent;
 use crate::combat::knockbacks::melee_knockback;
-use crate::common::AnimTimer;
+use crate::anim::AnimationPlayer;
 
 #[derive(Bundle, Default)]
 pub struct MeleeAttackBundle {
-    pub anim_timer: AnimTimer,
+    pub anim: AnimationPlayer,
     pub sprite_sheet: SpriteSheetBundle,
     pub collider: Collider,
     pub sensor: Sensor,
@@ -31,25 +31,6 @@ impl MeleeAttackBundle {
 pub struct MeleeAttack {
     pub source: Option<Entity>
 }
-
-pub fn animate_melee(
-    time: Res<Time>,
-    texture_atlases: Res<Assets<TextureAtlas>>,
-    mut query: Query<(
-        &mut AnimTimer,
-        &mut TextureAtlasSprite,
-        &Handle<TextureAtlas>
-    ), With<MeleeAttack>>
-) {
-    for (mut timer, mut sprite, texture_atlas_handle) in &mut query {
-        timer.tick(time.delta());
-        if timer.just_finished() {
-            let texture_atlas = texture_atlases.get(texture_atlas_handle).unwrap();
-            sprite.index = (sprite.index + 1) % texture_atlas.textures.len();
-        }
-    }
-}
-
 
 pub fn resolve_melee_attacks(
     transforms: Query<&GlobalTransform>,

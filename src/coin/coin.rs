@@ -6,9 +6,9 @@ use crate::entity_states::*;
 use crate::assets::CoinAssets;
 use crate::coin::pickup::CoinCollector;
 use crate::coin::state_machine::{coin_state_machine, Follow, register_coin_state_machine};
-use crate::common::{AnimTimer, PHYSICS_STEP_DELTA, PHYSICS_STEPS_PER_SEC};
+use crate::common::{PHYSICS_STEP_DELTA, PHYSICS_STEPS_PER_SEC};
 use crate::state::GameState;
-
+use crate::anim::AnimationPlayer;
 
 pub fn register_coin(app: &mut App) {
     register_coin_state_machine(app);
@@ -234,7 +234,7 @@ impl Default for CoinMovement {
 pub struct CoinBundle {
     pub coin: Coin,
     pub coin_movement: CoinMovement,
-    pub anim_timer: AnimTimer,
+    pub anim: AnimationPlayer,
 
     pub sensor: Sensor,
     pub collider: Collider,
@@ -249,7 +249,7 @@ pub struct CoinBundle {
 
 impl CoinBundle {
     pub fn new(pos: Vec2, assets: &CoinAssets) -> Self {
-        let anim = &assets.anims["SPIN"];
+        let anim = &assets.spin;
 
         Self {
             coin: Coin::default(),
@@ -266,7 +266,7 @@ impl CoinBundle {
 
             sensor: Sensor,
 
-            anim_timer: AnimTimer::from_seconds(anim.speed),
+            anim: AnimationPlayer::new(anim.clone()),
 
             sprite_sheet: SpriteSheetBundle {
                 sprite: TextureAtlasSprite {

@@ -5,7 +5,6 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    common::AnimTimer,
     enemies::{EnemyBundle, Enemy},
     assets::FlowerEnemyAssets,
     combat::{CombatLayerMask, Health, HurtAbility},
@@ -15,6 +14,7 @@ use crate::coin::drops::CoinHolder;
 use crate::combat::{AttackStrength, ColliderAttackBundle, Immunity};
 use crate::enemies::flower::state_machine::register_flower_enemy_state_machine;
 use crate::enemies::stats::EnemyStats;
+use crate::anim::AnimationPlayer;
 
 pub struct FlowerEnemyPlugin;
 
@@ -74,7 +74,7 @@ impl FlowerEnemyBundle {
             enemy: EnemyBundle {
                 immunity: Immunity::default(),
                 coins: CoinHolder::default(),
-                anim_timer: AnimTimer::from_seconds(assets.anims["IDLE"].speed),
+                anim: AnimationPlayer::new(assets.anims["IDLE"].clone()),
                 collider: Collider::cuboid(24.0, 24.0),
                 rigid_body: RigidBody::KinematicPositionBased,
 

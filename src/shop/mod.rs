@@ -4,10 +4,10 @@ pub mod purchase;
 
 use bevy::prelude::*;
 use crate::assets::{ShopAssets, UiAssets};
-use crate::common::AnimTimer;
 use crate::interact::Interact;
 use crate::shop::stock::ShopItem;
 use crate::state::GameState;
+use crate::anim::AnimationPlayer;
 
 #[derive(Clone, Copy, Debug)]
 pub struct ShopPlugin;
@@ -42,7 +42,7 @@ pub struct Shop {
 pub struct ShopBundle {
     pub shop: Shop,
     pub interact: Interact,
-    pub anim_timer: AnimTimer,
+    pub anim: AnimationPlayer,
     #[bundle]
     pub sprite_sheet: SpriteSheetBundle,
 }
@@ -59,7 +59,7 @@ impl ShopBundle {
                 transform: Transform::from_translation(pos.extend(0.0)),
                 ..default()
             },
-            anim_timer: AnimTimer::from_seconds(assets.shopkeeper.speed),
+            anim: AnimationPlayer::new(assets.shopkeeper.clone()),
             interact: Interact {
                 content: Text::from_section("See stock [E]", ui_assets.text_style.clone()),
                 max_dist: 256.0,

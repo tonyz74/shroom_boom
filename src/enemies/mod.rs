@@ -1,10 +1,10 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
+use crate::anim::AnimationPlayer;
 use crate::coin::drops::CoinHolder;
 use crate::combat::{ColliderAttack, CombatLayerMask, Health, HurtAbility, Immunity};
 
-use crate::common::AnimTimer;
 use crate::enemies::spawner::register_enemy_spawner;
 use crate::entity_states::Die;
 use crate::pathfind::PathfinderBundle;
@@ -25,7 +25,7 @@ pub struct Enemy {
 pub struct EnemyBundle {
     pub enemy: Enemy,
     pub sensor: Sensor,
-    pub anim_timer: AnimTimer,
+    pub anim: AnimationPlayer,
     pub collider: Collider,
     pub rigid_body: RigidBody,
     pub state_machine: StateMachine,

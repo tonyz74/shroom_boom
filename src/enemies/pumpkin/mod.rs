@@ -6,7 +6,6 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 
 use crate::{
-    common::AnimTimer,
     enemies::{EnemyBundle, Enemy},
     assets::PumpkinEnemyAssets,
     combat::{CombatLayerMask, Health, HurtAbility},
@@ -16,6 +15,7 @@ use crate::coin::drops::CoinHolder;
 use crate::combat::{AttackStrength, ColliderAttackBundle, Immunity, ProjectileAttack, ProjectileAttackBundle};
 use crate::enemies::stats::{CustomEnemyStats, EnemyStats};
 use crate::util::deg_to_rad;
+use crate::anim::AnimationPlayer;
 
 
 #[derive(Component, Copy, Clone, Debug)]
@@ -76,7 +76,7 @@ impl PumpkinEnemyBundle {
             enemy: EnemyBundle {
                 immunity: Immunity::default(),
                 coins: CoinHolder::default(),
-                anim_timer: AnimTimer::from_seconds(assets.anims["IDLE"].speed),
+                anim: AnimationPlayer::new(assets.anims["IDLE"].clone()),
                 collider: Collider::cuboid(24.0, 24.0),
                 rigid_body: RigidBody::KinematicPositionBased,
 
@@ -138,7 +138,7 @@ impl PumpkinEnemyBundle {
                         ..default()
                     },
 
-                    anim_timer: AnimTimer::from_seconds(0.1),
+                    anim: AnimationPlayer::default(),
 
                     sprite_sheet: SpriteSheetBundle {
                         sprite: TextureAtlasSprite {

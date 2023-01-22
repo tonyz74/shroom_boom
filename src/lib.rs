@@ -22,3 +22,4 @@ pub mod bossfight;
 pub mod ui;
 pub mod shop;
 pub mod interact;
+pub mod anim;

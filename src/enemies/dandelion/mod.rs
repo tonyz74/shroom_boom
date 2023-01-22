@@ -11,11 +11,11 @@ use crate::{
 use crate::assets::DandelionEnemyAssets;
 use crate::coin::drops::CoinHolder;
 use crate::combat::{AttackStrength, ColliderAttackBundle, CombatLayerMask, Health, HurtAbility, Immunity};
-use crate::common::AnimTimer;
 use crate::enemies::Enemy;
 use crate::enemies::stats::EnemyStats;
 use crate::pathfind::{util::BoundingBox, Pathfinder, PathfinderBundle};
 
+use crate::anim::AnimationPlayer;
 
 #[derive(Component, Copy, Clone)]
 pub struct DandelionEnemy;
@@ -55,7 +55,7 @@ impl DandelionEnemyBundle {
 
                 coins: CoinHolder::default(),
 
-                anim_timer: AnimTimer::from_seconds(assets.anims["IDLE"].speed),
+                anim: AnimationPlayer::new(assets.anims["IDLE"].clone()),
 
                 collider: Collider::cuboid(24.0, 24.0),
 

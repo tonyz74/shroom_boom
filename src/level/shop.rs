@@ -2,7 +2,6 @@ use bevy::prelude::*;
 use bevy_ecs_ldtk::EntityInstance;
 use bevy_ecs_ldtk::prelude::*;
 use crate::assets::{ShopAssets, UiAssets};
-use crate::common::AnimTimer;
 use crate::interact::Interact;
 use crate::level::{coord, LevelInfo};
 use crate::shop::ShopBundle;

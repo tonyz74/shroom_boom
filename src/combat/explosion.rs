@@ -2,11 +2,11 @@ use bevy::math::Vec3Swizzles;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::*;
+use crate::anim::AnimationPlayer;
 use crate::assets::ExplosionAssets;
 use crate::combat::{AttackStrength, CombatEvent, CombatLayerMask, KnockbackModifier};
 use crate::combat::consts::{EXPLOSION_DIAMETER, EXPLOSION_DURATION, EXPLOSION_EFFECTIVE_DURATION, EXPLOSION_RADIUS};
 use crate::combat::knockbacks::explosion_knockback;
-use crate::common::AnimTimer;
 use crate::entity_states::*;
 use crate::state::GameState;
 
@@ -37,7 +37,7 @@ fn explosion_attack_state_machine() -> StateMachine {
 
 #[derive(Bundle)]
 pub struct ExplosionAttackBundle {
-    pub anim_timer: AnimTimer,
+    pub anim: AnimationPlayer,
     pub sprite_sheet: SpriteSheetBundle,
     pub collider: Collider,
     pub sensor: Sensor,
@@ -51,7 +51,7 @@ pub struct ExplosionAttackBundle {
 impl ExplosionAttackBundle {
     pub fn new(pos: Vec2, assets: &ExplosionAssets) -> Self {
         Self {
-            anim_timer: AnimTimer::from_seconds(assets.anims["BOOM"].speed),
+            anim: AnimationPlayer::new(assets.anims["BOOM"].clone()),
 
             sprite_sheet: SpriteSheetBundle {
                 sprite: TextureAtlasSprite {

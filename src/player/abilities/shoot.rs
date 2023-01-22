@@ -4,13 +4,13 @@ use bevy_rapier2d::prelude::RapierContext;
 use seldom_state::prelude::*;
 use crate::assets::PlayerAssets;
 use crate::combat::{AttackStrength, CombatLayerMask, ProjectileAttack, ProjectileAttackBundle};
-use crate::common::AnimTimer;
 use crate::entity_states::Shoot;
 use crate::player::abilities::autotarget;
 use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_direction, direction_for_facing, direction_to_vec};
 use crate::player::consts::{PLAYER_SHOOT_EXPIRATION_TIME, SHOOT_LEVELS};
 use crate::player::Player;
 use crate::state::GameState;
+use crate::anim::AnimationPlayer;
 
 
 #[derive(Component, Default, Debug)]
@@ -89,7 +89,7 @@ fn spawn_player_projectile(
     commands.spawn((
         PlayerProjectileAttack,
         ProjectileAttackBundle {
-            anim_timer: AnimTimer::from_seconds(0.4),
+            anim: AnimationPlayer::default(),
 
             sprite_sheet: SpriteSheetBundle {
 

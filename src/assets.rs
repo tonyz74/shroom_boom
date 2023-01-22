@@ -1,13 +1,14 @@
-use crate::{common::Anim, state::GameState};
+use crate::state::GameState;
 use bevy::prelude::*;
 
 use std::collections::HashMap;
+use crate::anim::Animation;
 use crate::ui::hud::PLAYER_HUD_DISPLAY_CHUNKS;
 
 #[derive(Resource, Default, Debug)]
 pub struct PlayerAssets {
-    pub anims: HashMap<String, Anim>,
-    pub slash_anim: Anim,
+    pub anims: HashMap<String, Animation>,
+    pub slash_anim: Animation,
 }
 
 impl PlayerAssets {
@@ -52,9 +53,9 @@ impl PlayerAssets {
         let crouch_handle = texture_atlases.add(crouch_atlas);
 
         player_assets.anims = HashMap::from([
-            ("IDLE".to_string(), Anim::new(idle_handle, 0.2)),
-            ("RUN".to_string(), Anim::new(run_handle, 0.08)),
-            ("CROUCH".to_string(), Anim::new(crouch_handle, 0.4)),
+            ("IDLE".to_string(), Animation::new(idle_handle, 0.2)),
+            ("RUN".to_string(), Animation::new(run_handle, 0.08)),
+            ("CROUCH".to_string(), Animation::new(crouch_handle, 0.4)),
         ]);
 
         // SLASH
@@ -64,13 +65,13 @@ impl PlayerAssets {
 
         let slash_handle = texture_atlases.add(slash_atlas);
 
-        player_assets.slash_anim = Anim::new(slash_handle, 0.05);
+        player_assets.slash_anim = Animation::new(slash_handle, 0.05);
     }
 }
 
 #[derive(Resource, Default, Debug)]
 pub struct FlowerEnemyAssets {
-    pub anims: HashMap<String, Anim>,
+    pub anims: HashMap<String, Animation>,
 }
 
 impl FlowerEnemyAssets {
@@ -88,13 +89,13 @@ impl FlowerEnemyAssets {
 
         let idle_handle = texture_atlases.add(idle_atlas);
 
-        assets.anims = HashMap::from([("IDLE".to_string(), Anim::new(idle_handle, 0.1))]);
+        assets.anims = HashMap::from([("IDLE".to_string(), Animation::new(idle_handle, 0.1))]);
     }
 }
 
 #[derive(Resource, Default, Debug)]
 pub struct PumpkinEnemyAssets {
-    pub anims: HashMap<String, Anim>,
+    pub anims: HashMap<String, Animation>,
 }
 
 impl PumpkinEnemyAssets {
@@ -112,13 +113,13 @@ impl PumpkinEnemyAssets {
 
         let idle_handle = texture_atlases.add(idle_atlas);
 
-        assets.anims = HashMap::from([("IDLE".to_string(), Anim::new(idle_handle, 0.1))]);
+        assets.anims = HashMap::from([("IDLE".to_string(), Animation::new(idle_handle, 0.1))]);
     }
 }
 
 #[derive(Resource, Default, Debug)]
 pub struct DandelionEnemyAssets {
-    pub anims: HashMap<String, Anim>,
+    pub anims: HashMap<String, Animation>,
 }
 
 impl DandelionEnemyAssets {
@@ -136,13 +137,13 @@ impl DandelionEnemyAssets {
 
         let idle_handle = texture_atlases.add(idle_atlas);
 
-        assets.anims = HashMap::from([("IDLE".to_string(), Anim::new(idle_handle, 0.1))]);
+        assets.anims = HashMap::from([("IDLE".to_string(), Animation::new(idle_handle, 0.1))]);
     }
 }
 
 #[derive(Resource, Default, Debug)]
 pub struct ExplosionAssets {
-    pub anims: HashMap<String, Anim>
+    pub anims: HashMap<String, Animation>
 }
 
 impl ExplosionAssets {
@@ -155,7 +156,7 @@ impl ExplosionAssets {
         let sheet = asset_server.load("sprites/attacks/explosion.png");
         let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
         let atlas_handle = texture_atlases.add(atlas);
-        assets.anims = HashMap::from([("BOOM".to_string(), Anim::new(atlas_handle, 0.1))]);
+        assets.anims = HashMap::from([("BOOM".to_string(), Animation::new(atlas_handle, 0.1))]);
     }
 }
 
@@ -163,7 +164,7 @@ impl ExplosionAssets {
 
 #[derive(Resource, Default, Debug)]
 pub struct SporeAssets {
-    pub anims: HashMap<String, Anim>
+    pub anims: HashMap<String, Animation>
 }
 
 impl SporeAssets {
@@ -178,14 +179,14 @@ impl SporeAssets {
         let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
         let atlas_handle = texture_atlases.add(atlas);
 
-        assets.anims = HashMap::from([("SPORE".to_string(), Anim::new(atlas_handle, 0.1))]);
+        assets.anims = HashMap::from([("SPORE".to_string(), Animation::new(atlas_handle, 0.1))]);
     }
 }
 
 
 #[derive(Resource, Default, Debug)]
 pub struct CoinAssets {
-    pub anims: HashMap<String, Anim>
+    pub spin: Animation
 }
 
 impl CoinAssets {
@@ -195,18 +196,18 @@ impl CoinAssets {
         mut assets: ResMut<CoinAssets>,
     ) {
         const SIZE: Vec2 = Vec2::new(16., 16.);
-        let sheet = asset_server.load("sprites/item/coin.png");
+        let sheet = asset_server.load("art/misc/Coin-Sheet.png");
 
-        let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
+        let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 10, 1, None, None);
         let atlas_handle = texture_atlases.add(atlas);
 
-        assets.anims = HashMap::from([("SPIN".to_string(), Anim::new(atlas_handle, 0.1))]);
+        assets.spin = Animation::new(atlas_handle, 0.08);
     }
 }
 
 #[derive(Resource, Default, Debug)]
 pub struct BossAssets {
-    pub anims: HashMap<String, Anim>
+    pub anims: HashMap<String, Animation>
 }
 
 impl BossAssets {
@@ -221,7 +222,7 @@ impl BossAssets {
         let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
         let atlas_handle = texture_atlases.add(atlas);
 
-        assets.anims = HashMap::from([("WAIT".to_string(), Anim::new(atlas_handle, 0.1))]);
+        assets.anims = HashMap::from([("WAIT".to_string(), Animation::new(atlas_handle, 0.1))]);
     }
 }
 
@@ -280,7 +281,7 @@ impl UiAssets {
 
 #[derive(Resource, Default, Debug)]
 pub struct ShopAssets {
-    pub shopkeeper: Anim,
+    pub shopkeeper: Animation,
     pub tonics: Vec<Handle<Image>>,
     pub waters: Vec<Handle<Image>>,
 
@@ -303,7 +304,7 @@ impl ShopAssets {
         let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
         let atlas_handle = texture_atlases.add(atlas);
 
-        assets.shopkeeper = Anim {
+        assets.shopkeeper = Animation {
             tex: atlas_handle,
             speed: 0.2
         };

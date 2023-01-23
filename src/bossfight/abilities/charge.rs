@@ -39,22 +39,22 @@ fn start_charging(
         &mut Immunity,
         &mut ChargeAbility,
         &mut Boss,
+        &mut Facing,
     ), Added<AbilityStartup>>,
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (children, mut immunity, mut charge, mut boss) = q.single_mut();
+    let (children, mut immunity, mut charge, boss, mut facing) = q.single_mut();
 
-    let (facing, dir) = match boss.current_move() {
+    let (new_facing, dir) = match boss.current_move() {
         EnragedAttackMove::ChargeLeft => (Facing::Left, -1.0),
         EnragedAttackMove::ChargeRight => (Facing::Right, 1.0),
         _ => return
     };
 
-    boss.facing = facing;
-    println!("setting facing to {:?}", boss.facing);
+    *facing = new_facing;
 
     for child in children {
         if let Ok((mut atk, mut transform, mut collider)) = p.get_mut(*child) {
@@ -79,19 +79,20 @@ fn charge_update(
         &mut Enemy,
         &ChargeAbility,
         &BossConfig,
-        &Boss
+        &Boss,
+        &Facing
     ), With<Charge>>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (entity, children, transform, mut enemy, charge, config, boss) = q.single_mut();
+    let (entity, children, transform, mut enemy, charge, config, _boss, facing) = q.single_mut();
     enemy.vel = Vec2::new(BOSS_CHARGE_SPEED * charge.dir, 0.0);
 
     let pos = transform.translation().xy();
 
-    let target = match boss.facing {
+    let target = match facing {
         Facing::Left => config.charge_left.x,
         Facing::Right => config.charge_right.x
     };

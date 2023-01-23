@@ -48,20 +48,21 @@ fn start_leaping(
         &mut LeapAbility,
         &mut KinematicCharacterController,
         &mut Boss,
+        &mut Facing
     ), Added<AbilityStartup>>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (mut immunity, mut leap, mut cc, mut boss) = q.single_mut();
+    let (mut immunity, mut leap, mut cc, boss, mut facing) = q.single_mut();
     if boss.current_move() != EnragedAttackMove::Leap {
         return;
     }
 
     cc.filter_flags = QueryFilterFlags::EXCLUDE_SENSORS | QueryFilterFlags::EXCLUDE_FIXED;
     immunity.is_immune = true;
-    boss.facing = Facing::Left;
+    *facing = Facing::Left;
     leap.rotate_lag.reset();
 }
 

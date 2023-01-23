@@ -21,7 +21,7 @@ pub fn player_setup_anim(app: &mut App) {
             .with_system(anim_run)
             .with_system(anim_idle)
             .with_system(anim_crouch)
-            .with_system(flip_sprite_on_direction)
+            // .with_system(flip_sprite_on_direction)
     );
 }
 
@@ -71,21 +71,4 @@ fn anim_crouch(
         e: q.single(),
         new_anim: anims.anims["CROUCH"].clone()
     });
-}
-
-// GENERAL ANIMATIONS
-
-fn flip_sprite_on_direction(mut q: Query<
-    (&mut TextureAtlasSprite, &Player),
->) {
-    if q.is_empty() {
-        return;
-    }
-
-    let (mut sprite, player) = q.single_mut();
-
-    match player.facing {
-        Facing::Left => sprite.flip_x = true,
-        Facing::Right => sprite.flip_x = false
-    };
 }

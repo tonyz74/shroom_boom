@@ -1,6 +1,7 @@
 use std::time::Duration;
 use bevy::prelude::*;
 use crate::state::GameState;
+use crate::util::Facing;
 
 
 pub struct AnimationPlugin;
@@ -11,22 +12,31 @@ impl Plugin for AnimationPlugin {
            SystemSet::on_update(GameState::Gameplay)
                .with_system(animation_tick)
                .with_system(handle_animation_change_events)
+               .with_system(flip_sprite_on_direction)
        );
     }
 }
 
 
+
+
 #[derive(Debug, Default, Clone)]
 pub struct Animation {
     pub tex: Handle<TextureAtlas>,
-    pub speed: f32
+    pub speed: f32,
+    pub facing_flipped: bool
 }
 
 impl Animation {
     pub fn new(handle: Handle<TextureAtlas>, speed: f32) -> Self {
+        Self::new_flipped(handle, speed, false)
+    }
+
+    pub fn new_flipped(handle: Handle<TextureAtlas>, speed: f32, flipped: bool) -> Self {
         Animation {
             tex: handle,
-            speed
+            speed,
+            facing_flipped: flipped
         }
     }
 }
@@ -34,14 +44,16 @@ impl Animation {
 #[derive(Component, Clone, Debug)]
 pub struct Animator {
     pub timer: Timer,
-    pub total_frames: u32
+    pub total_frames: u32,
+    pub anim: Animation,
 }
 
 impl Animator {
     pub fn new(anim: Animation) -> Animator {
         Self {
             timer: Timer::from_seconds(anim.speed, TimerMode::Repeating),
-            total_frames: 0
+            anim,
+            ..default()
         }
     }
 }
@@ -49,8 +61,9 @@ impl Animator {
 impl Default for Animator {
     fn default() -> Self {
         Self {
+            anim: Animation::default(),
             timer: Timer::new(Duration::MAX, TimerMode::Once),
-            total_frames: 0
+            total_frames: 0,
         }
     }
 }
@@ -91,5 +104,20 @@ pub fn handle_animation_change_events(
             *texture_atlas = event.new_anim.tex.clone();
             spr.index = 0;
         }
+    }
+}
+
+fn flip_sprite_on_direction(mut q: Query<(&mut TextureAtlasSprite, &Animator, &Facing)>) {
+    for (mut sprite, anim, facing) in q.iter_mut() {
+        match facing {
+            Facing::Left => {
+                sprite.flip_x = !anim.anim.facing_flipped
+            },
+
+            Facing::Right => {
+                sprite.flip_x = anim.anim.facing_flipped
+            }
+        };
+
     }
 }

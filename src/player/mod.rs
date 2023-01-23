@@ -35,6 +35,7 @@ use crate::util::Facing;
 #[derive(Bundle)]
 pub struct PlayerBundle {
     pub player: Player,
+    pub facing: Facing,
 
     pub slash: SlashAbility,
     pub dash: DashAbility,
@@ -69,7 +70,6 @@ pub struct PlayerBundle {
 pub struct Player {
     pub vel: Vec2,
     pub grounded: bool,
-    pub facing: Facing
 }
 
 #[derive(Component, Deref, DerefMut)]
@@ -143,6 +143,7 @@ fn setup_player(
             },
 
             player: Player::default(),
+            facing: Facing::default(),
 
             sensor: Sensor,
 

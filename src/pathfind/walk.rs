@@ -19,6 +19,7 @@ use crate::{
 
 use crate::combat::HurtAbility;
 use crate::pathfind::Patrol;
+use crate::util::Facing;
 
 #[derive(Component, Default)]
 pub struct WalkPathfinder {
@@ -196,6 +197,7 @@ pub fn walk_pathfinder_stop_if_colliding_enemy_stopped<T: ReadOnlyWorldQuery>(
         &mut Enemy,
         &mut Pathfinder,
         &mut WalkPathfinder,
+        &mut Facing,
         &Patrol
     ), T>
 ) {
@@ -241,14 +243,15 @@ fn walk_pathfinder_patrol(
         &mut Enemy,
         &mut Pathfinder,
         &mut WalkPathfinder,
-        &mut Patrol
+        &mut Patrol,
+        &mut Facing,
     ), (Without<Hurt>, Without<Die>)>,
     rapier: Res<RapierContext>,
     _ev_stop: EventWriter<PathfinderStopChaseEvent>
 ) {
     let mut all_should_start_patrolling = false;
 
-    for (tf, collider, mut enemy, pathfinder, mut walk, mut patrol) in pathfinders.iter_mut() {
+    for (tf, collider, mut enemy, pathfinder, mut walk, mut patrol, mut facing) in pathfinders.iter_mut() {
         if !pathfinder.active {
             continue;
         }
@@ -300,6 +303,12 @@ fn walk_pathfinder_patrol(
                 let dir = Vec2::new(p.target.x - self_pos.x, 0.0).normalize();
                 enemy.vel.x = dir.x * pathfinder.patrol_speed;
 
+                if dir.x < 0.0 {
+                    *facing = Facing::Left;
+                } else if dir.x > 0.0 {
+                    *facing = Facing::Right;
+                }
+
                 walk_pathfinder_jump_if_needed(
                     Vec2::new(self_pos.x, self_pos.y),
                     dir.into(),
@@ -322,7 +331,7 @@ fn walk_pathfinder_patrol(
     }
 
     if all_should_start_patrolling {
-        for (_, _, _, mut pathfinder, _, mut patrol) in pathfinders.iter_mut() {
+        for (_, _, _, mut pathfinder, _, mut patrol, _) in pathfinders.iter_mut() {
             pathfinder.target = None;
             util::timer_tick_to_almost_finish(&mut patrol.lose_notice_timer);
         }
@@ -331,7 +340,7 @@ fn walk_pathfinder_patrol(
 
 fn walk_pathfinder_lose_notice(
     time: Res<Time>,
-    mut pathfinders: Query<(&mut Pathfinder, &mut Patrol), Without<Die>>
+    mut pathfinders: Query<(&mut Pathfinder, &mut Patrol), (Without<Die>, With<WalkPathfinder>)>
 ) {
     for (pathfinder, mut patrol) in pathfinders.iter_mut() {
         if pathfinder.target.is_none() {

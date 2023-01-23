@@ -20,6 +20,7 @@ use crate::player::abilities::autotarget::{
     direction_to_vec
 };
 use crate::player::consts::DASH_LEVELS;
+use crate::util::Facing;
 
 // Ability
 
@@ -58,6 +59,7 @@ fn dash_ability_trigger(
         Entity,
         &Children,
         &mut Player,
+        &mut Facing,
         &mut DashAbility
     ), (Added<Dash>, Without<Die>)>,
 
@@ -71,7 +73,7 @@ fn dash_ability_trigger(
         return;
     }
 
-    let (entity, children, mut player, mut dash) = q.single_mut();
+    let (entity, children, mut player, mut facing, mut dash) = q.single_mut();
 
     dash.dur.reset();
     player.vel.y = 0.0;
@@ -95,14 +97,14 @@ fn dash_ability_trigger(
             &rapier
         ) {
             match dir {
-                AttackDirection::Up | AttackDirection::Down => direction_for_facing(player.facing),
+                AttackDirection::Up | AttackDirection::Down => direction_for_facing(*facing),
                 _ => dir,
             }
         } else {
-            direction_for_facing(player.facing)
+            direction_for_facing(*facing)
         };
 
-        change_facing_for_direction(&mut player, dir);
+        change_facing_for_direction(&mut facing, dir);
         let x = direction_to_vec(dir).x;
 
         player.vel.x = x * dash.speed;

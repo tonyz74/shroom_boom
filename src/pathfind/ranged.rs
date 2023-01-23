@@ -7,6 +7,7 @@ use crate::state::GameState;
 use crate::pathfind::{Pathfinder, WalkPathfinder, walk_pathfinder_jump_if_needed, Patrol, walk_pathfinder_get_suitable_target};
 use crate::enemies::Enemy;
 use crate::entity_states::*;
+use crate::util::Facing;
 
 #[derive(Component, Clone)]
 pub struct RangedPathfinder {
@@ -98,13 +99,14 @@ pub fn ranged_pathfinder_move(
         &mut Enemy,
         &mut Pathfinder,
         &mut WalkPathfinder,
+        &mut Facing,
         &mut Patrol
     ), (Without<Hurt>, Without<Shoot>, With<RangedPathfinder>)>,
     rapier: Res<RapierContext>
 ) {
     let _ = rapier;
 
-    for (ent, collider, mut enemy, mut pathfinder, mut walk, mut patrol) in pathfinders.iter_mut() {
+    for (ent, collider, mut enemy, mut pathfinder, mut walk, mut facing, mut patrol) in pathfinders.iter_mut() {
         if !pathfinder.active {
             continue;
         }
@@ -142,6 +144,12 @@ pub fn ranged_pathfinder_move(
                 let dir = Vec2::new(diff.x, 0.0).normalize();
 
                 enemy.vel.x = dir.x * pathfinder.speed;
+
+                if dir.x < 0.0 {
+                    *facing = Facing::Left;
+                } else if dir.x > 0.0 {
+                    *facing = Facing::Right;
+                }
 
                 walk_pathfinder_jump_if_needed(
                     Vec2::new(self_pos.x, self_pos.y),
@@ -207,11 +215,23 @@ pub fn ranged_pathfinder_tick_shoot_cooldown(
 }
 
 pub fn ranged_pathfinder_add_shoot(
-    mut q: Query<(&mut Enemy, &mut RangedPathfinder), Added<Shoot>>
+    mut q: Query<(&GlobalTransform, &mut Enemy, &mut Facing, &mut RangedPathfinder), Added<Shoot>>
 ) {
-    for (mut enemy, mut ranged) in q.iter_mut() {
+    for (tf, mut enemy, mut facing, mut ranged) in q.iter_mut() {
+        let pos = tf.translation();
+
         enemy.vel.x = 0.0;
         ranged.shoot_startup.reset();
+
+        if let Some(target) = ranged.shoot_target {
+            let dx = Vec2::new(target.x - pos.x, 0.0).normalize_or_zero().x;
+
+            if dx < 0.0 {
+                *facing = Facing::Left;
+            } else if dx > 0.0 {
+                *facing = Facing::Right;
+            }
+        }
     }
 }
 

@@ -18,6 +18,7 @@ use crate::pathfind::{
     walk_pathfinder_jump_if_needed,
     walk_pathfinder_stop_if_colliding_enemy_stopped
 };
+use crate::util::Facing;
 
 #[derive(Component, Default, Debug, Copy, Clone)]
 pub struct MeleePathfinder;
@@ -37,13 +38,14 @@ fn melee_pathfinder_move(
         &mut Enemy,
         &mut Pathfinder,
         &mut WalkPathfinder,
+        &mut Facing,
         &Patrol
     ), (Without<Hurt>, Without<Die>, With<MeleePathfinder>)>,
     rapier: Res<RapierContext>,
 ) {
     let mut colliding_enemies: HashSet<(Entity, Entity)> = HashSet::new();
 
-    for (ent, collider, mut enemy, mut pathfinder, mut walk, patrol) in pathfinders.iter_mut() {
+    for (ent, collider, mut enemy, mut pathfinder, mut walk, mut facing, patrol) in pathfinders.iter_mut() {
         if !pathfinder.active {
             continue;
         }
@@ -69,6 +71,12 @@ fn melee_pathfinder_move(
 
             let dir = Vec2::new((target_pos - self_pos).x, 0.0).normalize();
             enemy.vel.x = dir.x * pathfinder.speed;
+
+            if dir.x < 0.0 {
+                *facing = Facing::Left;
+            } else if dir.x > 0.0 {
+                *facing = Facing::Right;
+            }
 
             walk_pathfinder_jump_if_needed(
                 Vec2::new(self_pos.x, self_pos.y),

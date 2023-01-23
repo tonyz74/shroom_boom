@@ -80,15 +80,14 @@ impl FlowerEnemyAssets {
         mut texture_atlases: ResMut<Assets<TextureAtlas>>,
         mut assets: ResMut<FlowerEnemyAssets>,
     ) {
-        const SIZE: Vec2 = Vec2::new(16., 16.);
-        let sheet = asset_server.load("sprites/enemies/smile.png");
+        const SIZE: Vec2 = Vec2::new(32., 32.);
+        let sheet = asset_server.load("art/enemies/flower/Flower-Sheet.png");
 
         // IDLE
 
-        let idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
+        let idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 4, 1, None, None);
 
         let idle_handle = texture_atlases.add(idle_atlas);
-
         assets.anims = HashMap::from([("IDLE".to_string(), Animation::new(idle_handle, 0.1))]);
     }
 }
@@ -307,7 +306,8 @@ impl ShopAssets {
 
         assets.shopkeeper = Animation {
             tex: atlas_handle,
-            speed: 0.75
+            speed: 0.75,
+            ..default()
         };
 
         assets.tonics = vec![

@@ -9,6 +9,7 @@ use crate::enemies::spawner::register_enemy_spawner;
 use crate::entity_states::Die;
 use crate::pathfind::PathfinderBundle;
 use crate::state::GameState;
+use crate::util::Facing;
 
 pub mod flower;
 pub mod pumpkin;
@@ -24,6 +25,7 @@ pub struct Enemy {
 #[derive(Bundle)]
 pub struct EnemyBundle {
     pub enemy: Enemy,
+    pub facing: Facing,
     pub sensor: Sensor,
     pub anim: Animator,
     pub collider: Collider,

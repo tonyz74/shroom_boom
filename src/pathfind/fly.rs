@@ -19,6 +19,7 @@ use crate::{
 use crate::combat::HurtAbility;
 use crate::common::PHYSICS_STEPS_PER_SEC;
 use crate::pathfind::Patrol;
+use crate::util::Facing;
 
 #[derive(Component, Debug)]
 pub struct FlyPathfinder {
@@ -58,6 +59,7 @@ pub fn fly_pathfinder_follow_path(
     pathfinder: &Pathfinder,
     fly: &mut FlyPathfinder,
     enemy: &mut Enemy,
+    facing: &mut Facing,
     self_pos: Vec2,
     target: Vec2,
     speed: f32
@@ -113,10 +115,27 @@ pub fn fly_pathfinder_follow_path(
             * Vec2::new(1.0, -1.0);
 
         enemy.vel = dir * speed;
+
+        let dir_x = Vec2::new(dir.x, 0.0).normalize_or_zero().x;
+        if dir_x < 0.0 {
+            *facing = Facing::Left;
+        } else if dir_x > 0.0 {
+            *facing = Facing::Right;
+        }
+
     } else {
         // Effectively the same as "If the pathfinder just exited"
         if !pathfinder.region.contains(self_pos) && pathfinder.within_region {
             enemy.vel *= -1.0;
+
+            match facing {
+                Facing::Left => {
+                    *facing = Facing::Right
+                },
+                Facing::Right => {
+                    *facing = Facing::Left
+                },
+            }
         }
     }
 
@@ -132,11 +151,12 @@ pub fn fly_pathfinder_chase(
         &Collider,
         &mut Pathfinder,
         &mut FlyPathfinder,
+        &mut Facing,
         &mut Patrol,
     ), (Without<Hurt>, Without<Die>)>,
     rapier: Res<RapierContext>
 ) {
-    for (pos, mut enemy, collider, mut pathfinder, mut fly, patrol) in fly.iter_mut() {
+    for (pos, mut enemy, collider, mut pathfinder, mut fly, mut facing, patrol) in fly.iter_mut() {
         if !pathfinder.active {
             continue;
         }
@@ -191,6 +211,7 @@ pub fn fly_pathfinder_chase(
                 &pathfinder,
                 &mut fly,
                 &mut enemy,
+                &mut facing,
                 self_pos,
                 target,
                 pathfinder.speed
@@ -201,7 +222,7 @@ pub fn fly_pathfinder_chase(
 
 pub fn fly_pathfinder_lose_notice(
     time: Res<Time>,
-    mut fly: Query<(&mut Pathfinder, &mut Patrol), Without<Die>>
+    mut fly: Query<(&mut Pathfinder, &mut Patrol), (Without<Die>, With<FlyPathfinder>)>
 ) {
     for (pathfinder, mut patrol) in fly.iter_mut() {
         if pathfinder.target.is_none() {
@@ -256,12 +277,13 @@ pub fn fly_pathfinder_patrol(
         &mut Enemy,
         &mut Pathfinder,
         &mut FlyPathfinder,
+        &mut Facing,
         &mut Patrol
     ), (Without<Die>, Without<Hurt>)>
 ) {
     let mut all_should_start_patrolling = false;
 
-    for (tf, mut enemy, pathfinder, mut fly, mut patrol) in fly.iter_mut() {
+    for (tf, mut enemy, pathfinder, mut fly, mut facing, mut patrol) in fly.iter_mut() {
         if !pathfinder.active {
             continue;
         }
@@ -302,6 +324,7 @@ pub fn fly_pathfinder_patrol(
                     &pathfinder,
                     &mut fly,
                     &mut enemy,
+                    &mut facing,
                     self_pos,
                     target,
                     pathfinder.patrol_speed
@@ -321,7 +344,7 @@ pub fn fly_pathfinder_patrol(
     }
 
     if all_should_start_patrolling {
-        for (_, _, mut pathfinder, _, mut patrol) in fly.iter_mut() {
+        for (_, _, mut pathfinder, _, _, mut patrol) in fly.iter_mut() {
             pathfinder.target = None;
             util::timer_tick_to_almost_finish(&mut patrol.lose_notice_timer);
         }

@@ -11,6 +11,7 @@ use crate::player::consts::{PLAYER_SHOOT_EXPIRATION_TIME, SHOOT_LEVELS};
 use crate::player::Player;
 use crate::state::GameState;
 use crate::anim::Animator;
+use crate::util::Facing;
 
 
 #[derive(Component, Default, Debug)]
@@ -77,13 +78,14 @@ fn spawn_player_projectile(
     player: &Player,
     player_pos: Vec2,
     shoot: &ShootAbility,
+    facing: &Facing,
     assets: &PlayerAssets
 ) {
     let dir = match shoot.shoot_target {
         Some((enemy_pos, _)) => {
             enemy_pos - player_pos
         },
-        None => direction_to_vec(direction_for_facing(player.facing))
+        None => direction_to_vec(direction_for_facing(*facing))
     };
 
     commands.spawn((
@@ -128,6 +130,7 @@ fn shoot_ability_update(
     mut q: Query<(
         Entity,
         &mut Player,
+        &mut Facing,
         &GlobalTransform,
         &mut ShootAbility
     ), With<Shoot>>
@@ -136,14 +139,14 @@ fn shoot_ability_update(
         return;
     }
 
-    let (entity, mut player, transform, mut shoot) = q.single_mut();
+    let (entity, mut player, mut facing, transform, mut shoot) = q.single_mut();
     let pos = transform.translation();
 
     shoot.startup.tick(time.delta());
 
     if shoot.startup.just_finished() {
         if let Some((_pos, dir)) = shoot.shoot_target {
-            change_facing_for_direction(&mut player, dir);
+            change_facing_for_direction(&mut facing, dir);
         }
 
         spawn_player_projectile(
@@ -151,6 +154,7 @@ fn shoot_ability_update(
             &player,
             Vec2::new(pos.x, pos.y),
             &shoot,
+            &facing,
             &assets
         );
 

@@ -76,16 +76,17 @@ fn run_common(
     entity: Entity,
     action: &ActionState<InputAction>,
     player: &mut Player,
+    facing: &mut Facing,
     tf: &GlobalTransform,
     ctx: &mut RapierContext
 ) {
     use crate::player::consts::PLAYER_COLLIDER_CAPSULE;
 
     let vel_x = if action.pressed(InputAction::RunLeft) {
-        player.facing = Facing::Left;
+        *facing = Facing::Left;
         -PLAYER_RUN_SPEED
     } else if action.pressed(InputAction::RunRight) {
-        player.facing = Facing::Right;
+        *facing = Facing::Right;
         PLAYER_RUN_SPEED
     } else {
         0.0
@@ -163,7 +164,8 @@ pub fn run(
         Entity,
         &ActionState<InputAction>,
         &GlobalTransform,
-        &mut Player
+        &mut Player,
+        &mut Facing
     ), (Without<Hurt>, Without<Dash>, Without<Die>)>,
     mut rapier: ResMut<RapierContext>
 ) {
@@ -171,8 +173,8 @@ pub fn run(
         return;
     }
 
-    let (e, action, tf, mut player) = q.single_mut();
-    run_common(e, &action, &mut player, tf, &mut rapier);
+    let (e, action, tf, mut player, mut facing) = q.single_mut();
+    run_common(e, &action, &mut player, &mut facing, tf, &mut rapier);
 }
 
 pub fn enter_fall(mut q: Query<&mut Player, Added<Fall>>) {

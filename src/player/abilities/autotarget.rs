@@ -116,13 +116,13 @@ pub fn get_closest_target(
     }
 }
 
-pub fn change_facing_for_direction(player: &mut Player, dir: AttackDirection) {
+pub fn change_facing_for_direction(facing: &mut Facing, dir: AttackDirection) {
     match dir {
         AttackDirection::Left | AttackDirection::DownLeft | AttackDirection::UpLeft => {
-            player.facing = Facing::Left
+            *facing = Facing::Left
         },
         AttackDirection::Right | AttackDirection::DownRight | AttackDirection::UpRight => {
-            player.facing = Facing::Right
+            *facing = Facing::Right
         },
         _ => {}
     }

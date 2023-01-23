@@ -13,7 +13,7 @@ use crate::entity_states::Die;
 use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_direction, direction_for_facing, get_closest_target};
 use crate::player::consts::SLASH_LEVELS;
 use crate::player::state_machine::Slash;
-use crate::util::quat_rot2d_deg;
+use crate::util::{Facing, quat_rot2d_deg};
 use crate::anim::Animator;
 
 // MAIN
@@ -103,6 +103,7 @@ fn slash_ability_trigger(
     mut q: Query<(
         Entity,
         &mut Player,
+        &mut Facing,
         &mut SlashAbility
     ), (Added<Slash>, Without<Die>)>,
     transforms: Query<&GlobalTransform>,
@@ -113,7 +114,7 @@ fn slash_ability_trigger(
         return;
     }
 
-    let (entity, mut player, mut slash) = q.single_mut();
+    let (entity, mut player, mut facing, mut slash) = q.single_mut();
 
     slash.cd.reset();
     slash.dur.reset();
@@ -128,10 +129,10 @@ fn slash_ability_trigger(
     ) {
         b
     } else {
-        direction_for_facing(player.facing)
+        direction_for_facing(*facing)
     };
 
-    change_facing_for_direction(&mut player, direction);
+    change_facing_for_direction(&mut facing, direction);
     let (tf, flip) = transform_for_direction(direction);
 
     commands.entity(entity).with_children(|parent| {

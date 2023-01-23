@@ -34,19 +34,15 @@ use crate::anim::Animator;
 
 #[derive(Component, Clone, Reflect)]
 pub struct Boss {
-    pub grounded: bool,
     pub vulnerability_timer: Timer,
     pub move_index: usize,
-    pub facing: Facing
 }
 
 impl Default for Boss {
     fn default() -> Self {
         Self {
-            grounded: false,
             vulnerability_timer: Timer::from_seconds(8.0, TimerMode::Once),
             move_index: 0,
-            facing: Facing::Right
         }
     }
 }
@@ -64,6 +60,7 @@ impl Boss {
 #[derive(Bundle, Clone)]
 pub struct BossBundle {
     pub boss: Boss,
+    pub facing: Facing,
     pub stage: BossStage,
     pub config: BossConfig,
 
@@ -122,6 +119,7 @@ impl BossBundle {
         Self {
             immunity: Immunity::default(),
             config: BossConfig::default(),
+            facing: Facing::default(),
             boss: Boss::default(),
             stage: BossStage::Waiting,
             enemy: Enemy::default(),
@@ -200,12 +198,12 @@ impl Plugin for BossPlugin {
 
 
 pub fn print_stage(
-    q: Query<(&Boss, &BossStage)>
+    q: Query<(&Boss, &BossStage, &Facing)>
 ) {
-    for (boss, stage)in q.iter() {
+    for (boss, stage, facing) in q.iter() {
         screen_print!(
-            "boss stage: {:?}, current move: {:?}",
-            stage, boss.current_move()
+            "boss stage: {:?}, current move: {:?}, facing: {:?}",
+            stage, boss.current_move(), facing
         );
     }
 }
@@ -230,13 +228,5 @@ pub fn boss_got_hurt(
         }
 
         hurt.hit_event = None;
-    }
-}
-
-pub fn boss_set_grounded(
-    mut q: Query<(&mut Boss, &KinematicCharacterControllerOutput)>
-) {
-    for (mut boss, cc_out) in q.iter_mut() {
-        boss.grounded = cc_out.grounded;
     }
 }

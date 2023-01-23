@@ -14,7 +14,7 @@ use crate::{
 use crate::coin::drops::CoinHolder;
 use crate::combat::{AttackStrength, ColliderAttackBundle, Immunity, ProjectileAttack, ProjectileAttackBundle};
 use crate::enemies::stats::{CustomEnemyStats, EnemyStats};
-use crate::util::deg_to_rad;
+use crate::util::{deg_to_rad, Facing};
 use crate::anim::Animator;
 
 
@@ -74,6 +74,7 @@ impl PumpkinEnemyBundle {
     pub fn from_assets(assets: &PumpkinEnemyAssets) -> Self {
         PumpkinEnemyBundle {
             enemy: EnemyBundle {
+                facing: Facing::default(),
                 immunity: Immunity::default(),
                 coins: CoinHolder::default(),
                 anim: Animator::new(assets.anims["IDLE"].clone()),

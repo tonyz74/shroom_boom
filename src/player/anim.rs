@@ -60,7 +60,7 @@ fn anim_idle(
 
 fn anim_crouch(
     anims: Res<PlayerAssets>,
-     mut q: Query<Entity, (With<Player>, Added<Crouch>)>,
+    mut q: Query<Entity, (With<Player>, Added<Crouch>)>,
     mut evw: EventWriter<AnimationChangeEvent>
 ) {
     if q.is_empty() {

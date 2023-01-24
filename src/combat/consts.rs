@@ -4,7 +4,7 @@ use bevy::prelude::*;
 pub const EXPLOSION_DIAMETER: f32 = 64.0;
 pub const EXPLOSION_RADIUS: f32 = EXPLOSION_DIAMETER / 2.0;
 pub const EXPLOSION_DURATION: f32 = 0.52;
-pub const EXPLOSION_EFFECTIVE_DURATION: f32 = 0.28;
+pub const EXPLOSION_EFFECTIVE_DURATION: f32 = 0.16;
 
 pub const SPORE_CLOUD_SIZE: Vec2 = Vec2::splat(32.0);
 pub const SPORE_CLOUD_DURATION: f32 = 8.0;

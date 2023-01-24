@@ -21,6 +21,7 @@ use crate::pathfind::grid::register_pathfinding_grid;
 
 use crate::state::GameState;
 use crate::player::Player;
+use crate::util::timer_tick_to_finish;
 
 pub struct PathfindingPlugin;
 
@@ -140,6 +141,9 @@ pub fn pathfind_track_player(
             });
 
             patrol.lost_target = false;
+            timer_tick_to_finish(&mut patrol.lose_notice_timer);
+            timer_tick_to_finish(&mut patrol.patrol_timer);
+            timer_tick_to_finish(&mut patrol.patrol_pause_timer);
         }
 
         pathfinder.target = Some(player_pos);

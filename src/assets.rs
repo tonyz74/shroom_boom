@@ -81,14 +81,27 @@ impl FlowerEnemyAssets {
         mut assets: ResMut<FlowerEnemyAssets>,
     ) {
         const SIZE: Vec2 = Vec2::new(32., 32.);
-        let sheet = asset_server.load("art/enemies/flower/Flower-Sheet.png");
+        let sheet = asset_server.load("art/enemies/Flower-Sheet.png");
+
+        let mut anims = HashMap::new();
+
 
         // IDLE
-
-        let idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 4, 1, None, None);
-
+        let idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 2, 1, None, None);
         let idle_handle = texture_atlases.add(idle_atlas);
-        assets.anims = HashMap::from([("IDLE".to_string(), Animation::new(idle_handle, 0.1))]);
+        anims.insert("IDLE".to_string(), Animation::new(idle_handle, 0.75));
+
+        // RUN
+        let move_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, Some(Vec2::new(2.0, 0.0) * SIZE));
+        let move_handle = texture_atlases.add(move_atlas);
+        anims.insert("MOVE".to_string(), Animation::new(move_handle, 0.1));
+
+        // DETONATE
+        let detonate_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, Some(Vec2::new(9.0, 0.0) * SIZE));
+        let detonate_handle = texture_atlases.add(detonate_atlas);
+        anims.insert("DETONATE".to_string(), Animation::new(detonate_handle, 0.1));
+
+        assets.anims = anims;
     }
 }
 

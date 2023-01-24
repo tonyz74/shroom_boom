@@ -1,5 +1,6 @@
 pub mod stats;
 pub mod state_machine;
+mod anim;
 
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -15,6 +16,7 @@ use crate::combat::{AttackStrength, ColliderAttackBundle, Immunity};
 use crate::enemies::flower::state_machine::register_flower_enemy_state_machine;
 use crate::enemies::stats::EnemyStats;
 use crate::anim::Animator;
+use crate::enemies::flower::anim::register_flower_enemy_animations;
 use crate::util::Facing;
 
 pub struct FlowerEnemyPlugin;
@@ -22,6 +24,7 @@ pub struct FlowerEnemyPlugin;
 impl Plugin for FlowerEnemyPlugin {
     fn build(&self, app: &mut App) {
         register_flower_enemy_state_machine(app);
+        register_flower_enemy_animations(app);
     }
 }
 
@@ -35,7 +38,7 @@ impl Default for FlowerEnemy {
     fn default() -> Self {
         Self {
             explosion_power: 0,
-            countdown: Timer::from_seconds(0.5, TimerMode::Once)
+            countdown: Timer::from_seconds(0.65, TimerMode::Once)
         }
     }
 }
@@ -54,7 +57,7 @@ impl FlowerEnemyBundle {
         ColliderAttackBundle {
             combat_layer: CombatLayerMask::ENEMY,
             strength: AttackStrength::new(collision_dmg),
-            ..ColliderAttackBundle::from_size(Vec2::new(24.0, 24.0))
+            ..ColliderAttackBundle::from_size(Vec2::new(36.0, 36.0))
         }
     }
 
@@ -92,7 +95,7 @@ impl FlowerEnemyBundle {
 
                 sprite_sheet: SpriteSheetBundle {
                     sprite: TextureAtlasSprite {
-                        custom_size: Some(Vec2::new(48.0, 48.0)),
+                        custom_size: Some(Vec2::new(72.0, 72.0)),
                         ..default()
                     },
                     texture_atlas: assets.anims["IDLE"].clone().tex,

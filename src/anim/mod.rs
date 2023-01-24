@@ -97,12 +97,18 @@ pub fn handle_animation_change_events(
 ) {
     for event in events.iter() {
         if let Ok((mut spr, mut anim, mut texture_atlas)) = animations.get_mut(event.e) {
+            if anim.anim.tex == event.new_anim.tex {
+                continue;
+            }
+
             anim.total_frames = 0;
             anim.timer.set_duration(Duration::from_secs_f32(event.new_anim.speed));
             anim.timer.reset();
 
             *texture_atlas = event.new_anim.tex.clone();
             spr.index = 0;
+
+            anim.anim = event.new_anim.clone();
         }
     }
 }

@@ -16,6 +16,7 @@ use crate::combat::{AttackStrength, ColliderAttackBundle, Immunity};
 use crate::enemies::flower::state_machine::register_flower_enemy_state_machine;
 use crate::enemies::stats::EnemyStats;
 use crate::anim::Animator;
+use crate::enemies::DeathAnimation;
 use crate::enemies::flower::anim::register_flower_enemy_animations;
 use crate::util::Facing;
 
@@ -76,10 +77,12 @@ impl FlowerEnemyBundle {
     pub fn from_assets(assets: &FlowerEnemyAssets) -> Self {
         FlowerEnemyBundle {
             enemy: EnemyBundle {
+                death_anim: DeathAnimation::new(assets.anims["DEATH"].clone()),
+                anim: Animator::new(assets.anims["IDLE"].clone()),
+
                 facing: Facing::default(),
                 immunity: Immunity::default(),
                 coins: CoinHolder::default(),
-                anim: Animator::new(assets.anims["IDLE"].clone()),
                 collider: Collider::cuboid(24.0, 24.0),
                 rigid_body: RigidBody::KinematicPositionBased,
 

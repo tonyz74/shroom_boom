@@ -43,7 +43,7 @@ impl Plugin for ShadePlugin {
             .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
             // .add_plugin(RapierDebugRenderPlugin::default())
             .add_plugin(EguiPlugin)
-            // .add_plugin(WorldInspectorPlugin::new())
+            .add_plugin(WorldInspectorPlugin::new())
             .add_plugin(EasingsPlugin)
 
             .add_plugin(bevy_debug_text_overlay::OverlayPlugin::default())

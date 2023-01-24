@@ -101,6 +101,12 @@ impl FlowerEnemyAssets {
         let detonate_handle = texture_atlases.add(detonate_atlas);
         anims.insert("DETONATE".to_string(), Animation::new(detonate_handle, 0.1));
 
+        // DEATH
+        let death_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, Some(Vec2::new(16.0, 0.0) * SIZE));
+        let death_handle = texture_atlases.add(death_atlas);
+        anims.insert("DEATH".to_string(), Animation::new(death_handle, 0.1));
+
+
         assets.anims = anims;
     }
 }

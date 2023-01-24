@@ -21,7 +21,7 @@ pub fn register_flower_enemy_animations(app: &mut App) {
 
 fn flower_enemy_idle_on_patrol_pause(
     assets: Res<FlowerEnemyAssets>,
-    q: Query<(&Enemy, Entity, &Patrol, &Animator), With<FlowerEnemy>>,
+    q: Query<(&Enemy, Entity, &Patrol, &Animator), (With<FlowerEnemy>, Without<Die>)>,
     mut ev: EventWriter<AnimationChangeEvent>
 ) {
     for (enemy, flower, patrol, animator) in q.iter() {
@@ -48,7 +48,7 @@ fn flower_enemy_idle_on_patrol_pause(
 
 fn flower_enemy_move_on_patrol_resume(
     assets: Res<FlowerEnemyAssets>,
-    q: Query<(&Enemy, Entity, &Patrol, &mut Animator), With<FlowerEnemy>>,
+    q: Query<(&Enemy, Entity, &Patrol, &mut Animator), (With<FlowerEnemy>, Without<Die>)>,
     mut ev: EventWriter<AnimationChangeEvent>
 ) {
     for (enemy, flower, patrol, animator) in q.iter() {
@@ -72,7 +72,7 @@ fn flower_enemy_move_on_patrol_resume(
 
 fn flower_enemy_move(
     assets: Res<FlowerEnemyAssets>,
-    q: Query<Entity, (Added<Move>, With<FlowerEnemy>)>,
+    q: Query<Entity, (Added<Move>, With<FlowerEnemy>, Without<Die>)>,
     mut ev: EventWriter<AnimationChangeEvent>
 ) {
     for flower in q.iter() {
@@ -85,7 +85,7 @@ fn flower_enemy_move(
 
 fn flower_enemy_detonate(
     assets: Res<FlowerEnemyAssets>,
-    q: Query<Entity, (Added<Detonate>, With<FlowerEnemy>)>,
+    q: Query<Entity, (Added<Detonate>, With<FlowerEnemy>, Without<Die>)>,
     mut ev: EventWriter<AnimationChangeEvent>
 ) {
     for flower in q.iter() {

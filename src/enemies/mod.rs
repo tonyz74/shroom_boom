@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
-use crate::anim::Animator;
+use crate::anim::{Animation, AnimationChangeEvent, Animator};
 use crate::coin::drops::CoinHolder;
 use crate::combat::{ColliderAttack, CombatLayerMask, Health, HurtAbility, Immunity};
 
@@ -22,8 +22,20 @@ pub struct Enemy {
     pub vel: Vec2,
 }
 
+#[derive(Default, Component, Clone)]
+pub struct DeathAnimation {
+    pub anim: Animation
+}
+
+impl DeathAnimation {
+    pub fn new(anim: Animation) -> Self {
+        Self { anim }
+    }
+}
+
 #[derive(Bundle)]
 pub struct EnemyBundle {
+    pub death_anim: DeathAnimation,
     pub enemy: Enemy,
     pub facing: Facing,
     pub sensor: Sensor,
@@ -38,12 +50,10 @@ pub struct EnemyBundle {
     pub health: Health,
     pub immunity: Immunity,
     pub combat_layer: CombatLayerMask,
-
     pub coins: CoinHolder,
 
     #[bundle]
     pub sprite_sheet: SpriteSheetBundle,
-
     #[bundle]
     pub path: PathfinderBundle
 }
@@ -58,6 +68,7 @@ impl Plugin for EnemyPlugin {
                 SystemSet::on_update(GameState::Gameplay)
                     .with_system(move_enemies)
                     .with_system(enemies_died)
+                    .with_system(enemies_despawn)
             );
 
         register_enemy_spawner(app);
@@ -72,15 +83,36 @@ fn move_enemies(mut q: Query<(&Enemy, &mut KinematicCharacterController)>) {
 
 fn enemies_died(
     mut collider_attacks: Query<&mut ColliderAttack>,
-    mut enemies: Query<(&Children, &mut Die), (With<Enemy>, Added<Die>)>
+    mut enemies: Query<(Entity, &Children, &DeathAnimation), (With<Enemy>, Added<Die>)>,
+    mut change_events: EventWriter<AnimationChangeEvent>
 ) {
-    for (children, mut death) in enemies.iter_mut() {
+    for (entity, children, death_anim) in enemies.iter_mut() {
         for child in children.iter() {
             if let Ok(mut collider_attacks) = collider_attacks.get_mut(*child) {
                 collider_attacks.enabled = false;
             }
         }
 
-        death.should_despawn = true;
+        change_events.send(AnimationChangeEvent {
+            e: entity,
+            new_anim: death_anim.anim.clone()
+        });
+    }
+}
+
+fn enemies_despawn(
+    texture_atlases: Res<Assets<TextureAtlas>>,
+    mut enemies: Query<(&Animator, &mut Die, &DeathAnimation), (With<Enemy>, With<Die>)>,
+) {
+    for (animator, mut die, death_animation) in enemies.iter_mut() {
+        if animator.anim.tex != death_animation.anim.tex {
+            continue;
+        }
+
+        let frame_count = texture_atlases.get(&death_animation.anim.tex).unwrap().textures.len();
+
+        if animator.total_frames == frame_count as u32 - 1 || animator.total_looped >= 1 {
+            die.should_despawn = true;
+        }
     }
 }

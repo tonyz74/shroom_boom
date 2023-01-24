@@ -20,7 +20,7 @@ use crate::bossfight::summon::{register_boss_summon, SummonAbility};
 use crate::bossfight::vulnerable::register_boss_vulnerable;
 use crate::coin::drops::CoinHolder;
 use crate::combat::{AttackStrength, ColliderAttack, ColliderAttackBundle, CombatLayerMask, Health, HurtAbility, Immunity, KnockbackModifier};
-use crate::enemies::Enemy;
+use crate::enemies::{DeathAnimation, Enemy};
 use crate::entity_states::*;
 use crate::state::GameState;
 use enraged::ATTACK_SEQUENCE;
@@ -64,9 +64,11 @@ pub struct BossBundle {
     pub stage: BossStage,
     pub config: BossConfig,
 
+    pub death_anim: DeathAnimation,
+    pub anim: Animator,
+
     pub enemy: Enemy,
     pub sensor: Sensor,
-    pub anim: Animator,
     pub collider: Collider,
     pub rigid_body: RigidBody,
     pub state_machine: StateMachine,
@@ -117,6 +119,9 @@ impl BossBundle {
         let anim = &assets.anims["WAIT"];
 
         Self {
+            anim: Animator::new(anim.clone()),
+            death_anim: DeathAnimation::new(anim.clone()),
+
             immunity: Immunity::default(),
             config: BossConfig::default(),
             facing: Facing::default(),
@@ -124,7 +129,6 @@ impl BossBundle {
             stage: BossStage::Waiting,
             enemy: Enemy::default(),
             sensor: Sensor,
-            anim: Animator::new(anim.clone()),
             collider: Collider::cuboid(BOSS_HALF_SIZE.x, BOSS_HALF_SIZE.y),
             rigid_body: RigidBody::KinematicPositionBased,
             state_machine: boss_state_machine(),

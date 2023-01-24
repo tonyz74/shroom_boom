@@ -45,6 +45,7 @@ impl Animation {
 pub struct Animator {
     pub timer: Timer,
     pub total_frames: u32,
+    pub total_looped: u32,
     pub anim: Animation,
 }
 
@@ -64,6 +65,7 @@ impl Default for Animator {
             anim: Animation::default(),
             timer: Timer::new(Duration::MAX, TimerMode::Once),
             total_frames: 0,
+            total_looped: 0,
         }
     }
 }
@@ -79,7 +81,14 @@ pub fn animation_tick(
 
         if anim.timer.just_finished() {
             let atlas = texture_atlases.get(handle).unwrap();
-            spr.index = (spr.index + 1) % atlas.textures.len();
+
+            if spr.index + 1 == atlas.textures.len() {
+                anim.total_looped += 1;
+            }
+            anim.total_frames += 1;
+
+            let new_index = (spr.index + 1) % atlas.textures.len();
+            spr.index = new_index;
         }
     }
 }
@@ -102,6 +111,7 @@ pub fn handle_animation_change_events(
             }
 
             anim.total_frames = 0;
+            anim.total_looped = 0;
             anim.timer.set_duration(Duration::from_secs_f32(event.new_anim.speed));
             anim.timer.reset();
 

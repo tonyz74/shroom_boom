@@ -118,6 +118,7 @@ impl FlowerEnemyAssets {
 #[derive(Resource, Default, Debug)]
 pub struct PumpkinEnemyAssets {
     pub map: AnimationMap,
+    pub bullet: Animation
 }
 
 impl PumpkinEnemyAssets {
@@ -147,9 +148,9 @@ impl PumpkinEnemyAssets {
         anims.insert(move_anim.name.clone(), move_anim);
 
         // SHOOT
-        let shoot_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 5, 1, None, Some(Vec2::new(9.0, 0.0) * SIZE));
+        let shoot_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 6, 1, None, Some(Vec2::new(9.0, 0.0) * SIZE));
         let shoot_handle = texture_atlases.add(shoot_atlas);
-        let shoot_anim = Animation::new("SHOOT".to_string(), shoot_handle, 0.15);
+        let shoot_anim = Animation::new("SHOOT".to_string(), shoot_handle, 0.075);
         anims.insert(shoot_anim.name.clone(), shoot_anim);
 
         // DEATH
@@ -159,6 +160,15 @@ impl PumpkinEnemyAssets {
         anims.insert(death_anim.name.clone(), death_anim);
 
         assets.map = AnimationMap::new(anims);
+
+
+
+        const BULLET_SIZE: Vec2 = Vec2::new(16., 16.);
+        let seed_sheet = asset_server.load("art/enemies/PumpkinSeed.png");
+        let seed_atlas = TextureAtlas::from_grid(seed_sheet.clone(), BULLET_SIZE, 1, 1, None, None);
+        let seed_handle = texture_atlases.add(seed_atlas);
+        let seed_anim = Animation::new("SEED".to_string(), seed_handle, 1.0);
+        assets.bullet = seed_anim;
     }
 }
 

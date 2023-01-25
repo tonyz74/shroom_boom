@@ -7,7 +7,7 @@ use crate::state::GameState;
 use crate::pathfind::{Pathfinder, WalkPathfinder, walk_pathfinder_jump_if_needed, Patrol, walk_pathfinder_get_suitable_target};
 use crate::enemies::Enemy;
 use crate::entity_states::*;
-use crate::util::Facing;
+use crate::util::{Facing, quat_rot2d_rad};
 
 #[derive(Component, Clone)]
 pub struct RangedPathfinder {
@@ -266,8 +266,10 @@ pub fn ranged_pathfinder_shoot(
                 let mut proj = ranged.projectile.clone();
                 let adjusted_pos = pos + ranged.shoot_offset;
 
-                proj.attack.vel = (target - adjusted_pos).normalize() * proj.attack.speed;
+                let vel: Vec2 = (target - adjusted_pos).normalize() * proj.attack.speed;
+                proj.attack.vel = vel;
                 proj.sprite_sheet.transform.translation = adjusted_pos.extend(5.0);
+                proj.sprite_sheet.transform.rotation = quat_rot2d_rad(-vel.angle_between(Vec2::X));
 
                 let eid = commands.spawn(proj).id();
                 (ranged.extra_spawn)(&mut commands, eid);

@@ -1322,9 +1322,9 @@
 							"defUid": 51,
 							"px": [284,244],
 							"fieldInstances": [
-								{ "__identifier": "EnemyType", "__value": "Tumbleweed", "__type": "LocalEnum.EnemyType", "__tile": null, "defUid": 54, "realEditorValues": [{
+								{ "__identifier": "EnemyType", "__value": "Pumpkin", "__type": "LocalEnum.EnemyType", "__tile": null, "defUid": 54, "realEditorValues": [{
 									"id": "V_String",
-									"params": ["Tumbleweed"]
+									"params": ["Pumpkin"]
 								}] },
 								{ "__identifier": "Entity_ref", "__value": {
 									"entityIid": "8c40ecd0-7820-11ed-ba3b-314c014df5b9",

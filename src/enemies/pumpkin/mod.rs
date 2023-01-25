@@ -17,6 +17,13 @@ use crate::combat::{AttackStrength, ColliderAttackBundle, Immunity, ProjectileAt
 use crate::enemies::stats::{CustomEnemyStats, EnemyStats};
 use crate::util::{deg_to_rad, Facing};
 use crate::anim::Animator;
+use crate::enemies::pumpkin::anim::register_pumpkin_enemy_animations;
+
+
+pub fn register_pumpkin_enemy(app: &mut App) {
+    register_pumpkin_enemy_animations(app);
+}
+
 
 
 #[derive(Component, Copy, Clone, Debug)]
@@ -109,7 +116,7 @@ impl PumpkinEnemyBundle {
 
                 path: PathfinderBundle {
                     pathfinder: Pathfinder {
-                        bb: BoundingBox::new(24.0, 24.0),
+                        bb: BoundingBox::new(32.0, 32.0),
                         ..default()
                     },
                     ..default()
@@ -127,12 +134,14 @@ impl PumpkinEnemyBundle {
             },
 
             ranged_pathfinder: RangedPathfinder {
-                shoot_startup: Timer::from_seconds(0.1, TimerMode::Once),
+                shoot_startup: Timer::from_seconds(0.3, TimerMode::Once),
                 shoot_pause: Timer::from_seconds(0.1, TimerMode::Once),
                 shoot_cooldown: Timer::from_seconds(0.0, TimerMode::Once),
 
                 max_shoot_angle: deg_to_rad(45.0),
                 max_shoot_distance: 0.0,
+
+                shoot_offset: Vec2::new(0.0, -12.0),
 
                 extra_spawn: |cmd, e| { cmd.entity(e).insert(PumpkinProjectileAttack); },
 

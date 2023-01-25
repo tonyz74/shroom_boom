@@ -32,7 +32,7 @@ impl Trigger for DetonateTrigger {
 
         if let Some(target) = pathfinder.target {
             let dist = target.distance(Vec2::new(pos.x, pos.y));
-            return dist <= 48.0;
+            return dist <= 56.0;
         }
 
         false
@@ -79,8 +79,8 @@ pub fn flower_enemy_detonate(
         indicators.send(
             Indicator {
                 region: Region {
-                    tl: Vec2::new(pos.x, pos.y) + Vec2::new(-40.0, 40.0),
-                    br: Vec2::new(pos.x, pos.y) + Vec2::new(40.0, -40.0)
+                    tl: Vec2::new(pos.x, pos.y) + Vec2::new(-60.0, 60.0),
+                    br: Vec2::new(pos.x, pos.y) + Vec2::new(60.0, -60.0)
                 },
 
                 wait_time: 0.0,
@@ -116,7 +116,7 @@ pub fn flower_enemy_tick(
                 ExplosionEvent {
                     pos: Vec2::new(pos.x, pos.y),
                     max_damage: flower.explosion_power,
-                    radius: 40.0,
+                    radius: 60.0,
                     combat_layer: CombatLayerMask::empty()
                 }
             );

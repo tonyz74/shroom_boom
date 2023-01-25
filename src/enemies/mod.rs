@@ -6,6 +6,8 @@ use crate::anim::map::AnimationMap;
 use crate::coin::drops::CoinHolder;
 use crate::combat::{ColliderAttack, CombatLayerMask, Health, HurtAbility, Immunity};
 use crate::enemies::anim::register_enemy_animations;
+use crate::enemies::flower::register_flower_enemy;
+use crate::enemies::pumpkin::register_pumpkin_enemy;
 
 use crate::enemies::spawner::register_enemy_spawner;
 use crate::entity_states::Die;
@@ -57,7 +59,6 @@ pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app
-            .add_plugin(flower::FlowerEnemyPlugin)
             .add_system_set(
                 SystemSet::on_update(GameState::Gameplay)
                     .with_system(move_enemies)
@@ -67,6 +68,9 @@ impl Plugin for EnemyPlugin {
 
         register_enemy_spawner(app);
         register_enemy_animations(app);
+
+        register_flower_enemy(app);
+        register_pumpkin_enemy(app);
     }
 }
 

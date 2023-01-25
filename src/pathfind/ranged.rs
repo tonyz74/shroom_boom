@@ -16,6 +16,7 @@ pub struct RangedPathfinder {
     pub shoot_cooldown: Timer,
 
     pub shoot_target: Option<Vec2>,
+    pub shoot_offset: Vec2,
 
     /// Maximum angle accepted (relative to the the UP vector) for a shot, in radians.
     pub max_shoot_angle: f32,
@@ -30,6 +31,7 @@ impl Default for RangedPathfinder {
             shoot_pause: Default::default(),
             shoot_startup: Default::default(),
             shoot_cooldown: Default::default(),
+            shoot_offset: Vec2::ZERO,
             shoot_target: None,
             max_shoot_angle: 360.0,
             max_shoot_distance: 256.0,
@@ -264,7 +266,9 @@ pub fn ranged_pathfinder_shoot(
                 let mut proj = ranged.projectile.clone();
 
                 proj.attack.vel = (target - pos).normalize() * proj.attack.speed;
-                proj.sprite_sheet.transform.translation = Vec3::new(pos.x, pos.y, 5.0);
+                proj.sprite_sheet.transform.translation = (
+                    Vec2::new(pos.x, pos.y) + ranged.shoot_offset
+                ).extend(5.0);
 
                 let eid = commands.spawn(proj).id();
                 (ranged.extra_spawn)(&mut commands, eid);

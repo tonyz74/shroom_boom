@@ -20,14 +20,13 @@ use crate::anim::map::AnimationMap;
 use crate::enemies::flower::anim::register_flower_enemy_animations;
 use crate::util::Facing;
 
-pub struct FlowerEnemyPlugin;
 
-impl Plugin for FlowerEnemyPlugin {
-    fn build(&self, app: &mut App) {
-        register_flower_enemy_state_machine(app);
-        register_flower_enemy_animations(app);
-    }
+
+pub fn register_flower_enemy(app: &mut App) {
+    register_flower_enemy_state_machine(app);
+    register_flower_enemy_animations(app);
 }
+
 
 #[derive(Component, Debug)]
 pub struct FlowerEnemy {
@@ -83,7 +82,7 @@ impl FlowerEnemyBundle {
                 facing: Facing::default(),
                 immunity: Immunity::default(),
                 coins: CoinHolder::default(),
-                collider: Collider::cuboid(24.0, 24.0),
+                collider: Collider::cuboid(32.0, 40.0),
                 rigid_body: RigidBody::KinematicPositionBased,
 
                 character_controller: KinematicCharacterController {
@@ -98,7 +97,7 @@ impl FlowerEnemyBundle {
 
                 sprite_sheet: SpriteSheetBundle {
                     sprite: TextureAtlasSprite {
-                        custom_size: Some(Vec2::new(72.0, 72.0)),
+                        custom_size: Some(Vec2::new(112.0, 112.0)),
                         ..default()
                     },
                     texture_atlas: assets.map["IDLE"].clone().tex,

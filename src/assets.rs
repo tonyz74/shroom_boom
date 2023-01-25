@@ -134,8 +134,11 @@ impl PumpkinEnemyAssets {
         // IDLE
         let idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 2, 1, None, None);
         let idle_handle = texture_atlases.add(idle_atlas);
-        let idle_anim = Animation::new("IDLE".to_string(), idle_handle, 0.75);
+        let idle_anim = Animation::new("IDLE".to_string(), idle_handle.clone(), 0.75);
         anims.insert(idle_anim.name.clone(), idle_anim);
+
+        let shoot_wait_anim = Animation::new("SHOOT_WAIT".to_string(), idle_handle.clone(), 0.75);
+        anims.insert(shoot_wait_anim.name.clone(), shoot_wait_anim);
 
         // MOVE
         let move_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, Some(Vec2::new(2.0, 0.0) * SIZE));
@@ -146,7 +149,7 @@ impl PumpkinEnemyAssets {
         // SHOOT
         let shoot_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 5, 1, None, Some(Vec2::new(9.0, 0.0) * SIZE));
         let shoot_handle = texture_atlases.add(shoot_atlas);
-        let shoot_anim = Animation::new("SHOOT".to_string(), shoot_handle, 0.1);
+        let shoot_anim = Animation::new("SHOOT".to_string(), shoot_handle, 0.15);
         anims.insert(shoot_anim.name.clone(), shoot_anim);
 
         // DEATH

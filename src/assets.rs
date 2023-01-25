@@ -122,16 +122,32 @@ impl PumpkinEnemyAssets {
         mut texture_atlases: ResMut<Assets<TextureAtlas>>,
         mut assets: ResMut<PumpkinEnemyAssets>,
     ) {
-        const SIZE: Vec2 = Vec2::new(16., 16.);
-        let sheet = asset_server.load("sprites/enemies/frown.png");
+        const SIZE: Vec2 = Vec2::new(32., 32.);
+        let sheet = asset_server.load("art/enemies/Pumpkin-Sheet.png");
+
+        let mut anims = HashMap::new();
 
         // IDLE
-
-        let idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
-
+        let idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 2, 1, None, None);
         let idle_handle = texture_atlases.add(idle_atlas);
+        anims.insert("IDLE".to_string(), Animation::new(idle_handle, 0.75));
 
-        assets.anims = HashMap::from([("IDLE".to_string(), Animation::new(idle_handle, 0.1))]);
+        // MOVE
+        let move_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, Some(Vec2::new(2.0, 0.0) * SIZE));
+        let move_handle = texture_atlases.add(move_atlas);
+        anims.insert("MOVE".to_string(), Animation::new(move_handle, 0.1));
+
+        // SHOOT
+        let shoot_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 5, 1, None, Some(Vec2::new(9.0, 0.0) * SIZE));
+        let shoot_handle = texture_atlases.add(shoot_atlas);
+        anims.insert("SHOOT".to_string(), Animation::new(shoot_handle, 0.1));
+
+        // DEATH
+        let death_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, Some(Vec2::new(14.0, 0.0) * SIZE));
+        let death_handle = texture_atlases.add(death_atlas);
+        anims.insert("DEATH".to_string(), Animation::new(death_handle, 0.1));
+
+        assets.anims = anims;
     }
 }
 

@@ -16,6 +16,7 @@ pub mod pumpkin;
 pub mod dandelion;
 pub mod stats;
 pub mod spawner;
+mod anim;
 
 #[derive(Default, Component, Clone, Copy)]
 pub struct Enemy {

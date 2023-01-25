@@ -1,5 +1,6 @@
 pub mod state_machine;
 pub mod stats;
+mod anim;
 
 use std::time::Duration;
 use bevy::prelude::*;
@@ -47,7 +48,7 @@ impl PumpkinEnemyBundle {
         ColliderAttackBundle {
             combat_layer: CombatLayerMask::ENEMY,
             strength: AttackStrength::new(power),
-            ..ColliderAttackBundle::from_size(Vec2::new(24.0, 24.0))
+            ..ColliderAttackBundle::from_size(Vec2::new(48.0, 32.0))
         }
     }
 
@@ -76,12 +77,12 @@ impl PumpkinEnemyBundle {
         PumpkinEnemyBundle {
             enemy: EnemyBundle {
                 anim: Animator::new(assets.anims["IDLE"].clone()),
-                death_anim: DeathAnimation::new(assets.anims["IDLE"].clone()),
+                death_anim: DeathAnimation::new(assets.anims["DEATH"].clone()),
 
                 facing: Facing::default(),
                 immunity: Immunity::default(),
                 coins: CoinHolder::default(),
-                collider: Collider::cuboid(24.0, 24.0),
+                collider: Collider::cuboid(32.0, 32.0),
                 rigid_body: RigidBody::KinematicPositionBased,
 
                 character_controller: KinematicCharacterController {
@@ -96,7 +97,7 @@ impl PumpkinEnemyBundle {
 
                 sprite_sheet: SpriteSheetBundle {
                     sprite: TextureAtlasSprite {
-                        custom_size: Some(Vec2::new(48.0, 48.0)),
+                        custom_size: Some(Vec2::new(112.0, 112.0)),
                         ..default()
                     },
                     texture_atlas: assets.anims["IDLE"].clone().tex,

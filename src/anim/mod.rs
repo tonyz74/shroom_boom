@@ -1,5 +1,9 @@
+pub mod map;
+pub mod animator;
+
 use std::time::Duration;
 use bevy::prelude::*;
+use crate::anim::map::AnimationMap;
 use crate::state::GameState;
 use crate::util::Facing;
 
@@ -22,18 +26,25 @@ impl Plugin for AnimationPlugin {
 
 #[derive(Debug, Default, Clone)]
 pub struct Animation {
+    pub name: String,
     pub tex: Handle<TextureAtlas>,
     pub speed: f32,
-    pub facing_flipped: bool
+    pub facing_flipped: bool,
 }
 
 impl Animation {
-    pub fn new(handle: Handle<TextureAtlas>, speed: f32) -> Self {
-        Self::new_flipped(handle, speed, false)
+    pub fn new(name: String, handle: Handle<TextureAtlas>, speed: f32) -> Self {
+        Self::new_flipped(name, handle, speed, false)
     }
 
-    pub fn new_flipped(handle: Handle<TextureAtlas>, speed: f32, flipped: bool) -> Self {
+    pub fn new_flipped(
+        name: String,
+        handle: Handle<TextureAtlas>,
+        speed: f32,
+        flipped: bool
+    ) -> Self {
         Animation {
+            name,
             tex: handle,
             speed,
             facing_flipped: flipped

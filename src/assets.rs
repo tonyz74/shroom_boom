@@ -1,14 +1,15 @@
 use crate::state::GameState;
+use std::sync::Arc;
 use bevy::prelude::*;
 
 use std::collections::HashMap;
 use crate::anim::Animation;
+use crate::anim::map::AnimationMap;
 use crate::ui::hud::PLAYER_HUD_DISPLAY_CHUNKS;
 
 #[derive(Resource, Default, Debug)]
 pub struct PlayerAssets {
-    pub anims: HashMap<String, Animation>,
-    pub slash_anim: Animation,
+    pub anims: AnimationMap,
 }
 
 impl PlayerAssets {
@@ -52,26 +53,26 @@ impl PlayerAssets {
 
         let crouch_handle = texture_atlases.add(crouch_atlas);
 
-        player_assets.anims = HashMap::from([
-            ("IDLE".to_string(), Animation::new(idle_handle, 0.2)),
-            ("RUN".to_string(), Animation::new(run_handle, 0.08)),
-            ("CROUCH".to_string(), Animation::new(crouch_handle, 0.4)),
-        ]);
-
         // SLASH
         let slash_sheet = asset_server.load("slash/slash longgg.png");
         let slash_atlas =
             TextureAtlas::from_grid(slash_sheet, Vec2::new(36.0, 24.0), 3, 1, None, None);
-
         let slash_handle = texture_atlases.add(slash_atlas);
 
-        player_assets.slash_anim = Animation::new(slash_handle, 0.05);
+
+        player_assets.anims = AnimationMap::new(HashMap::from([
+            ("IDLE".to_string(), Animation::new("IDLE".to_string(), idle_handle, 0.2)),
+            ("RUN".to_string(), Animation::new("RUN".to_string(), run_handle, 0.08)),
+            ("CROUCH".to_string(), Animation::new("CROUCH".to_string(), crouch_handle, 0.4)),
+            ("SLASH".to_string(), Animation::new("SLASH".to_string(), slash_handle, 0.05)),
+        ]));
+
     }
 }
 
 #[derive(Resource, Default, Debug)]
 pub struct FlowerEnemyAssets {
-    pub anims: HashMap<String, Animation>,
+    pub map: AnimationMap,
 }
 
 impl FlowerEnemyAssets {
@@ -85,35 +86,38 @@ impl FlowerEnemyAssets {
 
         let mut anims = HashMap::new();
 
-
         // IDLE
         let idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 2, 1, None, None);
         let idle_handle = texture_atlases.add(idle_atlas);
-        anims.insert("IDLE".to_string(), Animation::new(idle_handle, 0.75));
+        let idle_anim = Animation::new("IDLE".to_string(), idle_handle, 0.75);
+        anims.insert(idle_anim.name.clone(), idle_anim);
 
         // RUN
         let move_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, Some(Vec2::new(2.0, 0.0) * SIZE));
         let move_handle = texture_atlases.add(move_atlas);
-        anims.insert("MOVE".to_string(), Animation::new(move_handle, 0.1));
+        let move_anim = Animation::new("MOVE".to_string(), move_handle, 0.1);
+        anims.insert(move_anim.name.clone(), move_anim);
 
         // DETONATE
         let detonate_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, Some(Vec2::new(9.0, 0.0) * SIZE));
         let detonate_handle = texture_atlases.add(detonate_atlas);
-        anims.insert("DETONATE".to_string(), Animation::new(detonate_handle, 0.1));
+        let detonate_anim = Animation::new("DETONATE".to_string(), detonate_handle, 0.1);
+        anims.insert(detonate_anim.name.clone(), detonate_anim);
 
         // DEATH
         let death_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, Some(Vec2::new(16.0, 0.0) * SIZE));
         let death_handle = texture_atlases.add(death_atlas);
-        anims.insert("DEATH".to_string(), Animation::new(death_handle, 0.1));
+        let death_anim = Animation::new("DEATH".to_string(), death_handle, 0.1);
+        anims.insert(death_anim.name.clone(), death_anim);
 
 
-        assets.anims = anims;
+        assets.map = AnimationMap::new(anims);
     }
 }
 
 #[derive(Resource, Default, Debug)]
 pub struct PumpkinEnemyAssets {
-    pub anims: HashMap<String, Animation>,
+    pub map: AnimationMap,
 }
 
 impl PumpkinEnemyAssets {
@@ -130,30 +134,34 @@ impl PumpkinEnemyAssets {
         // IDLE
         let idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 2, 1, None, None);
         let idle_handle = texture_atlases.add(idle_atlas);
-        anims.insert("IDLE".to_string(), Animation::new(idle_handle, 0.75));
+        let idle_anim = Animation::new("IDLE".to_string(), idle_handle, 0.75);
+        anims.insert(idle_anim.name.clone(), idle_anim);
 
         // MOVE
         let move_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, Some(Vec2::new(2.0, 0.0) * SIZE));
         let move_handle = texture_atlases.add(move_atlas);
-        anims.insert("MOVE".to_string(), Animation::new(move_handle, 0.1));
+        let move_anim = Animation::new("MOVE".to_string(), move_handle, 0.07);
+        anims.insert(move_anim.name.clone(), move_anim);
 
         // SHOOT
         let shoot_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 5, 1, None, Some(Vec2::new(9.0, 0.0) * SIZE));
         let shoot_handle = texture_atlases.add(shoot_atlas);
-        anims.insert("SHOOT".to_string(), Animation::new(shoot_handle, 0.1));
+        let shoot_anim = Animation::new("SHOOT".to_string(), shoot_handle, 0.1);
+        anims.insert(shoot_anim.name.clone(), shoot_anim);
 
         // DEATH
         let death_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, Some(Vec2::new(14.0, 0.0) * SIZE));
         let death_handle = texture_atlases.add(death_atlas);
-        anims.insert("DEATH".to_string(), Animation::new(death_handle, 0.1));
+        let death_anim = Animation::new("DEATH".to_string(), death_handle, 0.1);
+        anims.insert(death_anim.name.clone(), death_anim);
 
-        assets.anims = anims;
+        assets.map = AnimationMap::new(anims);
     }
 }
 
 #[derive(Resource, Default, Debug)]
 pub struct DandelionEnemyAssets {
-    pub anims: HashMap<String, Animation>,
+    pub map: AnimationMap,
 }
 
 impl DandelionEnemyAssets {
@@ -168,10 +176,12 @@ impl DandelionEnemyAssets {
         // IDLE
 
         let idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
-
         let idle_handle = texture_atlases.add(idle_atlas);
 
-        assets.anims = HashMap::from([("IDLE".to_string(), Animation::new(idle_handle, 0.1))]);
+        assets.map = AnimationMap::new(HashMap::from([
+            ("IDLE".to_string(), Animation::new("IDLE".to_string(), idle_handle.clone(), 0.1)),
+            ("MOVE".to_string(), Animation::new("MOVE".to_string(), idle_handle.clone(), 0.1))
+        ]));
     }
 }
 
@@ -191,7 +201,7 @@ impl ExplosionAssets {
         let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, None);
 
         let atlas_handle = texture_atlases.add(atlas);
-        assets.anims = HashMap::from([("BOOM".to_string(), Animation::new(atlas_handle, 0.08))]);
+        assets.anims = HashMap::from([("BOOM".to_string(), Animation::new("BOOM".to_string(), atlas_handle, 0.08))]);
     }
 }
 
@@ -214,7 +224,7 @@ impl SporeAssets {
         let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
         let atlas_handle = texture_atlases.add(atlas);
 
-        assets.anims = HashMap::from([("SPORE".to_string(), Animation::new(atlas_handle, 0.1))]);
+        assets.anims = HashMap::from([("SPORE".to_string(), Animation::new("SPORE".to_string(), atlas_handle, 0.1))]);
     }
 }
 
@@ -236,13 +246,13 @@ impl CoinAssets {
         let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 10, 1, None, None);
         let atlas_handle = texture_atlases.add(atlas);
 
-        assets.spin = Animation::new(atlas_handle, 0.08);
+        assets.spin = Animation::new("SPIN".to_string(), atlas_handle, 0.08);
     }
 }
 
 #[derive(Resource, Default, Debug)]
 pub struct BossAssets {
-    pub anims: HashMap<String, Animation>
+    pub anims: AnimationMap
 }
 
 impl BossAssets {
@@ -257,7 +267,9 @@ impl BossAssets {
         let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
         let atlas_handle = texture_atlases.add(atlas);
 
-        assets.anims = HashMap::from([("WAIT".to_string(), Animation::new(atlas_handle, 0.1))]);
+        assets.anims = AnimationMap::new(
+            HashMap::from([("WAIT".to_string(), Animation::new("WAIT".to_string(), atlas_handle, 0.1))])
+        );
     }
 }
 

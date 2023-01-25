@@ -20,7 +20,7 @@ use crate::bossfight::summon::{register_boss_summon, SummonAbility};
 use crate::bossfight::vulnerable::register_boss_vulnerable;
 use crate::coin::drops::CoinHolder;
 use crate::combat::{AttackStrength, ColliderAttack, ColliderAttackBundle, CombatLayerMask, Health, HurtAbility, Immunity, KnockbackModifier};
-use crate::enemies::{DeathAnimation, Enemy};
+use crate::enemies::Enemy;
 use crate::entity_states::*;
 use crate::state::GameState;
 use enraged::ATTACK_SEQUENCE;
@@ -30,6 +30,7 @@ pub use crate::bossfight::config::BossConfig;
 use crate::bossfight::consts::{BOSS_FULL_SIZE, BOSS_HALF_SIZE, BOSS_HEALTH};
 use crate::util::Facing;
 use crate::anim::Animator;
+use crate::anim::map::AnimationMap;
 
 
 #[derive(Component, Clone, Reflect)]
@@ -64,8 +65,8 @@ pub struct BossBundle {
     pub stage: BossStage,
     pub config: BossConfig,
 
-    pub death_anim: DeathAnimation,
     pub anim: Animator,
+    pub anim_map: AnimationMap,
 
     pub enemy: Enemy,
     pub sensor: Sensor,
@@ -120,7 +121,7 @@ impl BossBundle {
 
         Self {
             anim: Animator::new(anim.clone()),
-            death_anim: DeathAnimation::new(anim.clone()),
+            anim_map: assets.anims.clone(),
 
             immunity: Immunity::default(),
             config: BossConfig::default(),

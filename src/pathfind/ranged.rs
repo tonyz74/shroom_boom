@@ -101,7 +101,7 @@ pub fn ranged_pathfinder_move(
         &mut WalkPathfinder,
         &mut Facing,
         &mut Patrol
-    ), (Without<Hurt>, Without<Shoot>, With<RangedPathfinder>)>,
+    ), (Without<Hurt>, Without<Shoot>, Without<Die>, With<RangedPathfinder>)>,
     rapier: Res<RapierContext>
 ) {
     let _ = rapier;

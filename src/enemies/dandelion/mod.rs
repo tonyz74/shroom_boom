@@ -11,7 +11,7 @@ use crate::{
 use crate::assets::DandelionEnemyAssets;
 use crate::coin::drops::CoinHolder;
 use crate::combat::{AttackStrength, ColliderAttackBundle, CombatLayerMask, Health, HurtAbility, Immunity};
-use crate::enemies::{DeathAnimation, Enemy};
+use crate::enemies::Enemy;
 use crate::enemies::stats::EnemyStats;
 use crate::pathfind::{util::BoundingBox, Pathfinder, PathfinderBundle};
 
@@ -52,8 +52,8 @@ impl DandelionEnemyBundle {
     pub fn from_assets(assets: &DandelionEnemyAssets) -> DandelionEnemyBundle {
         DandelionEnemyBundle {
             enemy: EnemyBundle {
-                death_anim: DeathAnimation::new(assets.anims["IDLE"].clone()),
-                anim: Animator::new(assets.anims["IDLE"].clone()),
+                anim_map: assets.map.clone(),
+                anim: Animator::new(assets.map["IDLE"].clone()),
 
                 facing: Facing::default(),
                 immunity: Immunity::default(),
@@ -75,7 +75,7 @@ impl DandelionEnemyBundle {
                         custom_size: Some(Vec2::new(48.0, 48.0)),
                         ..default()
                     },
-                    texture_atlas: assets.anims["IDLE"].clone().tex,
+                    texture_atlas: assets.map["IDLE"].clone().tex,
                     transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.0)),
                     ..default()
                 },

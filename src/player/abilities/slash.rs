@@ -150,7 +150,7 @@ fn slash_ability_trigger(
 
                     transform: tf,
 
-                    texture_atlas: assets.slash_anim.tex.clone(),
+                    texture_atlas: assets.anims["SLASH"].tex.clone(),
 
                     ..default()
                 },
@@ -166,7 +166,7 @@ fn slash_ability_trigger(
 
                 combat_layer: CombatLayerMask::PLAYER,
 
-                anim: Animator::new(assets.slash_anim.clone()),
+                anim: Animator::new(assets.anims["SLASH"].clone()),
 
                 ..MeleeAttackBundle::from_size(Vec2::new(72.0, 48.0))
             }

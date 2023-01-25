@@ -16,7 +16,7 @@ use crate::combat::{AttackStrength, ColliderAttackBundle, Immunity};
 use crate::enemies::flower::state_machine::register_flower_enemy_state_machine;
 use crate::enemies::stats::EnemyStats;
 use crate::anim::Animator;
-use crate::enemies::DeathAnimation;
+use crate::anim::map::AnimationMap;
 use crate::enemies::flower::anim::register_flower_enemy_animations;
 use crate::util::Facing;
 
@@ -77,8 +77,8 @@ impl FlowerEnemyBundle {
     pub fn from_assets(assets: &FlowerEnemyAssets) -> Self {
         FlowerEnemyBundle {
             enemy: EnemyBundle {
-                death_anim: DeathAnimation::new(assets.anims["DEATH"].clone()),
-                anim: Animator::new(assets.anims["IDLE"].clone()),
+                anim_map: assets.map.clone(),
+                anim: Animator::new(assets.map["IDLE"].clone()),
 
                 facing: Facing::default(),
                 immunity: Immunity::default(),
@@ -101,7 +101,7 @@ impl FlowerEnemyBundle {
                         custom_size: Some(Vec2::new(72.0, 72.0)),
                         ..default()
                     },
-                    texture_atlas: assets.anims["IDLE"].clone().tex,
+                    texture_atlas: assets.map["IDLE"].clone().tex,
                     transform: Transform::from_translation(Vec3::new(0.0, 0.0, 1.0)),
                     ..default()
                 },

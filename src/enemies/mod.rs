@@ -2,8 +2,10 @@ use bevy::prelude::*;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
 use crate::anim::{Animation, AnimationChangeEvent, Animator};
+use crate::anim::map::AnimationMap;
 use crate::coin::drops::CoinHolder;
 use crate::combat::{ColliderAttack, CombatLayerMask, Health, HurtAbility, Immunity};
+use crate::enemies::anim::register_enemy_animations;
 
 use crate::enemies::spawner::register_enemy_spawner;
 use crate::entity_states::Die;
@@ -23,24 +25,15 @@ pub struct Enemy {
     pub vel: Vec2,
 }
 
-#[derive(Default, Component, Clone)]
-pub struct DeathAnimation {
-    pub anim: Animation
-}
-
-impl DeathAnimation {
-    pub fn new(anim: Animation) -> Self {
-        Self { anim }
-    }
-}
-
 #[derive(Bundle)]
 pub struct EnemyBundle {
-    pub death_anim: DeathAnimation,
     pub enemy: Enemy,
     pub facing: Facing,
     pub sensor: Sensor,
+
     pub anim: Animator,
+    pub anim_map: AnimationMap,
+
     pub collider: Collider,
     pub rigid_body: RigidBody,
     pub state_machine: StateMachine,
@@ -73,6 +66,7 @@ impl Plugin for EnemyPlugin {
             );
 
         register_enemy_spawner(app);
+        register_enemy_animations(app);
     }
 }
 
@@ -84,10 +78,10 @@ fn move_enemies(mut q: Query<(&Enemy, &mut KinematicCharacterController)>) {
 
 fn enemies_died(
     mut collider_attacks: Query<&mut ColliderAttack>,
-    mut enemies: Query<(Entity, &Children, &DeathAnimation), (With<Enemy>, Added<Die>)>,
+    mut enemies: Query<(Entity, &Children, &AnimationMap), (With<Enemy>, Added<Die>)>,
     mut change_events: EventWriter<AnimationChangeEvent>
 ) {
-    for (entity, children, death_anim) in enemies.iter_mut() {
+    for (entity, children, anims) in enemies.iter_mut() {
         for child in children.iter() {
             if let Ok(mut collider_attacks) = collider_attacks.get_mut(*child) {
                 collider_attacks.enabled = false;
@@ -96,22 +90,21 @@ fn enemies_died(
 
         change_events.send(AnimationChangeEvent {
             e: entity,
-            new_anim: death_anim.anim.clone()
+            new_anim: anims["DEATH"].clone()
         });
     }
 }
 
 fn enemies_despawn(
     texture_atlases: Res<Assets<TextureAtlas>>,
-    mut enemies: Query<(&Animator, &mut Die, &DeathAnimation), (With<Enemy>, With<Die>)>,
+    mut enemies: Query<(&Animator, &mut Die, &AnimationMap), (With<Enemy>, With<Die>)>,
 ) {
-    for (animator, mut die, death_animation) in enemies.iter_mut() {
-        if animator.anim.tex != death_animation.anim.tex {
+    for (animator, mut die, anims) in enemies.iter_mut() {
+        if animator.anim.name != "DEATH" {
             continue;
         }
 
-        let frame_count = texture_atlases.get(&death_animation.anim.tex).unwrap().textures.len();
-
+        let frame_count = texture_atlases.get(&anims["DEATH"].tex).unwrap().textures.len();
         if animator.total_frames == frame_count as u32 - 1 || animator.total_looped >= 1 {
             die.should_despawn = true;
         }

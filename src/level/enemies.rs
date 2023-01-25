@@ -72,6 +72,7 @@ fn spawn_enemies(
             "Flower" => EnemyType::Flower,
             "Pumpkin" => EnemyType::Pumpkin,
             "Dandelion" => EnemyType::Dandelion,
+            "Tumbleweed" => EnemyType::Tumbleweed,
             _ => panic!()
         };
         

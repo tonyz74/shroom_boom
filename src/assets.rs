@@ -200,6 +200,46 @@ impl DandelionEnemyAssets {
     }
 }
 
+
+
+#[derive(Resource, Default, Debug)]
+pub struct TumbleweedEnemyAssets {
+    pub map: AnimationMap,
+}
+
+impl TumbleweedEnemyAssets {
+    pub fn load(
+        asset_server: Res<AssetServer>,
+        mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+        mut assets: ResMut<TumbleweedEnemyAssets>,
+    ) {
+        const SIZE: Vec2 = Vec2::new(32., 32.);
+        let sheet = asset_server.load("art/enemies/Tumbleweed-Sheet.png");
+
+        let mut anims = HashMap::new();
+
+        // IDLE
+        let idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 2, 1, None, None);
+        let idle_handle = texture_atlases.add(idle_atlas);
+        let idle_anim = Animation::new("IDLE".to_string(), idle_handle.clone(), 0.75);
+        anims.insert(idle_anim.name.clone(), idle_anim);
+
+        // MOVE
+        let move_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 4, 1, None, Some(Vec2::new(2.0, 0.0) * SIZE));
+        let move_handle = texture_atlases.add(move_atlas);
+        let move_anim = Animation::new("MOVE".to_string(), move_handle.clone(), 0.1);
+        anims.insert(move_anim.name.clone(), move_anim);
+
+        // DEATH
+        let death_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, Some(Vec2::new(6.0, 0.0) * SIZE));
+        let death_handle = texture_atlases.add(death_atlas);
+        let death_anim = Animation::new("DEATH".to_string(), death_handle.clone(), 0.1);
+        anims.insert(death_anim.name.clone(), death_anim);
+
+        assets.map = AnimationMap::new(anims);
+    }
+}
+
 #[derive(Resource, Default, Debug)]
 pub struct ExplosionAssets {
     pub anims: HashMap<String, Animation>
@@ -402,6 +442,7 @@ impl Plugin for AssetLoaderPlugin {
             .init_resource::<FlowerEnemyAssets>()
             .init_resource::<PumpkinEnemyAssets>()
             .init_resource::<DandelionEnemyAssets>()
+            .init_resource::<TumbleweedEnemyAssets>()
             .init_resource::<ExplosionAssets>()
             .init_resource::<SporeAssets>()
             .init_resource::<CoinAssets>()
@@ -418,6 +459,7 @@ impl Plugin for AssetLoaderPlugin {
                     .with_system(FlowerEnemyAssets::load)
                     .with_system(PumpkinEnemyAssets::load)
                     .with_system(DandelionEnemyAssets::load)
+                    .with_system(TumbleweedEnemyAssets::load)
                     .with_system(ExplosionAssets::load)
                     .with_system(SporeAssets::load)
                     .with_system(CoinAssets::load)

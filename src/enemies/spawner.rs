@@ -1,6 +1,6 @@
 use std::ops::Range;
 use bevy::prelude::*;
-use crate::assets::{DandelionEnemyAssets, FlowerEnemyAssets, PumpkinEnemyAssets};
+use crate::assets::{DandelionEnemyAssets, FlowerEnemyAssets, PumpkinEnemyAssets, TumbleweedEnemyAssets};
 use crate::enemies::dandelion::DandelionEnemyBundle;
 use crate::enemies::dandelion::stats::{DANDELION_EASY, DANDELION_HARD, DANDELION_MEDIUM};
 use crate::enemies::EnemyBundle;
@@ -8,6 +8,8 @@ use crate::enemies::flower::FlowerEnemyBundle;
 use crate::enemies::flower::stats::{FLOWER_EASY, FLOWER_HARD, FLOWER_MEDIUM};
 use crate::enemies::pumpkin::PumpkinEnemyBundle;
 use crate::enemies::pumpkin::stats::{PUMPKIN_EASY, PUMPKIN_HARD, PUMPKIN_MEDIUM};
+use crate::enemies::tumbleweed::stats::{TUMBLEWEED_EASY, TUMBLEWEED_HARD, TUMBLEWEED_MEDIUM};
+use crate::enemies::tumbleweed::TumbleweedEnemyBundle;
 use crate::pathfind::Region;
 
 #[derive(Copy, Clone, Debug, Component)]
@@ -64,7 +66,8 @@ fn spawn_enemies(
 
     flower_assets: Res<FlowerEnemyAssets>,
     pumpkin_assets: Res<PumpkinEnemyAssets>,
-    dandelion_assets: Res<DandelionEnemyAssets>
+    dandelion_assets: Res<DandelionEnemyAssets>,
+    tumbleweed_assets: Res<TumbleweedEnemyAssets>
 ) {
     for enemy in events.iter() {
         let id = match enemy.ty {
@@ -105,6 +108,20 @@ fn spawn_enemies(
                 }.randomized(enemy.rand_range.clone());
 
                 PumpkinEnemyBundle::spawn_with_stats(&mut commands, bundle, stats)
+            },
+
+
+            EnemyType::Tumbleweed => {
+                let mut bundle = TumbleweedEnemyBundle::from_assets(&tumbleweed_assets);
+                configure_enemy(&mut bundle.enemy, &enemy);
+
+                let stats = match enemy.difficulty {
+                    EnemyDifficulty::Easy => TUMBLEWEED_EASY,
+                    EnemyDifficulty::Medium => TUMBLEWEED_MEDIUM,
+                    EnemyDifficulty::Hard => TUMBLEWEED_HARD
+                }.randomized(enemy.rand_range.clone());
+
+                TumbleweedEnemyBundle::spawn_with_stats(&mut commands, bundle, stats)
             },
 
             _ => {

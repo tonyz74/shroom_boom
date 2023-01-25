@@ -18,6 +18,8 @@ use crate::util::Facing;
 pub mod flower;
 pub mod pumpkin;
 pub mod dandelion;
+pub mod tumbleweed;
+
 pub mod stats;
 pub mod spawner;
 mod anim;

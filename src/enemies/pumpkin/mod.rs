@@ -134,14 +134,14 @@ impl PumpkinEnemyBundle {
             },
 
             ranged_pathfinder: RangedPathfinder {
-                shoot_startup: Timer::from_seconds(0.3, TimerMode::Once),
+                shoot_startup: Timer::from_seconds(0.4, TimerMode::Once),
                 shoot_pause: Timer::from_seconds(0.1, TimerMode::Once),
                 shoot_cooldown: Timer::from_seconds(0.0, TimerMode::Once),
 
                 max_shoot_angle: deg_to_rad(45.0),
                 max_shoot_distance: 0.0,
 
-                shoot_offset: Vec2::new(0.0, -12.0),
+                shoot_offset: Vec2::new(0.0, -6.0),
 
                 extra_spawn: |cmd, e| { cmd.entity(e).insert(PumpkinProjectileAttack); },
 

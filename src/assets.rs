@@ -173,18 +173,30 @@ impl DandelionEnemyAssets {
         mut texture_atlases: ResMut<Assets<TextureAtlas>>,
         mut assets: ResMut<DandelionEnemyAssets>,
     ) {
-        const SIZE: Vec2 = Vec2::new(16., 16.);
-        let sheet = asset_server.load("sprites/enemies/frown.png");
+        const SIZE: Vec2 = Vec2::new(32., 32.);
+        let sheet = asset_server.load("art/enemies/Dandelion-Sheet.png");
+        
+        let mut anims = HashMap::new();
 
         // IDLE
-
-        let idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
+        let idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 2, 1, None, None);
         let idle_handle = texture_atlases.add(idle_atlas);
+        let idle_anim = Animation::new("IDLE".to_string(), idle_handle.clone(), 0.75);
+        anims.insert(idle_anim.name.clone(), idle_anim);
+        
+        // MOVE
+        let move_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 9, 1, None, Some(Vec2::new(2.0, 0.0) * SIZE));
+        let move_handle = texture_atlases.add(move_atlas);
+        let move_anim = Animation::new("MOVE".to_string(), move_handle.clone(), 0.1);
+        anims.insert(move_anim.name.clone(), move_anim);
+        
+        // DEATH 
+        let death_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, Some(Vec2::new(11.0, 0.0) * SIZE));
+        let death_handle = texture_atlases.add(death_atlas);
+        let death_anim = Animation::new("DEATH".to_string(), death_handle.clone(), 0.1);
+        anims.insert(death_anim.name.clone(), death_anim);
 
-        assets.map = AnimationMap::new(HashMap::from([
-            ("IDLE".to_string(), Animation::new("IDLE".to_string(), idle_handle.clone(), 0.1)),
-            ("MOVE".to_string(), Animation::new("MOVE".to_string(), idle_handle.clone(), 0.1))
-        ]));
+        assets.map = AnimationMap::new(anims);
     }
 }
 

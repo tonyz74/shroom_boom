@@ -72,7 +72,7 @@ impl DandelionEnemyBundle {
 
                 sprite_sheet: SpriteSheetBundle {
                     sprite: TextureAtlasSprite {
-                        custom_size: Some(Vec2::new(48.0, 48.0)),
+                        custom_size: Some(Vec2::new(56.0, 56.0)),
                         ..default()
                     },
                     texture_atlas: assets.map["IDLE"].clone().tex,

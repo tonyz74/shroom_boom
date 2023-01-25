@@ -202,6 +202,14 @@ pub fn fly_pathfinder_chase(
                 }
             ).is_none() {
                 enemy.vel = (adjusted - self_pos).normalize() * pathfinder.speed;
+
+                let dir_x = Vec2::new(enemy.vel.x, 0.0).normalize_or_zero().x;
+                if dir_x < 0.0 {
+                    *facing = Facing::Left;
+                } else if dir_x > 0.0 {
+                    *facing = Facing::Right;
+                }
+
                 continue;
             }
 

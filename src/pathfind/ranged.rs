@@ -264,11 +264,10 @@ pub fn ranged_pathfinder_shoot(
 
             if let Some(target) = ranged.shoot_target {
                 let mut proj = ranged.projectile.clone();
+                let adjusted_pos = pos + ranged.shoot_offset;
 
-                proj.attack.vel = (target - pos).normalize() * proj.attack.speed;
-                proj.sprite_sheet.transform.translation = (
-                    Vec2::new(pos.x, pos.y) + ranged.shoot_offset
-                ).extend(5.0);
+                proj.attack.vel = (target - adjusted_pos).normalize() * proj.attack.speed;
+                proj.sprite_sheet.transform.translation = adjusted_pos.extend(5.0);
 
                 let eid = commands.spawn(proj).id();
                 (ranged.extra_spawn)(&mut commands, eid);

@@ -30,7 +30,8 @@ pub fn boss_state_machine() -> StateMachine {
         .trans::<Idle>(HurtTrigger, Hurt)
 
         .trans::<Idle>(SummonTrigger, Summon)
-        .trans::<Summon>(VulnerableTrigger, Vulnerable)
+        .trans::<Summon>(VulnerableTrigger, BeginVulnerable)
+        .trans::<BeginVulnerable>(AlwaysTrigger, Vulnerable)
         .trans::<Vulnerable>(SummonTrigger, Summon)
 
         .trans::<Vulnerable>(HurtTrigger, Hurt)
@@ -100,6 +101,9 @@ pub struct Vulnerable;
 
 #[derive(Component, Copy, Clone, Reflect)]
 pub struct BeginEnraged;
+
+#[derive(Component, Copy, Clone, Reflect)]
+pub struct BeginVulnerable;
 
 #[derive(Component, Copy, Clone, Reflect)]
 pub struct PickNextMove;

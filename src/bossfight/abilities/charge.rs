@@ -98,7 +98,7 @@ fn charge_update(
         _ => panic!()
     };
 
-    if (target - pos.x).abs() <= 2.0 {
+    if (target - pos.x).abs() <= 8.0 {
         commands.entity(entity).insert(Done::Success);
 
         for child in children {

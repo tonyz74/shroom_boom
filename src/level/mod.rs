@@ -14,13 +14,22 @@ pub mod shop;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
-use crate::level::consts::TILE_SIZE;
+use crate::level::consts::{RENDERED_TILE_SIZE, TILE_SIZE};
+use crate::pathfind::Region;
 use crate::state::GameState;
 
 #[derive(Resource, Default, Copy, Clone)]
 pub struct LevelInfo {
-    pub cell_size: Vec2,
     pub grid_size: Vec2,
+}
+
+impl LevelInfo {
+    pub fn bounds(&self) -> Region {
+        Region {
+            tl: Vec2::new(0.0, self.grid_size.y * RENDERED_TILE_SIZE),
+            br: Vec2::new(self.grid_size.x * RENDERED_TILE_SIZE, 0.0)
+        }
+    }
 }
 
 #[derive(Component, Default)]
@@ -114,9 +123,7 @@ pub fn refresh_level(
     }
 
     let lvl = assets.get(levels.single()).unwrap().get_level(&sel).unwrap();
-
-    lvl_info.cell_size = Vec2::new(TILE_SIZE, TILE_SIZE);
-    lvl_info.grid_size = IVec2::new(lvl.px_wid, lvl.px_hei).as_vec2() / lvl_info.cell_size;
+    lvl_info.grid_size = IVec2::new(lvl.px_wid, lvl.px_hei).as_vec2() / TILE_SIZE;
 }
 
 pub fn reconfigure_region_to_fit_level(
@@ -124,7 +131,7 @@ pub fn reconfigure_region_to_fit_level(
     lvl_info: Res<LevelInfo>
 ) {
     for (mut region, mut collider) in region.iter_mut() {
-        let half_extents = (lvl_info.grid_size * lvl_info.cell_size) / 2.0;
+        let half_extents = (lvl_info.grid_size * TILE_SIZE) / 2.0;
         region.translation = Vec3::new(half_extents.x, half_extents.y, 0.0);
         *collider = Collider::cuboid(half_extents.x + 10.0, half_extents.y + 10.0);
     }

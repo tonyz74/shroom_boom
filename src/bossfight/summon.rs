@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::Collider;
 use rand::prelude::*;
 use crate::bossfight::{Boss, BossConfig};
 use crate::bossfight::consts::{BOSS_BOOM_PARTITION_SIZE, BOSS_SUMMON_COUNT_EASY, BOSS_SUMMON_COUNT_HARD, BOSS_SUMMON_COUNT_MEDIUM};
@@ -54,6 +55,9 @@ pub fn register_boss_summon(app: &mut App) {
             .with_system(enter_summon)
             .with_system(summon_update)
             .with_system(summon_enemies)
+
+            .with_system(reset_escaped_enemies)
+            .with_system(fix_summoned_enemy_colliders)
     );
 }
 
@@ -193,5 +197,32 @@ fn summon_enemies(
             commands.entity(e).insert(FinishedSummoning);
         }
     }
+}
 
+fn reset_escaped_enemies(
+    mut summons: Query<(&mut Transform, &GlobalTransform), With<SummonedEnemy>>,
+    lvl_info: Res<LevelInfo>
+) {
+    for (mut transform, global_tf) in summons.iter_mut() {
+        let pos = global_tf.translation();
+
+        if !lvl_info.bounds().contains(Vec2::new(pos.x, pos.y)) {
+            let mid = lvl_info.grid_size * RENDERED_TILE_SIZE / 2.0;
+            transform.translation.x = mid.x;
+            transform.translation.y = mid.y;
+        }
+    }
+}
+
+fn fix_summoned_enemy_colliders(
+    summons: Query<&Children, With<SummonedEnemy>>,
+    mut colliders: Query<&mut Transform, With<ColliderAttack>>
+) {
+    for children in summons.iter() {
+        for child in children.iter() {
+            if let Ok(mut tf) = colliders.get_mut(*child) {
+                tf.translation = Vec3::ZERO;
+            }
+        }
+    }
 }

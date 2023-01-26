@@ -97,7 +97,7 @@ fn start_resting(
 
             indicators.send(Indicator {
                 region,
-                wait_time: 1.5,
+                wait_time: 1.2,
                 expand_time: 0.5,
                 ..Indicator::ATTACK
             });
@@ -117,7 +117,7 @@ fn start_resting(
                             cfg.slam_base.y - BOSS_HALF_SIZE.y
                         )
                     },
-                    wait_time: 1.0,
+                    wait_time: 0.4,
                     expand_time: 0.2,
                     ..Indicator::ATTACK
                 }

@@ -337,7 +337,7 @@ impl BossAssets {
         anims.insert(idle_anim.name.to_string(), idle_anim.clone());
 
         // BOOM
-        let boom_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 12, 1, None, Some(Vec2::new(26.0, 0.0) * SIZE));
+        let boom_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 13, 1, None, Some(Vec2::new(26.0, 0.0) * SIZE));
         let boom_atlas_handle = texture_atlases.add(boom_atlas);
         let mut boom_anim = Animation::new("BOOM".to_string(), boom_atlas_handle, 0.1);
         boom_anim.repeating = false;
@@ -372,17 +372,32 @@ impl BossAssets {
         anims.insert(fly_anim.name.to_string(), fly_anim.clone()); 
         
         // LEAP
-        let leap_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 3, 1, None, Some(Vec2::new(21.0, 0.0) * SIZE));
+        let leap_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 4, 1, None, Some(Vec2::new(21.0, 0.0) * SIZE));
         let leap_atlas_handle = texture_atlases.add(leap_atlas);
         let mut leap_anim = Animation::new("LEAP".to_string(), leap_atlas_handle, 0.1);
         leap_anim.repeating = false;
         anims.insert(leap_anim.name.to_string(), leap_anim.clone());
 
         // DEATH
-        let death_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, Some(Vec2::new(38.0, 0.0) * SIZE));
+        let death_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, Some(Vec2::new(39.0, 0.0) * SIZE));
         let death_atlas_handle = texture_atlases.add(death_atlas);
         let death_anim = Animation::new("DEATH".to_string(), death_atlas_handle, 0.1);
         anims.insert(death_anim.name.to_string(), death_anim.clone());
+
+
+        // SUMMON
+        let summon_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 6, 1, None, Some(Vec2::new(46.0, 0.0) * SIZE));
+        let summon_atlas_handle = texture_atlases.add(summon_atlas);
+        let mut summon_anim = Animation::new("SUMMON".to_string(), summon_atlas_handle, 0.1);
+        summon_anim.repeating = false; 
+        anims.insert(summon_anim.name.to_string(), summon_anim.clone());
+
+        // VULNERABLE
+        let vulnerable_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 3, 1, None, Some(Vec2::new(52.0, 0.0) * SIZE));
+        let vulnerable_atlas_handle = texture_atlases.add(vulnerable_atlas);
+        let mut vulnerable_anim = Animation::new("VULNERABLE".to_string(), vulnerable_atlas_handle, 0.2);
+        vulnerable_anim.repeating = false;
+        anims.insert(vulnerable_anim.name.to_string(), vulnerable_anim.clone());
 
         assets.anims = AnimationMap::new(anims);
     }

@@ -8,6 +8,7 @@ use crate::combat::Immunity;
 use crate::enemies::Enemy;
 use crate::player::Player;
 use crate::state::GameState;
+use crate::util::{Facing, FacingX};
 
 #[derive(Component, Debug, Clone)]
 pub struct HoverAbility;
@@ -53,6 +54,7 @@ fn hover_update(
         &Boss,
         &mut Immunity,
         &mut Enemy,
+        &mut Facing,
         &BossConfig
     )>
 ) {
@@ -62,7 +64,7 @@ fn hover_update(
 
 
     let player_pos = p.single().translation();
-    let (entity, boss_tf, boss, mut immunity, mut enemy, cfg) = q.single_mut();
+    let (entity, boss_tf, boss, mut immunity, mut enemy, mut facing, cfg) = q.single_mut();
     let boss_pos = boss_tf.translation();
 
     if boss.current_move() != EnragedAttackMove::Hover {
@@ -71,13 +73,19 @@ fn hover_update(
 
     let mut threshold = BOSS_HOVER_CMP_THRESHOLD;
 
-    if player_pos.x < cfg.charge_left.x + BOSS_HALF_SIZE.x
-        || player_pos.x > cfg.charge_right.x + BOSS_HALF_SIZE.x {
-        threshold += BOSS_HALF_SIZE.x;
+    let diff = player_pos.x - boss_pos.x;
+    enemy.vel.x = Vec2::new(diff, 0.0).normalize_or_zero().x * BOSS_HOVER_SPEED;
+
+    if enemy.vel.x < 0.0 {
+        facing.x = FacingX::Left;
+    } else if enemy.vel.x > 0.0 {
+        facing.x = FacingX::Right;
     }
 
-    let diff = player_pos.x - boss_pos.x;
-    enemy.vel.x = Vec2::new(diff, 0.0).normalize().x * BOSS_HOVER_SPEED;
+    if player_pos.x < cfg.charge_left.x
+        || player_pos.x > cfg.charge_right.x {
+        threshold += BOSS_HALF_SIZE.x;
+    }
 
     if diff.abs() <= threshold {
         enemy.vel = Vec2::ZERO;

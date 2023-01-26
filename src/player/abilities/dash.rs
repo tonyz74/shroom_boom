@@ -50,6 +50,7 @@ pub fn register_dash_ability(app: &mut App) {
             .with_system(dash_ability_trigger)
             .with_system(dash_ability_update)
             .with_system(dash_ability_cooldown_update)
+            .with_system(dash_ability_remove_collider)
     );
 }
 
@@ -111,6 +112,22 @@ fn dash_ability_trigger(
     } else {
         // Player already has requested direction
         player.vel.x = Vec2::new(player.vel.x, 0.0).normalize().x * dash.speed;
+    }
+}
+
+fn dash_ability_remove_collider(
+    mut p: Query<&mut ColliderAttack>,
+    q: Query<&Children, (With<Player>, Without<Dash>, Without<Die>)>
+) {
+    if q.is_empty() {
+        return;
+    }
+
+    let children = q.single();
+    for child in children.iter() {
+        if let Ok(mut atk) = p.get_mut(*child) {
+            atk.enabled = false;
+        }
     }
 }
 

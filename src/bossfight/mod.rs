@@ -11,6 +11,7 @@ mod anim;
 
 use bevy::prelude::*;
 use bevy_debug_text_overlay::screen_print;
+use bevy_ecs_ldtk::GridCoords;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
 use crate::assets::BossAssets;
@@ -175,7 +176,7 @@ impl BossBundle {
 
             sprite_sheet: SpriteSheetBundle {
                 sprite: TextureAtlasSprite {
-                    custom_size: Some(Vec2::new(512.0, 512.0)),
+                    custom_size: Some(Vec2::new(528.0, 528.0)),
                     ..default()
                 },
 
@@ -226,7 +227,6 @@ pub fn print_stage(
         );
     }
 }
-
 
 pub fn boss_start_idling(mut q: Query<&mut Enemy, (With<Boss>, Added<Idle>)>) {
     for mut enemy in q.iter_mut() {

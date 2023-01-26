@@ -5,7 +5,7 @@ use crate::bossfight::abilities::{RelocateAbility, RestAbility, SlamAbility};
 use crate::bossfight::Boss;
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::stage::BossStage::Enraged;
-use crate::bossfight::state_machine::{Boom, Hover, Relocate, Rest, Slam, Takeoff};
+use crate::bossfight::state_machine::{BeginVulnerable, Boom, Hover, Relocate, Rest, Slam, Summon, Takeoff};
 use crate::state::GameState;
 use crate::entity_states::*;
 
@@ -19,7 +19,34 @@ pub fn register_boss_animations(app: &mut App) {
             .with_system(boss_anim_early_flight)
             .with_system(boss_anim_hover)
             .with_system(boss_anim_rest)
+            .with_system(boss_anim_summon)
+            .with_system(boss_anim_vulnerable)
     );
+}
+
+
+fn boss_anim_summon(
+    q: Query<(&AnimationMap, Entity), (Added<Summon>, With<Boss>, Without<Die>)>,
+    mut ev: EventWriter<AnimationChangeEvent>
+) {
+    for (anims, boss) in q.iter() {
+        ev.send(AnimationChangeEvent {
+            e: boss,
+            new_anim: anims["SUMMON"].clone()
+        });
+    }
+}
+
+fn boss_anim_vulnerable(
+    q: Query<(&AnimationMap, Entity), (Added<BeginVulnerable>, With<Boss>, Without<Die>)>,
+    mut ev: EventWriter<AnimationChangeEvent>
+) {
+    for (anims, boss) in q.iter() {
+        ev.send(AnimationChangeEvent {
+            e: boss,
+            new_anim: anims["VULNERABLE"].clone()
+        });
+    }
 }
 
 fn boss_anim_hover(

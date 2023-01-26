@@ -128,7 +128,7 @@ fn summon_update(
             }
         }
 
-        let types = [EnemyType::Flower, EnemyType::Dandelion, EnemyType::Pumpkin];
+        let types = [EnemyType::Flower, EnemyType::Dandelion, EnemyType::Pumpkin, EnemyType::Tumbleweed];
         let rand_type = types[thread_rng().gen_range(0..types.len())];
 
         let len = summon.enemies.len();

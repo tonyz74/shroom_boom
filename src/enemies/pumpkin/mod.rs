@@ -148,6 +148,7 @@ impl PumpkinEnemyBundle {
                 projectile: ProjectileAttackBundle {
                     attack: ProjectileAttack {
                         speed: 0.0,
+                        expiration: Some(Timer::from_seconds(0.8, TimerMode::Once)),
                         ..default()
                     },
 

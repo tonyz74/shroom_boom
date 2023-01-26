@@ -326,15 +326,65 @@ impl BossAssets {
         mut texture_atlases: ResMut<Assets<TextureAtlas>>,
         mut assets: ResMut<BossAssets>,
     ) {
-        const SIZE: Vec2 = Vec2::new(128., 128.);
-        let sheet = asset_server.load("sprites/enemies/boss/waiting.png");
+        const SIZE: Vec2 = Vec2::new(64., 64.);
+        let sheet = asset_server.load("art/enemies/Shroom-Sheet.png");
+        let mut anims = HashMap::new();
 
-        let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 1, 1, None, None);
-        let atlas_handle = texture_atlases.add(atlas);
+        // IDLE
+        let idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 2, 1, None, None);
+        let idle_atlas_handle = texture_atlases.add(idle_atlas);
+        let idle_anim = Animation::new("IDLE".to_string(), idle_atlas_handle, 0.75);
+        anims.insert(idle_anim.name.to_string(), idle_anim.clone());
 
-        assets.anims = AnimationMap::new(
-            HashMap::from([("WAIT".to_string(), Animation::new("WAIT".to_string(), atlas_handle, 0.1))])
-        );
+        // BOOM
+        let boom_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 12, 1, None, Some(Vec2::new(26.0, 0.0) * SIZE));
+        let boom_atlas_handle = texture_atlases.add(boom_atlas);
+        let mut boom_anim = Animation::new("BOOM".to_string(), boom_atlas_handle, 0.1);
+        boom_anim.repeating = false;
+        anims.insert(boom_anim.name.to_string(), boom_anim.clone());
+
+        // RETRACT
+        let retract_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 8, 1, None, Some(Vec2::new(2.0, 0.0) * SIZE));
+        let retract_atlas_handle = texture_atlases.add(retract_atlas);
+        let mut retract_anim = Animation::new("RETRACT".to_string(), retract_atlas_handle, 0.08);
+        retract_anim.repeating = false;
+        anims.insert(retract_anim.name.to_string(), retract_anim.clone());
+
+        // EXTEND
+        let extend_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 5, 1, None, Some(Vec2::new(10.0, 0.0) * SIZE));
+        let extend_atlas_handle = texture_atlases.add(extend_atlas);
+        let mut extend_anim = Animation::new("EXTEND".to_string(), extend_atlas_handle, 0.06);
+        extend_anim.repeating = false;
+        anims.insert(extend_anim.name.to_string(), extend_anim.clone());
+
+        // SLAM
+        let slam_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 6, 1, None, Some(Vec2::new(15.0, 0.0) * SIZE));
+        let slam_atlas_handle = texture_atlases.add(slam_atlas);
+        let mut slam_anim = Animation::new("SLAM".to_string(), slam_atlas_handle, 0.04);
+        slam_anim.repeating = false;
+        anims.insert(slam_anim.name.to_string(), slam_anim.clone());
+
+        // FLY
+        let fly_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 5, 1, None, Some(Vec2::new(21.0, 0.0) * SIZE));
+        let fly_atlas_handle = texture_atlases.add(fly_atlas);
+        let mut fly_anim = Animation::new("FLY".to_string(), fly_atlas_handle, 0.1);
+        fly_anim.repeating = false;
+        anims.insert(fly_anim.name.to_string(), fly_anim.clone()); 
+        
+        // LEAP
+        let leap_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 3, 1, None, Some(Vec2::new(21.0, 0.0) * SIZE));
+        let leap_atlas_handle = texture_atlases.add(leap_atlas);
+        let mut leap_anim = Animation::new("LEAP".to_string(), leap_atlas_handle, 0.1);
+        leap_anim.repeating = false;
+        anims.insert(leap_anim.name.to_string(), leap_anim.clone());
+
+        // DEATH
+        let death_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, Some(Vec2::new(38.0, 0.0) * SIZE));
+        let death_atlas_handle = texture_atlases.add(death_atlas);
+        let death_anim = Animation::new("DEATH".to_string(), death_atlas_handle, 0.1);
+        anims.insert(death_anim.name.to_string(), death_anim.clone());
+
+        assets.anims = AnimationMap::new(anims);
     }
 }
 

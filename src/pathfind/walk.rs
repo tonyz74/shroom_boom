@@ -19,7 +19,7 @@ use crate::{
 
 use crate::combat::HurtAbility;
 use crate::pathfind::Patrol;
-use crate::util::Facing;
+use crate::util::{Facing, FacingX};
 
 #[derive(Component, Default)]
 pub struct WalkPathfinder {
@@ -304,9 +304,9 @@ fn walk_pathfinder_patrol(
                 enemy.vel.x = dir.x * pathfinder.patrol_speed;
 
                 if dir.x < 0.0 {
-                    *facing = Facing::Left;
+                    facing.x = FacingX::Left;
                 } else if dir.x > 0.0 {
-                    *facing = Facing::Right;
+                    facing.x = FacingX::Right;
                 }
 
                 walk_pathfinder_jump_if_needed(

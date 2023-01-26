@@ -9,7 +9,7 @@ use crate::bossfight::state_machine::{AbilityStartup, Charge};
 use crate::combat::{ColliderAttack, Immunity};
 use crate::enemies::Enemy;
 use crate::state::GameState;
-use crate::util::Facing;
+use crate::util::{Facing, FacingX, FacingY};
 
 #[derive(Component, Debug, Clone)]
 pub struct ChargeAbility {
@@ -48,13 +48,13 @@ fn start_charging(
 
     let (children, mut immunity, mut charge, boss, mut facing) = q.single_mut();
 
-    let (new_facing, dir) = match boss.current_move() {
-        EnragedAttackMove::ChargeLeft => (Facing::Left, -1.0),
-        EnragedAttackMove::ChargeRight => (Facing::Right, 1.0),
+    let (new_facing_y, dir) = match boss.current_move() {
+        EnragedAttackMove::ChargeLeft => (FacingY::Up, -1.0),
+        EnragedAttackMove::ChargeRight => (FacingY::Down, 1.0),
         _ => return
     };
 
-    *facing = new_facing;
+    facing.y = new_facing_y;
 
     for child in children {
         if let Ok((mut atk, mut transform, mut collider)) = p.get_mut(*child) {
@@ -80,21 +80,22 @@ fn charge_update(
         &ChargeAbility,
         &BossConfig,
         &Boss,
-        &Facing
+        &mut Facing
     ), With<Charge>>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (entity, children, transform, mut enemy, charge, config, _boss, facing) = q.single_mut();
+    let (entity, children, transform, mut enemy, charge, config, boss, mut facing) = q.single_mut();
     enemy.vel = Vec2::new(BOSS_CHARGE_SPEED * charge.dir, 0.0);
 
     let pos = transform.translation().xy();
 
-    let target = match facing {
-        Facing::Left => config.charge_left.x,
-        Facing::Right => config.charge_right.x
+    let target = match boss.current_move() {
+        EnragedAttackMove::ChargeLeft => config.charge_left.x,
+        EnragedAttackMove::ChargeRight => config.charge_right.x,
+        _ => panic!()
     };
 
     if (target - pos.x).abs() <= 2.0 {
@@ -107,5 +108,19 @@ fn charge_update(
                 transform.translation = Vec3::ZERO;
             }
         }
+
+        let new_facing = match boss.current_move() {
+            EnragedAttackMove::ChargeLeft => Facing {
+                x: FacingX::Left,
+                y: FacingY::Down
+            },
+            EnragedAttackMove::ChargeRight => Facing {
+                x: FacingX::Right,
+                y: FacingY::Up
+            },
+            _ => panic!()
+        };
+
+        *facing = new_facing;
     }
 }

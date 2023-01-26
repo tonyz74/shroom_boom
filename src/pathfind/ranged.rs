@@ -7,7 +7,7 @@ use crate::state::GameState;
 use crate::pathfind::{Pathfinder, WalkPathfinder, walk_pathfinder_jump_if_needed, Patrol, walk_pathfinder_get_suitable_target};
 use crate::enemies::Enemy;
 use crate::entity_states::*;
-use crate::util::{Facing, quat_rot2d_rad};
+use crate::util::{Facing, FacingX, quat_rot2d_rad};
 
 #[derive(Component, Clone)]
 pub struct RangedPathfinder {
@@ -148,9 +148,9 @@ pub fn ranged_pathfinder_move(
                 enemy.vel.x = dir.x * pathfinder.speed;
 
                 if dir.x < 0.0 {
-                    *facing = Facing::Left;
+                    facing.x = FacingX::Left;
                 } else if dir.x > 0.0 {
-                    *facing = Facing::Right;
+                    facing.x = FacingX::Right;
                 }
 
                 walk_pathfinder_jump_if_needed(
@@ -229,9 +229,9 @@ pub fn ranged_pathfinder_add_shoot(
             let dx = Vec2::new(target.x - pos.x, 0.0).normalize_or_zero().x;
 
             if dx < 0.0 {
-                *facing = Facing::Left;
+                facing.x = FacingX::Left;
             } else if dx > 0.0 {
-                *facing = Facing::Right;
+                facing.x = FacingX::Right;
             }
         }
     }

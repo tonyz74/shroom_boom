@@ -22,7 +22,7 @@ use crate::{
 use crate::combat::HurtAbility;
 use crate::common::PHYSICS_STEP_DELTA;
 use crate::player::abilities::shoot;
-use crate::util::Facing;
+use crate::util::{Facing, FacingX};
 
 pub fn player_setup_logic(app: &mut App) {
     use crate::player::abilities::{dash, slash, jump};
@@ -83,10 +83,10 @@ fn run_common(
     use crate::player::consts::PLAYER_COLLIDER_CAPSULE;
 
     let vel_x = if action.pressed(InputAction::RunLeft) {
-        *facing = Facing::Left;
+        facing.x = FacingX::Left;
         -PLAYER_RUN_SPEED
     } else if action.pressed(InputAction::RunRight) {
-        *facing = Facing::Right;
+        facing.x = FacingX::Right;
         PLAYER_RUN_SPEED
     } else {
         0.0

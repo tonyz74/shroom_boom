@@ -18,7 +18,7 @@ use crate::pathfind::{
     walk_pathfinder_jump_if_needed,
     walk_pathfinder_stop_if_colliding_enemy_stopped
 };
-use crate::util::Facing;
+use crate::util::{Facing, FacingX};
 
 #[derive(Component, Default, Debug, Copy, Clone)]
 pub struct MeleePathfinder;
@@ -73,9 +73,9 @@ fn melee_pathfinder_move(
             enemy.vel.x = dir.x * pathfinder.speed;
 
             if dir.x < 0.0 {
-                *facing = Facing::Left;
+                facing.x = FacingX::Left;
             } else if dir.x > 0.0 {
-                *facing = Facing::Right;
+                facing.x = FacingX::Right;
             }
 
             walk_pathfinder_jump_if_needed(

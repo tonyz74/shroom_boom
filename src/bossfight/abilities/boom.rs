@@ -100,13 +100,16 @@ fn boom_update(
             }
 
             let len = boom.explosion_points.len();
-            let wait = (BOSS_BOOM_SELECTION_TIME * (BOSS_BOOM_EXPLOSION_COUNT - len) as f32) - 0.1;
+            let wait = (
+                (BOSS_BOOM_SELECTION_TIME * (BOSS_BOOM_EXPLOSION_COUNT - len) as f32)
+                    + BOSS_BOOM_WAIT_TIME - 0.5
+            ).clamp(0.0, f32::MAX);
 
             indicators.send(
                 Indicator {
                     region: Region {
-                        tl: point + Vec2::new(-40.0, 40.0),
-                        br: point + Vec2::new(40.0, -40.0),
+                        tl: point + Vec2::new(-60.0, 60.0),
+                        br: point + Vec2::new(60.0, -60.0),
                     },
                     wait_time: wait,
                     expand_time: 0.4,
@@ -136,7 +139,7 @@ fn boom_spawn_explosions(
         events.send(ExplosionEvent {
             pos: *point,
             max_damage: 20,
-            radius: 40.0,
+            radius: 60.0,
             combat_layer: CombatLayerMask::ENEMY
         });
     }

@@ -5,7 +5,7 @@ use std::time::Duration;
 use bevy::prelude::*;
 use crate::anim::map::AnimationMap;
 use crate::state::GameState;
-use crate::util::Facing;
+use crate::util::{deg_to_rad, Facing, FacingX, FacingY};
 
 
 pub struct AnimationPlugin;
@@ -30,24 +30,28 @@ pub struct Animation {
     pub tex: Handle<TextureAtlas>,
     pub speed: f32,
     pub facing_flipped: bool,
+    pub facing_y_flipped: bool,
+    pub repeating: bool
 }
 
 impl Animation {
     pub fn new(name: String, handle: Handle<TextureAtlas>, speed: f32) -> Self {
-        Self::new_flipped(name, handle, speed, false)
+        Self::new_flipped(name, handle, speed, BVec2::FALSE)
     }
 
     pub fn new_flipped(
         name: String,
         handle: Handle<TextureAtlas>,
         speed: f32,
-        flipped: bool
+        flipped: BVec2
     ) -> Self {
         Animation {
             name,
             tex: handle,
             speed,
-            facing_flipped: flipped
+            facing_flipped: flipped.x,
+            facing_y_flipped: flipped.y,
+            repeating: true
         }
     }
 }
@@ -94,6 +98,10 @@ pub fn animation_tick(
             let atlas = texture_atlases.get(handle).unwrap();
 
             if spr.index + 1 == atlas.textures.len() {
+                if !anim.anim.repeating {
+                    continue;
+                }
+
                 anim.total_looped += 1;
             }
             anim.total_frames += 1;
@@ -134,15 +142,27 @@ pub fn handle_animation_change_events(
     }
 }
 
-fn flip_sprite_on_direction(mut q: Query<(&mut TextureAtlasSprite, &Animator, &Facing)>) {
-    for (mut sprite, anim, facing) in q.iter_mut() {
-        match facing {
-            Facing::Left => {
-                sprite.flip_x = !anim.anim.facing_flipped
+fn flip_sprite_on_direction(mut q: Query<(&mut TextureAtlasSprite, &GlobalTransform, &Animator, &Facing)>) {
+    for (mut sprite, tf, anim, facing) in q.iter_mut() {
+        let (_s, r, _t) = tf.to_scale_rotation_translation();
+
+        match facing.x {
+            FacingX::Left => {
+                sprite.flip_x = !anim.anim.facing_flipped;
             },
 
-            Facing::Right => {
-                sprite.flip_x = anim.anim.facing_flipped
+            FacingX::Right => {
+                sprite.flip_x = anim.anim.facing_flipped;
+            }
+        };
+
+        match facing.y {
+            FacingY::Up => {
+                sprite.flip_y = anim.anim.facing_y_flipped;
+            },
+
+            FacingY::Down => {
+                sprite.flip_y = !anim.anim.facing_y_flipped;
             }
         };
 

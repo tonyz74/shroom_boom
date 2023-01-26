@@ -19,7 +19,7 @@ use crate::{
 use crate::combat::HurtAbility;
 use crate::common::PHYSICS_STEPS_PER_SEC;
 use crate::pathfind::Patrol;
-use crate::util::Facing;
+use crate::util::{Facing, FacingX};
 
 #[derive(Component, Debug)]
 pub struct FlyPathfinder {
@@ -118,9 +118,9 @@ pub fn fly_pathfinder_follow_path(
 
         let dir_x = Vec2::new(dir.x, 0.0).normalize_or_zero().x;
         if dir_x < 0.0 {
-            *facing = Facing::Left;
+            facing.x = FacingX::Left;
         } else if dir_x > 0.0 {
-            *facing = Facing::Right;
+            facing.x = FacingX::Right;
         }
 
     } else {
@@ -128,12 +128,12 @@ pub fn fly_pathfinder_follow_path(
         if !pathfinder.region.contains(self_pos) && pathfinder.within_region {
             enemy.vel *= -1.0;
 
-            match facing {
-                Facing::Left => {
-                    *facing = Facing::Right
+            match facing.x {
+                FacingX::Left => {
+                    facing.x = FacingX::Right
                 },
-                Facing::Right => {
-                    *facing = Facing::Left
+                FacingX::Right => {
+                    facing.x = FacingX::Left
                 },
             }
         }
@@ -205,9 +205,9 @@ pub fn fly_pathfinder_chase(
 
                 let dir_x = Vec2::new(enemy.vel.x, 0.0).normalize_or_zero().x;
                 if dir_x < 0.0 {
-                    *facing = Facing::Left;
+                    facing.x = FacingX::Left;
                 } else if dir_x > 0.0 {
-                    *facing = Facing::Right;
+                    facing.x = FacingX::Right;
                 }
 
                 continue;

@@ -7,6 +7,7 @@ mod abilities;
 mod config;
 mod consts;
 mod util;
+mod anim;
 
 use bevy::prelude::*;
 use bevy_debug_text_overlay::screen_print;
@@ -31,6 +32,7 @@ use crate::bossfight::consts::{BOSS_FULL_SIZE, BOSS_HALF_SIZE, BOSS_HEALTH};
 use crate::util::Facing;
 use crate::anim::Animator;
 use crate::anim::map::AnimationMap;
+use crate::bossfight::anim::register_boss_animations;
 
 
 #[derive(Component, Clone, Reflect)]
@@ -52,6 +54,17 @@ impl Boss {
     pub fn current_move(&self) -> EnragedAttackMove {
         ATTACK_SEQUENCE[self.move_index]
     }
+
+    pub fn previous_move(&self) -> EnragedAttackMove {
+        let i = if self.move_index == 0 {
+            ATTACK_SEQUENCE.len() - 1
+        } else {
+            self.move_index - 1
+        };
+
+        ATTACK_SEQUENCE[i]
+    }
+
     pub fn next_move(&self) -> EnragedAttackMove {
         let next = (self.move_index + 1) % ATTACK_SEQUENCE.len();
         ATTACK_SEQUENCE[next]
@@ -117,7 +130,7 @@ impl BossBundle {
     }
 
     pub fn from_assets(assets: &BossAssets) -> Self {
-        let anim = &assets.anims["WAIT"];
+        let anim = &assets.anims["IDLE"];
 
         Self {
             anim: Animator::new(anim.clone()),
@@ -152,7 +165,7 @@ impl BossBundle {
             takeoff: TakeoffAbility::default(),
             relocate: RelocateAbility::default(),
 
-            health: Health::new(4),
+            health: Health::new(BOSS_HEALTH),
 
             combat_layer: CombatLayerMask::ENEMY,
 
@@ -162,7 +175,7 @@ impl BossBundle {
 
             sprite_sheet: SpriteSheetBundle {
                 sprite: TextureAtlasSprite {
-                    custom_size: Some(BOSS_FULL_SIZE),
+                    custom_size: Some(Vec2::new(512.0, 512.0)),
                     ..default()
                 },
 
@@ -187,6 +200,7 @@ impl Plugin for BossPlugin {
         register_boss_vulnerable(app);
         register_boss_enraged(app);
         register_boss_abilities(app);
+        register_boss_animations(app);
 
         app
             .register_type::<Boss>()

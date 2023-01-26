@@ -13,7 +13,7 @@ use crate::combat::Immunity;
 use crate::common::{PHYSICS_STEP_DELTA, PHYSICS_STEPS_PER_SEC};
 use crate::enemies::Enemy;
 use crate::state::GameState;
-use crate::util::{deg_to_rad, Facing, quat_rot2d_deg, rad_to_deg};
+use crate::util::{deg_to_rad, Facing, FacingX, FacingY, quat_rot2d_deg, rad_to_deg};
 
 #[derive(Component, Debug, Clone)]
 pub struct LeapAbility {
@@ -62,7 +62,8 @@ fn start_leaping(
 
     cc.filter_flags = QueryFilterFlags::EXCLUDE_SENSORS | QueryFilterFlags::EXCLUDE_FIXED;
     immunity.is_immune = true;
-    *facing = Facing::Left;
+    facing.x = FacingX::Left;
+    facing.y = FacingY::Up;
     leap.rotate_lag.reset();
 }
 

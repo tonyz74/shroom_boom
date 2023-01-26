@@ -1351,7 +1351,7 @@
 							"defUid": 46,
 							"px": [36,20],
 							"fieldInstances": [
-								{ "__identifier": "NextLevel", "__value": 1, "__type": "Int", "__tile": null, "defUid": 47, "realEditorValues": [{ "id": "V_Int", "params": [1] }] },
+								{ "__identifier": "NextLevel", "__value": 2, "__type": "Int", "__tile": null, "defUid": 47, "realEditorValues": [{ "id": "V_Int", "params": [2] }] },
 								{ "__identifier": "EntryPoint_ID", "__value": 0, "__type": "Int", "__tile": null, "defUid": 49, "realEditorValues": [] }
 							]
 						},

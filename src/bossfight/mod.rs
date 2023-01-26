@@ -181,6 +181,7 @@ impl BossBundle {
                 },
 
                 texture_atlas: anim.tex.clone(),
+                transform: Transform::from_xyz(0.0, 0.0, 1.0),
 
                 ..default()
             }

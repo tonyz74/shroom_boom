@@ -4,7 +4,7 @@ pub const BOSS_FULL_SIZE: Vec2 = Vec2::new(256.0, 512.0);
 pub const BOSS_HALF_SIZE: Vec2 = Vec2::new(120.0, 256.0);
 pub const BOSS_HEAD_HALF_SIZE: Vec2 = Vec2::new(48.0, BOSS_HALF_SIZE.x);
 
-pub const BOSS_CHARGE_SPEED: f32 = 32.0;
+pub const BOSS_CHARGE_SPEED: f32 = 44.0;
 
 pub const BOSS_HOVER_SPEED: f32 = 10.0;
 pub const BOSS_HOVER_CMP_THRESHOLD: f32 = 8.0;

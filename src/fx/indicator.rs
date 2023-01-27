@@ -156,8 +156,8 @@ fn handle_indicator_events(
 
 impl Indicator {
     pub const EXPLOSION: Self = Indicator {
-        color: Color::rgba(1.0, 0.2, 0.2, 0.6),
-        corner_color: Color::rgba(1.0, 0.5, 0.5, 1.0),
+        color: Color::rgba(0xF2 as f32 / 255., 0xD3 as f32 / 255., 0x61 as f32 / 255., 0.6),
+        corner_color: Color::rgb(0xF2 as f32 / 255., 0xD3 as f32 / 255., 0x61 as f32 / 255.),
 
         region: Region { tl: Vec2::ZERO, br: Vec2::ZERO },
         wait_time: 0.0,

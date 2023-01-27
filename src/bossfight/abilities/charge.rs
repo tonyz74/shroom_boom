@@ -8,6 +8,7 @@ use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::state_machine::{AbilityStartup, Charge};
 use crate::combat::{ColliderAttack, Immunity};
 use crate::enemies::Enemy;
+use crate::fx::shake::ScreenShakeEvent;
 use crate::state::GameState;
 use crate::util::{Facing, FacingX, FacingY};
 
@@ -81,7 +82,9 @@ fn charge_update(
         &BossConfig,
         &Boss,
         &mut Facing
-    ), With<Charge>>
+    ), With<Charge>>,
+
+    mut shakes: EventWriter<ScreenShakeEvent>
 ) {
     if q.is_empty() {
         return;
@@ -108,6 +111,8 @@ fn charge_update(
                 transform.translation = Vec3::ZERO;
             }
         }
+
+        shakes.send(ScreenShakeEvent::MEDIUM);
 
         let new_facing = match boss.current_move() {
             EnragedAttackMove::ChargeLeft => Facing {

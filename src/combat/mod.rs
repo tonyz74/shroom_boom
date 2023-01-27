@@ -28,6 +28,7 @@ use crate::combat::collision::register_collider_attacks;
 use crate::combat::consts::EXPLOSION_RADIUS;
 use crate::combat::spore_cloud::SporeCloudAttackBundle;
 use crate::entity_states::*;
+use crate::fx::shake::ScreenShakeEvent;
 
 use crate::state::GameState;
 pub struct AttackPlugin;
@@ -60,7 +61,8 @@ fn temp_explosion(
     events: Res<Input<MouseButton>>,
     windows: Res<Windows>,
     camera: Query<&GlobalTransform, With<GameCamera>>,
-    mut explosions: EventWriter<ExplosionEvent>
+    mut explosions: EventWriter<ExplosionEvent>,
+    mut shakes: EventWriter<ScreenShakeEvent>
 ) {
     if camera.is_empty() {
         return;
@@ -79,6 +81,10 @@ fn temp_explosion(
 
     let cpos = win.cursor_position().unwrap();
     let world_pos = cpos + (cam - 0.5 * Vec2::new(win.width(), win.height()));
+
+    if events.just_pressed(MouseButton::Left) {
+        shakes.send(ScreenShakeEvent::LARGE);
+    }
 
     if events.just_pressed(MouseButton::Right) {
         explosions.send(

@@ -8,6 +8,7 @@ use crate::combat::{AttackStrength, CombatEvent, CombatLayerMask, KnockbackModif
 use crate::combat::consts::{EXPLOSION_DIAMETER, EXPLOSION_DURATION, EXPLOSION_EFFECTIVE_DURATION, EXPLOSION_RADIUS};
 use crate::combat::knockbacks::explosion_knockback;
 use crate::entity_states::*;
+use crate::fx::shake::ScreenShakeEvent;
 use crate::state::GameState;
 
 #[derive(Component, Clone)]
@@ -185,13 +186,16 @@ pub struct ExplosionEvent {
 fn explosion_events(
     mut commands: Commands,
     assets: Res<ExplosionAssets>,
-    mut explosions: EventReader<ExplosionEvent>
+    mut explosions: EventReader<ExplosionEvent>,
+    mut shakes: EventWriter<ScreenShakeEvent>
 ) {
     for explosion in explosions.iter() {
         let mut atk = ExplosionAttackBundle::new(explosion.pos, &assets);
         atk.sprite_sheet.transform.scale = Vec2::splat(explosion.radius / EXPLOSION_RADIUS).extend(1.0);
         atk.strength.power = explosion.max_damage;
         atk.combat_layer = explosion.combat_layer;
+
+        shakes.send(ScreenShakeEvent::TINY);
 
         commands.spawn(atk);
     }

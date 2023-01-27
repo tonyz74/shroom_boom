@@ -114,10 +114,10 @@ impl BossBundle {
     pub fn collider_attack() -> ColliderAttackBundle {
         ColliderAttackBundle {
             combat_layer: CombatLayerMask::ENEMY,
-            strength: AttackStrength::new(4),
+            strength: AttackStrength::new(12),
             knockback: KnockbackModifier::new(|kb| {
                 let x_dir = Vec2::new(kb.x, 0.0).normalize().x;
-                kb + Vec2::new(x_dir * 4.0, 6.0)
+                kb + Vec2::new(x_dir * 4.0, 9.0)
             }),
             attack: ColliderAttack { enabled: false },
             ..ColliderAttackBundle::from_size(BOSS_FULL_SIZE)
@@ -166,7 +166,7 @@ impl BossBundle {
             takeoff: TakeoffAbility::default(),
             relocate: RelocateAbility::default(),
 
-            health: Health::new(BOSS_HEALTH),
+            health: Health::new(99),
 
             combat_layer: CombatLayerMask::ENEMY,
 

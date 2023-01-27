@@ -72,8 +72,9 @@ fn shake_update(
 
     mgr.intensity = mgr.intensity.lerp(&0.0_f32, &(SHAKE_DECAY_RATE * time.delta().as_secs_f32()));
 
-    if -mgr.intensity >= mgr.intensity {
-        tf.translation.x += rng.gen_range(-mgr.intensity..mgr.intensity);
-        tf.translation.y += rng.gen_range(-mgr.intensity..mgr.intensity);
+    let range = (-mgr.intensity)..mgr.intensity;
+    if !range.is_empty() {
+        tf.translation.x += rng.gen_range(range.clone());
+        tf.translation.y += rng.gen_range(range.clone());
     }
 }

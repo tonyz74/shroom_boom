@@ -15,13 +15,15 @@ use crate::state::GameState;
 pub struct ExplosionAttack {
     pub dur: Timer,
     pub effective_dur: Timer,
+    pub rad: f32
 }
 
 impl Default for ExplosionAttack {
     fn default() -> Self {
         Self {
             dur: Timer::from_seconds(EXPLOSION_DURATION, TimerMode::Once),
-            effective_dur: Timer::from_seconds(EXPLOSION_EFFECTIVE_DURATION, TimerMode::Once)
+            effective_dur: Timer::from_seconds(EXPLOSION_EFFECTIVE_DURATION, TimerMode::Once),
+            rad: EXPLOSION_RADIUS
         }
     }
 }
@@ -117,7 +119,7 @@ fn explosion_death(mut q: Query<(&ExplosionAttack, &mut Die)>) {
 
 fn explosion_expand(mut q: Query<(&mut Collider, &ExplosionAttack)>) {
     for (mut collider, explosion) in q.iter_mut() {
-        *collider = Collider::ball(explosion.effective_dur.percent() * EXPLOSION_RADIUS);
+        *collider = Collider::ball(explosion.effective_dur.percent() * explosion.rad);
     }
 }
 
@@ -194,6 +196,7 @@ fn explosion_events(
         atk.sprite_sheet.transform.scale = Vec2::splat(explosion.radius / EXPLOSION_RADIUS).extend(1.0);
         atk.strength.power = explosion.max_damage;
         atk.combat_layer = explosion.combat_layer;
+        atk.attack.rad = explosion.radius;
 
         shakes.send(ScreenShakeEvent::TINY);
 

@@ -13,6 +13,125 @@ use crate::ui::EventInput;
 use crate::ui::style::{background_style, button_style};
 
 
+use bevy_inspector_egui::{Inspectable, InspectorPlugin};
+
+#[derive(Resource, Inspectable, Debug)]
+pub struct UiShopStyleData {
+    pub window_color: Color,
+    pub title_color: Color,
+    pub label_color: Color,
+    pub catalog_color: Color,
+    pub container_color: Color,
+    pub button_color: Color,
+    pub items_color: Color,
+    pub sale_color: Color,
+    pub item_label_color: Color,
+    pub cost_label_color: Color,
+    pub h_sep_color: Color,
+    pub frame_color: Color,
+}
+
+
+impl Default for UiShopStyleData {
+    fn default() -> Self {
+        // Self {
+        //     frame_color: Color::rgb_u8(0x42, 0x45, 0x57),
+        //     h_sep_color: Color::RED,
+        //     cost_label_color: Color::GOLD,
+        //     item_label_color: Color::ORANGE_RED,
+        //     sale_color: Color::AQUAMARINE,
+        //     items_color: Color::PURPLE,
+        //     button_color: Color::BLUE,
+        //     container_color: Color::GREEN,
+        //     catalog_color: Color::RED,
+        //     label_color: Color::ORANGE_RED,
+        //     title_color: Color::BLACK,
+        //     window_color: Color::DARK_GRAY
+        // }
+
+        use Color::Rgba;
+
+        UiShopStyleData {
+            window_color: Rgba {
+                red: 0.5019608,
+                green: 0.28627452,
+                blue: 0.1254902,
+                alpha: 1.0
+            },
+            title_color: Rgba {
+                red: 1.0,
+                green: 1.0,
+                blue: 1.0,
+                alpha: 1.0
+            },
+            label_color: Rgba {
+                red: 1.0,
+                green: 0.92941177,
+                blue: 0.72156864,
+                alpha: 1.0
+            },
+            catalog_color: Rgba {
+                red: 0.5921569,
+                green: 0.45882353,
+                blue: 0.3372549,
+                alpha: 1.0
+            },
+            container_color: Rgba {
+                red: 0.20392157,
+                green: 0.12156863,
+                blue: 0.0,
+                alpha: 1.0
+            },
+            button_color: Rgba {
+                red: 0.7372549,
+                green: 0.5529412,
+                blue: 0.26666668,
+                alpha: 1.0
+            },
+            items_color: Rgba {
+                red: 0.07058824,
+                green: 0.02745098,
+                blue: 0.003921569,
+                alpha: 1.0
+            },
+            sale_color: Rgba {
+                red: 0.8117647,
+                green: 0.7137255,
+                blue: 0.5411765,
+                alpha: 1.0
+            },
+            item_label_color: Rgba {
+                red: 0.0,
+                green: 0.0,
+                blue: 0.0,
+                alpha: 1.0
+            },
+            cost_label_color: Rgba {
+                red: 0.99607843,
+                green: 0.9411765,
+                blue: 0.0,
+                alpha: 1.0
+            },
+            h_sep_color: Rgba {
+                red: 0.35686275,
+                green: 0.23921569,
+                blue: 0.07450981,
+                alpha: 1.0
+            },
+            frame_color: Rgba {
+                red: 0.13725491,
+                green: 0.07058824,
+                blue: 0.03137255,
+                alpha: 1.0
+            }
+        }
+    }
+}
+
+
+
+
+
 
 #[derive(Debug, Component, PartialEq, Clone)]
 pub struct ShopMenuState {
@@ -26,6 +145,14 @@ impl Default for ShopMenuState {
         }
     }
 }
+
+
+fn print_colors(inp: Res<Input<KeyCode>>, ui: Res<UiShopStyleData>) {
+    if inp.just_pressed(KeyCode::Apostrophe) {
+        println!("{:?}", ui);
+    }
+}
+
 
 fn update_shop_menu_state(
     p: Query<&PlayerSkillLevels>,
@@ -92,9 +219,10 @@ fn on_purchase(purchase: ShopPurchaseEvent) -> OnEvent {
 
 
 pub fn register_shop_menu_ui_systems(app: &mut App) {
-    app.add_system_set(
+    app.add_plugin(InspectorPlugin::<UiShopStyleData>::new()).add_system_set(
         SystemSet::new()
             .with_system(update_shop_menu_state)
+            .with_system(print_colors)
     );
 }
 
@@ -113,7 +241,8 @@ pub fn shop_menu_render(
     In((widget_context, entity)): In<(KayakWidgetContext, Entity)>,
     mut commands: Commands,
     assets: Res<ShopAssets>,
-    state_query: Query<&ShopMenuState>
+    state_query: Query<&ShopMenuState>,
+    data: Res<UiShopStyleData>
 ) -> bool {
     use StyleProp::Value;
 
@@ -128,10 +257,28 @@ pub fn shop_menu_render(
         _ => return false
     };
 
+    let window_color = data.window_color;
+    let title_color = data.title_color;
+    let label_color = data.label_color;
+    let catalog_color = data.catalog_color;
+    let container_color = data.container_color;
+    let button_color = data.button_color;
+    let items_color = data.items_color;
+    let sale_color = data.sale_color;
+    let item_label_color = data.item_label_color;
+    let cost_label_color = data.cost_label_color;
+    let h_sep_color = data.h_sep_color;
+    let frame_color = data.frame_color;
+
+
+
+
+
+
     let window_styles = KStyle {
         width: Value(Units::Pixels(1024.0)),
         height: Value(Units::Pixels(680.0)),
-        background_color: Value(Color::WHITE),
+        background_color: Value(window_color),
         offset: Value(Edge::all(Units::Stretch(1.0))),
         border_radius: Value(Corner::all(32.0)),
         layout_type: Value(LayoutType::Column),
@@ -141,7 +288,7 @@ pub fn shop_menu_render(
     let title_styles = KStyle {
         width: Value(Units::Percentage(10.0)),
         height: Value(Units::Pixels(64.0)),
-        color: Value(Color::BLACK),
+        color: Value(title_color),
         line_height: Value(256.0),
         font_size: Value(32.0),
         top: Value(Units::Stretch(0.0)),
@@ -151,7 +298,7 @@ pub fn shop_menu_render(
     let label_styles = KStyle {
         width: Value(Units::Percentage(10.0)),
         height: Value(Units::Pixels(32.0)),
-        color: Value(Color::ORANGE_RED),
+        color: Value(label_color),
         font_size: Value(32.0),
         top: Value(Units::Pixels(-24.0)),
         ..default()
@@ -160,7 +307,7 @@ pub fn shop_menu_render(
     let catalog_styles = KStyle {
         width: Value(Units::Percentage(90.0)),
         height: Value(Units::Percentage(80.0)),
-        background_color: Value(Color::RED),
+        background_color: Value(catalog_color),
         offset: Value(Edge::all(Units::Stretch(1.0))),
         border_radius: Value(Corner::all(32.0)),
         layout_type: Value(LayoutType::Row),
@@ -170,7 +317,7 @@ pub fn shop_menu_render(
     let container_styles = KStyle {
         width: Value(Units::Percentage(45.0)),
         height: Value(Units::Percentage(90.0)),
-        background_color: Value(Color::GREEN),
+        background_color: Value(container_color),
         offset: Value(Edge::all(Units::Stretch(1.0))),
         border_radius: Value(Corner::all(32.0)),
         layout_type: Value(LayoutType::Column),
@@ -180,7 +327,7 @@ pub fn shop_menu_render(
     let button_styles = KStyle {
         width: Value(Units::Percentage(20.0)),
         height: Value(Units::Pixels(48.0)),
-        background_color: Value(Color::BLUE),
+        background_color: Value(button_color),
         offset: Value(Edge::all(Units::Stretch(1.0))),
         ..default()
     };
@@ -189,7 +336,7 @@ pub fn shop_menu_render(
         layout_type: Value(LayoutType::Column),
         width: Value(Units::Percentage(85.0)),
         height: Value(Units::Percentage(85.0)),
-        background_color: Value(Color::PURPLE),
+        background_color: Value(items_color),
         offset: Value(Edge::all(Units::Stretch(1.0))),
         ..default()
     };
@@ -198,12 +345,12 @@ pub fn shop_menu_render(
         layout_type: Value(LayoutType::Row),
         width: Value(Units::Percentage(100.0)),
         height: Value(Units::Pixels(64.0)),
-        background_color: Value(Color::AQUAMARINE),
+        background_color: Value(sale_color),
         ..default()
     };
 
     let item_label_styles = KStyle {
-        color: Value(Color::ORANGE_RED),
+        color: Value(item_label_color),
         font_size: Value(20.0),
         line_height: Value(64.0),
         offset: Value(Edge::all(Units::Stretch(1.0))),
@@ -212,7 +359,7 @@ pub fn shop_menu_render(
     };
 
     let cost_label_styles = KStyle {
-        color: Value(Color::GOLD),
+        color: Value(cost_label_color),
         font_size: Value(20.0),
         line_height: Value(64.0),
         offset: Value(Edge::all(Units::Stretch(1.0))),
@@ -223,14 +370,15 @@ pub fn shop_menu_render(
     let h_sep_styles = KStyle {
         width: Value(Units::Percentage(100.0)),
         height: Value(Units::Pixels(4.0)),
-        background_color: Value(Color::RED),
+        background_color: Value(h_sep_color),
         ..default()
     };
 
     let frame_styles = KStyle {
         width: Value(Units::Pixels(64.0)),
         height: Value(Units::Pixels(64.0)),
-        background_color: Value(Color::rgb_u8(0x42, 0x45, 0x57)),
+        // background_color: Value(Color::rgb_u8(0x42, 0x45, 0x57)),
+        background_color: Value(frame_color),
         ..default()
     };
 

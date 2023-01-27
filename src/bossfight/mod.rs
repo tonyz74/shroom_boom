@@ -166,7 +166,7 @@ impl BossBundle {
             takeoff: TakeoffAbility::default(),
             relocate: RelocateAbility::default(),
 
-            health: Health::new(99),
+            health: Health::new(BOSS_HEALTH),
 
             combat_layer: CombatLayerMask::ENEMY,
 

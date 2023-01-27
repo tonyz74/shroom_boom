@@ -11,10 +11,10 @@ use crate::{
 };
 use crate::coin::drops::CoinHolder;
 use crate::combat::{AttackStrength, ColliderAttackBundle, Immunity};
-use crate::enemies::flower::state_machine::register_flower_enemy_state_machine;
+
 use crate::enemies::stats::EnemyStats;
 use crate::anim::Animator;
-use crate::anim::map::AnimationMap;
+
 use crate::assets::TumbleweedEnemyAssets;
 use crate::util::Facing;
 

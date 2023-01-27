@@ -3,11 +3,11 @@ use bevy::prelude::*;
 use bevy_easings::*;
 use bevy::math::Vec3Swizzles;
 use leafwing_input_manager::prelude::ActionState;
-use seldom_state::prelude::StateMachine;
-use crate::assets::UiAssets;
+
+
 use crate::input::InputAction;
 use crate::player::Player;
-use crate::state::GameState;
+
 use crate::util;
 
 pub const TEXT_POPUP_SPEED: f32 = 0.2;

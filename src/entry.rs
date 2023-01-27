@@ -4,7 +4,7 @@ use seldom_state::prelude::*;
 use kayak_ui::prelude::*;
 
 use bevy_egui::EguiPlugin;
-use bevy_inspector_egui::WorldInspectorPlugin;
+
 use bevy_easings::EasingsPlugin;
 use kayak_ui::widgets::KayakWidgets;
 

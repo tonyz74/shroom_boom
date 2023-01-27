@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::Collider;
+
 use rand::prelude::*;
 use crate::bossfight::{Boss, BossConfig};
 use crate::bossfight::consts::{BOSS_BOOM_PARTITION_SIZE, BOSS_SUMMON_COUNT_EASY, BOSS_SUMMON_COUNT_HARD, BOSS_SUMMON_COUNT_MEDIUM};

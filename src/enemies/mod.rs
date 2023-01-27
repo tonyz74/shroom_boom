@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
-use crate::anim::{Animation, AnimationChangeEvent, Animator};
+use crate::anim::{AnimationChangeEvent, Animator};
 use crate::anim::map::AnimationMap;
 use crate::coin::drops::CoinHolder;
 use crate::combat::{ColliderAttack, CombatLayerMask, Health, HurtAbility, Immunity};

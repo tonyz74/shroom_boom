@@ -1,11 +1,11 @@
 use bevy::prelude::*;
 use crate::anim::AnimationChangeEvent;
 use crate::anim::map::AnimationMap;
-use crate::bossfight::abilities::{RelocateAbility, RestAbility, SlamAbility};
+use crate::bossfight::abilities::{RelocateAbility, RestAbility};
 use crate::bossfight::Boss;
 use crate::bossfight::enraged::EnragedAttackMove;
-use crate::bossfight::stage::BossStage::Enraged;
-use crate::bossfight::state_machine::{BeginVulnerable, Boom, Hover, Relocate, Rest, Slam, Summon, Takeoff};
+
+use crate::bossfight::state_machine::{BeginVulnerable, Boom, Hover, Relocate, Rest, Slam, Summon};
 use crate::state::GameState;
 use crate::entity_states::*;
 

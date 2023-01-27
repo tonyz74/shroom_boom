@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use bevy::prelude::*;
 use std::collections::HashMap;
-use std::ops::{Deref, DerefMut};
+use std::ops::{Deref};
 use crate::anim::Animation;
 
 #[derive(Component, Clone, Debug, Default)]

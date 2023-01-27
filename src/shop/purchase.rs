@@ -4,7 +4,7 @@ use crate::combat::Health;
 use crate::player::ammo::Ammo;
 use crate::player::Player;
 use crate::player::skill::PlayerSkillLevels;
-use crate::shop::{Shop, ShopPurchaseEvent};
+use crate::shop::{ShopPurchaseEvent};
 use crate::shop::stock::ShopItem;
 
 pub fn shop_apply_purchases(

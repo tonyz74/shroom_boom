@@ -3,14 +3,14 @@ use kayak_ui::prelude::*;
 use kayak_ui::widgets::*;
 use crate::assets::ShopAssets;
 use crate::player::skill::PlayerSkillLevels;
-use crate::shop::{Shop, ShopPurchaseEvent};
+use crate::shop::{ShopPurchaseEvent};
 use crate::shop::info::ShopItemInfo;
 use crate::shop::stock::{SHOP_CATALOG_ITEMS, SHOP_CATALOG_UPGRADES, ShopItem};
 
-use crate::state::GameState;
+
 use crate::ui::event_handlers::{goto_state_event, StateTransition};
 use crate::ui::EventInput;
-use crate::ui::style::{background_style, button_style};
+
 
 
 use bevy_inspector_egui::{Inspectable, InspectorPlugin};

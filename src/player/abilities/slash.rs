@@ -114,7 +114,7 @@ fn slash_ability_trigger(
         return;
     }
 
-    let (entity, mut player, mut facing, mut slash) = q.single_mut();
+    let (entity, _player, mut facing, mut slash) = q.single_mut();
 
     slash.cd.reset();
     slash.dur.reset();

@@ -11,7 +11,7 @@ mod anim;
 
 use bevy::prelude::*;
 use bevy_debug_text_overlay::screen_print;
-use bevy_ecs_ldtk::GridCoords;
+
 use seldom_state::prelude::*;
 use bevy_rapier2d::prelude::*;
 use crate::assets::BossAssets;

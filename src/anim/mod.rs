@@ -3,9 +3,9 @@ pub mod animator;
 
 use std::time::Duration;
 use bevy::prelude::*;
-use crate::anim::map::AnimationMap;
+
 use crate::state::GameState;
-use crate::util::{deg_to_rad, Facing, FacingX, FacingY};
+use crate::util::{Facing, FacingX, FacingY};
 
 
 pub struct AnimationPlugin;
@@ -144,7 +144,7 @@ pub fn handle_animation_change_events(
 
 fn flip_sprite_on_direction(mut q: Query<(&mut TextureAtlasSprite, &GlobalTransform, &Animator, &Facing)>) {
     for (mut sprite, tf, anim, facing) in q.iter_mut() {
-        let (_s, r, _t) = tf.to_scale_rotation_translation();
+        let (_s, _r, _t) = tf.to_scale_rotation_translation();
 
         match facing.x {
             FacingX::Left => {

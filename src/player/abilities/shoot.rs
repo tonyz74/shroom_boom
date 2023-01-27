@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_debug_text_overlay::screen_print;
+
 use bevy_rapier2d::prelude::RapierContext;
 use seldom_state::prelude::*;
 use crate::assets::PlayerAssets;
@@ -75,7 +75,7 @@ fn start_shoot(
 
 fn spawn_player_projectile(
     commands: &mut Commands,
-    player: &Player,
+    _player: &Player,
     player_pos: Vec2,
     shoot: &ShootAbility,
     facing: &Facing,
@@ -139,7 +139,7 @@ fn shoot_ability_update(
         return;
     }
 
-    let (entity, mut player, mut facing, transform, mut shoot) = q.single_mut();
+    let (entity, player, mut facing, transform, mut shoot) = q.single_mut();
     let pos = transform.translation();
 
     shoot.startup.tick(time.delta());

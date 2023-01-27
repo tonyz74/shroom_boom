@@ -1,5 +1,5 @@
 use bevy::prelude::*;
-use bevy_debug_text_overlay::screen_print;
+
 use crate::assets::UiAssets;
 use crate::coin::drops::CoinHolder;
 use crate::combat::Health;
@@ -190,7 +190,7 @@ fn sync_hud(
 
 fn index_for_value(val: i32, max: i32) -> usize {
     if val > 0 {
-        let percent = (val as f32 / max as f32);
+        let percent = val as f32 / max as f32;
         (percent * PLAYER_HUD_DISPLAY_CHUNKS as f32).ceil() as usize
     } else {
         0

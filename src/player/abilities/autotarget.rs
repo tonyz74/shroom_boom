@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy::math::Vec3Swizzles;
 use bevy_rapier2d::prelude::*;
 use crate::combat::CombatLayerMask;
-use crate::player::Player;
+
 use crate::util::{Facing, FacingX};
 
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]

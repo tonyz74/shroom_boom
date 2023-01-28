@@ -157,7 +157,7 @@ impl BossBundle {
 
             summon: SummonAbility::default(),
             rest: RestAbility::default(),
-            hurt: HurtAbility::new(0.3, Some(0.3)),
+            hurt: HurtAbility::new(0.5, Some(0.5)),
             boom: BoomAbility::default(),
             charge: ChargeAbility::default(),
             leap: LeapAbility::default(),

@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
-use crate::combat::{CombatEvent, Immunity};
+use crate::bossfight::Boss;
+use crate::combat::{ColliderAttack, CombatEvent, Immunity};
+use crate::enemies::Enemy;
 use crate::entity_states::*;
 use crate::state::GameState;
 use crate::util;
@@ -33,9 +35,11 @@ pub fn register_hurt_ability(app: &mut App) {
         SystemSet::on_update(GameState::Gameplay)
             .with_system(hurt_ability_trigger)
             .with_system(hurt_ability_update)
+            .with_system(hurt_ability_flash)
+            .with_system(hurt_ability_enemy_disable_collider)
+            .with_system(hurt_ability_enemy_enable_collider.after(hurt_ability_update))
     );
 }
-
 
 
 
@@ -44,7 +48,9 @@ pub struct HurtAbility {
     pub immunity_timer: Timer,
     pub initial_stun_timer: Timer,
     pub regain_control_timer: Option<Timer>,
-    pub hit_event: Option<CombatEvent>
+    pub hit_event: Option<CombatEvent>,
+
+    pub flash_timer: Timer
 }
 
 impl HurtAbility {
@@ -69,7 +75,9 @@ impl HurtAbility {
             regain_control_timer,
 
             initial_stun_timer: Timer::from_seconds(0.1, TimerMode::Once),
-            hit_event: None
+            hit_event: None,
+
+            flash_timer: Timer::from_seconds(0.14, TimerMode::Repeating)
         }
     }
 
@@ -82,11 +90,40 @@ impl HurtAbility {
     }
 }
 
+
+fn hurt_ability_enemy_disable_collider(
+    mut p: Query<&mut ColliderAttack>,
+    q: Query<&Children, (Added<Hurt>, (With<Enemy>, Without<Boss>))>
+) {
+    for children in q.iter() {
+        for child in children {
+            if let Ok(mut atk) = p.get_mut(*child) {
+                atk.enabled = false;
+            }
+        }
+    }
+}
+
+fn hurt_ability_enemy_enable_collider(
+    mut p: Query<&mut ColliderAttack>,
+    q: Query<(&Children, &HurtAbility), (With<Enemy>, Without<Boss>)>
+) {
+    for (children, hurt) in q.iter() {
+        if hurt.immunity_timer.just_finished() {
+            for child in children {
+                if let Ok(mut atk) = p.get_mut(*child) {
+                    atk.enabled = true;
+                }
+            }
+        }
+    }
+}
+
+
 pub fn hurt_ability_trigger(
     mut hurts: Query<(&mut Immunity, &mut HurtAbility), (Added<Hurt>, Without<Die>)>
 ) {
     for (mut immunity, mut hurt) in hurts.iter_mut() {
-
         hurt.immunity_timer.reset();
         hurt.initial_stun_timer.reset();
 
@@ -94,7 +131,31 @@ pub fn hurt_ability_trigger(
             timer.reset();
         }
 
+        hurt.flash_timer.reset();
         immunity.is_immune = true;
+    }
+}
+
+pub fn hurt_ability_flash(
+    time: Res<Time>,
+    mut q: Query<(&mut TextureAtlasSprite, &mut HurtAbility, Option<&Die>)>
+) {
+    for (mut spr, mut hurt, maybe_dead) in q.iter_mut() {
+        if hurt.is_immune() && maybe_dead.is_none() {
+            hurt.flash_timer.tick(time.delta());
+
+            if hurt.flash_timer.just_finished() {
+                let flash_color = Color::rgb(f32::MAX, f32::MAX, f32::MAX);
+
+                spr.color = if spr.color != flash_color {
+                    flash_color
+                } else {
+                    Color::WHITE
+                };
+            }
+        } else {
+            spr.color = Color::WHITE;
+        }
     }
 }
 
@@ -102,6 +163,7 @@ pub fn hurt_ability_trigger(
 pub fn hurt_ability_update(
     time: Res<Time>,
     mut commands: Commands,
+    hurting: Query<Entity, With<Hurt>>,
     mut hurts: Query<(Entity, &mut Immunity, &mut HurtAbility), Without<Die>>
 ) {
     for (entity, mut immunity, mut hurt) in hurts.iter_mut() {
@@ -113,7 +175,7 @@ pub fn hurt_ability_update(
         if let Some(regain_control_timer) = &mut hurt.regain_control_timer {
             regain_control_timer.tick(dt);
 
-            if regain_control_timer.just_finished() {
+            if regain_control_timer.just_finished() && hurting.contains(entity) {
                 commands.entity(entity).insert(Done::Success);
             }
         }

@@ -151,7 +151,7 @@ fn setup_player(
             slash: SlashAbility::default(),
             jump: JumpAbility::default(),
             shoot: ShootAbility::default(),
-            hurt: HurtAbility::new(0.3, Some(0.3)),
+            hurt: HurtAbility::new(0.4, Some(0.3)),
 
             skill_levels: PlayerSkillLevels::default(),
 

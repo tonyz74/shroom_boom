@@ -46,13 +46,25 @@ pub fn register_flower_enemy_state_machine(app: &mut App) {
             SystemSet::on_update(GameState::Gameplay)
                 .with_system(flower_enemy_detonate)
                 .with_system(flower_enemy_tick)
+                .with_system(flower_enemy_disable_collider_on_detonate)
         );
 }
 
-pub fn flower_enemy_detonate(
+pub fn flower_enemy_disable_collider_on_detonate(
     mut p: Query<&mut ColliderAttack>,
+    q: Query<&Children, With<Detonate>>
+) {
+    for children in q.iter() {
+        for child in children {
+            if let Ok(mut atk) = p.get_mut(*child) {
+                atk.enabled = false;
+            }
+        }
+    }
+}
+
+pub fn flower_enemy_detonate(
     mut q: Query<(
-        &Children,
         &GlobalTransform,
         &mut Pathfinder,
         &mut Enemy,
@@ -61,14 +73,7 @@ pub fn flower_enemy_detonate(
     ), Added<Detonate>>,
     mut indicators: EventWriter<Indicator>
 ) {
-    for (kids, transform, mut pathfinder, mut enemy, mut flower, mut immunity) in q.iter_mut() {
-
-        for child in kids {
-            if let Ok(mut atk) = p.get_mut(*child) {
-                atk.enabled = false;
-            }
-        }
-
+    for (transform, mut pathfinder, mut enemy, mut flower, mut immunity) in q.iter_mut() {
         let pos = transform.translation();
 
         pathfinder.active = false;

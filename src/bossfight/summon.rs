@@ -12,6 +12,7 @@ use crate::fx::indicator::Indicator;
 use crate::level::consts::RENDERED_TILE_SIZE;
 use crate::level::LevelInfo;
 use crate::pathfind::Region;
+use crate::player::abilities::autotarget::Untargetable;
 use crate::state::GameState;
 
 
@@ -63,7 +64,9 @@ pub fn register_boss_summon(app: &mut App) {
 
 fn enter_summon(
     mut collider_attacks: Query<&mut ColliderAttack>,
+    mut commands: Commands,
     mut q: Query<(
+        Entity,
         &mut Immunity,
         &Children,
         &BossStage,
@@ -77,7 +80,7 @@ fn enter_summon(
         return;
     }
 
-    let (mut immunity, children, stage, mut summon, mut hurt) = q.single_mut();
+    let (entity, mut immunity, children, stage, mut summon, mut hurt) = q.single_mut();
 
     summon.enemies.clear();
     summon.summon_lag.reset();
@@ -102,6 +105,8 @@ fn enter_summon(
     if hurt.is_immune() {
         hurt.should_disable_immunity = false;
     }
+
+    commands.entity(entity).insert(Untargetable);
 
     immunity.is_immune = true;
 

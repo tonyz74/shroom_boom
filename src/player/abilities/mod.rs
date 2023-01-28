@@ -3,4 +3,4 @@ pub mod slash;
 pub mod jump;
 pub mod shoot;
 
-mod autotarget;
+pub mod autotarget;

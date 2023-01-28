@@ -3,6 +3,7 @@ use crate::bossfight::{Boss, BossStage};
 use crate::bossfight::state_machine::Vulnerable;
 use crate::bossfight::summon::{FinishedSummoning, SummonedEnemy};
 use crate::combat::{Health, Immunity};
+use crate::player::abilities::autotarget::Untargetable;
 use crate::state::GameState;
 
 pub fn register_boss_vulnerable(app: &mut App) {
@@ -29,7 +30,8 @@ fn boss_enter_vulnerable(
 
         commands
             .entity(ent)
-            .remove::<FinishedSummoning>();
+            .remove::<FinishedSummoning>()
+            .remove::<Untargetable>();
 
         immunity.is_immune = false;
 

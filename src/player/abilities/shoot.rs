@@ -6,7 +6,7 @@ use crate::assets::PlayerAssets;
 use crate::combat::{AttackStrength, CombatLayerMask, ProjectileAttack, ProjectileAttackBundle};
 use crate::entity_states::Shoot;
 use crate::player::abilities::autotarget;
-use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_direction, direction_for_facing, direction_to_vec};
+use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_direction, direction_for_facing, direction_to_vec, Untargetable};
 use crate::player::consts::{PLAYER_SHOOT_EXPIRATION_TIME, SHOOT_LEVELS};
 use crate::player::Player;
 use crate::state::GameState;
@@ -52,6 +52,7 @@ fn start_shoot(
     mut q: Query<(Entity, &mut ShootAbility), Added<Shoot>>,
     transforms: Query<&GlobalTransform>,
     combat_layers: Query<&CombatLayerMask>,
+    untargetable: Query<&Untargetable>,
     rapier: Res<RapierContext>
 ) {
     if q.is_empty() {
@@ -67,6 +68,7 @@ fn start_shoot(
         512.0,
         &transforms,
         &combat_layers,
+        &untargetable,
         &rapier
     );
 

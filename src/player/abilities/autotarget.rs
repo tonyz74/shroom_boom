@@ -5,6 +5,9 @@ use crate::combat::CombatLayerMask;
 
 use crate::util::{Facing, FacingX};
 
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Component)]
+pub struct Untargetable;
+
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
 pub enum AttackDirection {
     Up,
@@ -72,6 +75,7 @@ pub fn get_closest_target(
     span: f32,
     transforms: &Query<&GlobalTransform>,
     combat_layers: &Query<&CombatLayerMask>,
+    disabled: &Query<&Untargetable>,
     rapier: &RapierContext,
 ) -> Option<(Vec2, AttackDirection)> {
 
@@ -96,6 +100,10 @@ pub fn get_closest_target(
         },
         |colliding_entity| {
             let target_pos = transforms.get(colliding_entity).unwrap().translation().xy();
+
+            if disabled.contains(colliding_entity) {
+                return true;
+            }
 
             if let Some(best) = closest_target {
                 if best.distance(self_pos) > target_pos.distance(self_pos) {

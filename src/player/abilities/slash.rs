@@ -10,7 +10,7 @@ use crate::{
 };
 use crate::combat::{AttackStrength, CombatLayerMask};
 use crate::entity_states::Die;
-use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_direction, direction_for_facing, get_closest_target};
+use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_direction, direction_for_facing, get_closest_target, Untargetable};
 use crate::player::consts::SLASH_LEVELS;
 use crate::player::state_machine::Slash;
 use crate::util::{Facing, quat_rot2d_deg};
@@ -108,6 +108,7 @@ fn slash_ability_trigger(
     ), (Added<Slash>, Without<Die>)>,
     transforms: Query<&GlobalTransform>,
     combat_layers: Query<&CombatLayerMask>,
+    untargetable: Query<&Untargetable>,
     rapier: Res<RapierContext>
 ) {
     if q.is_empty() {
@@ -125,6 +126,7 @@ fn slash_ability_trigger(
         240.0,
         &transforms,
         &combat_layers,
+        &untargetable,
         &rapier
     ) {
         b

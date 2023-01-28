@@ -13,12 +13,7 @@ use crate::{
 use crate::combat::{AttackStrength, ColliderAttack, CombatLayerMask, HurtAbility, Immunity};
 use crate::entity_states::Die;
 use crate::player::abilities::autotarget;
-use crate::player::abilities::autotarget::{
-    AttackDirection,
-    change_facing_for_direction,
-    direction_for_facing,
-    direction_to_vec
-};
+use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_direction, direction_for_facing, direction_to_vec, Untargetable};
 use crate::player::consts::DASH_LEVELS;
 use crate::util::Facing;
 
@@ -66,6 +61,7 @@ fn dash_ability_trigger(
 
     transforms: Query<&GlobalTransform>,
     combat_layers: Query<&CombatLayerMask>,
+    untargetable: Query<&Untargetable>,
 
     mut collider_attacks: Query<&mut ColliderAttack>,
     rapier: Res<RapierContext>
@@ -95,6 +91,7 @@ fn dash_ability_trigger(
             256.0,
             &transforms,
             &combat_layers,
+            &untargetable,
             &rapier
         ) {
             match dir {

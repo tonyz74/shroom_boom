@@ -6,7 +6,7 @@ use crate::bossfight::consts::{BOSS_BOOM_PARTITION_SIZE, BOSS_SUMMON_COUNT_EASY,
 use crate::bossfight::stage::BossStage;
 use crate::bossfight::state_machine::Summon;
 use crate::bossfight::util::pick_point_in_region;
-use crate::combat::{ColliderAttack, Immunity};
+use crate::combat::{ColliderAttack, HurtAbility, Immunity};
 use crate::enemies::spawner::{EnemyDifficulty, EnemyLocation, EnemySpawnEvent, EnemyType};
 use crate::fx::indicator::Indicator;
 use crate::level::consts::RENDERED_TILE_SIZE;
@@ -68,6 +68,7 @@ fn enter_summon(
         &Children,
         &BossStage,
         &mut SummonAbility,
+        &mut HurtAbility
     ), (With<Boss>, Added<Summon>)>,
 
     lvl_info: Res<LevelInfo>,
@@ -76,7 +77,7 @@ fn enter_summon(
         return;
     }
 
-    let (mut immunity, children, stage, mut summon) = q.single_mut();
+    let (mut immunity, children, stage, mut summon, mut hurt) = q.single_mut();
 
     summon.enemies.clear();
     summon.summon_lag.reset();
@@ -97,6 +98,10 @@ fn enter_summon(
 
     summon.target_count = count;
     summon.difficulty = difficulty;
+
+    if hurt.is_immune() {
+        hurt.should_disable_immunity = false;
+    }
 
     immunity.is_immune = true;
 

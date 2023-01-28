@@ -50,7 +50,8 @@ pub struct HurtAbility {
     pub regain_control_timer: Option<Timer>,
     pub hit_event: Option<CombatEvent>,
 
-    pub flash_timer: Timer
+    pub flash_timer: Timer,
+    pub should_disable_immunity: bool
 }
 
 impl HurtAbility {
@@ -77,7 +78,8 @@ impl HurtAbility {
             initial_stun_timer: Timer::from_seconds(0.1, TimerMode::Once),
             hit_event: None,
 
-            flash_timer: Timer::from_seconds(0.14, TimerMode::Repeating)
+            flash_timer: Timer::from_seconds(0.14, TimerMode::Repeating),
+            should_disable_immunity: true
         }
     }
 
@@ -181,7 +183,11 @@ pub fn hurt_ability_update(
         }
 
         if hurt.immunity_timer.just_finished() {
-            immunity.is_immune = false;
+            if hurt.should_disable_immunity {
+                immunity.is_immune = false;
+            }
+
+            hurt.should_disable_immunity = true;
         }
     }
 }

@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use seldom_state::prelude::*;
 use crate::bossfight::{Boss, BossStage};
+use crate::bossfight::abilities::RestAbility;
 use crate::combat::{DeathTrigger, HurtTrigger};
 use crate::entity_states::*;
 
@@ -14,6 +15,7 @@ pub fn register_boss_state_machine(app: &mut App) {
         .add_plugin(TP::<VulnerableTrigger>::default())
 
         .add_plugin(TP::<RestTrigger>::default())
+        .add_plugin(TP::<PickNextMoveTrigger>::default())
         .add_plugin(TP::<TakeoffTrigger>::default())
         .add_plugin(TP::<ChargeLeftTrigger>::default())
         .add_plugin(TP::<ChargeRightTrigger>::default())
@@ -47,6 +49,7 @@ pub fn boss_state_machine() -> StateMachine {
         .trans::<Idle>(RestTrigger, Rest)
         .trans::<Rest>(HurtTrigger, Hurt)
         .trans::<Rest>(DoneTrigger::Success, PickNextMove)
+        .trans::<Hurt>(PickNextMoveTrigger, PickNextMove)
 
         .trans::<Idle>(ChargeLeftTrigger, Charge)
         .trans::<Charge>(DoneTrigger::Success, PickNextMove)
@@ -241,6 +244,32 @@ impl Trigger for RestTrigger {
 
         match ATTACK_SEQUENCE[boss.move_index] {
             EnragedAttackMove::Rest(_) => true,
+            _ => false
+        }
+    }
+}
+
+#[derive(Copy, Clone, Reflect, FromReflect)]
+pub struct PickNextMoveTrigger;
+
+impl Trigger for PickNextMoveTrigger {
+    type Param<'w, 's> = Query<'w, 's, (&'static Boss, &'static BossStage, &'static RestAbility)>;
+
+    fn trigger(&self, _: Entity, boss: &Self::Param<'_, '_>) -> bool {
+        if boss.is_empty() {
+            return false;
+        }
+
+        let (boss, stage, rest) = boss.single();
+
+        if stage != &BossStage::Enraged {
+            return false;
+        }
+
+        match ATTACK_SEQUENCE[boss.move_index] {
+            EnragedAttackMove::Rest(_) => {
+                rest.timer.finished()
+            },
             _ => false
         }
     }

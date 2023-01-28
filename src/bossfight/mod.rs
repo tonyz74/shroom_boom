@@ -45,7 +45,7 @@ pub struct Boss {
 impl Default for Boss {
     fn default() -> Self {
         Self {
-            vulnerability_timer: Timer::from_seconds(8.0, TimerMode::Once),
+            vulnerability_timer: Timer::from_seconds(10.0, TimerMode::Once),
             move_index: 0,
         }
     }

@@ -317,7 +317,12 @@ impl CoinAssets {
 
 #[derive(Resource, Default, Debug)]
 pub struct BossAssets {
-    pub anims: AnimationMap
+    pub anims: AnimationMap,
+
+    pub health_bar_easy: Vec<Handle<Image>>,
+    pub health_bar_medium: Vec<Handle<Image>>,
+    pub health_bar_hard: Vec<Handle<Image>>,
+    pub health_bar_enraged: Vec<Handle<Image>>,
 }
 
 impl BossAssets {
@@ -327,7 +332,7 @@ impl BossAssets {
         mut assets: ResMut<BossAssets>,
     ) {
         const SIZE: Vec2 = Vec2::new(64., 64.);
-        let sheet = asset_server.load("art/enemies/Shroom-Sheet.png");
+        let sheet = asset_server.load("art/boss/Shroom-Sheet.png");
         let mut anims = HashMap::new();
 
         // IDLE
@@ -400,6 +405,32 @@ impl BossAssets {
         anims.insert(vulnerable_anim.name.to_string(), vulnerable_anim.clone());
 
         assets.anims = AnimationMap::new(anims);
+
+
+        // HEALTH BAR
+        let mut health_bar_easy = vec![];
+        for i in 1..=7 {
+            health_bar_easy.push(asset_server.load(format!("art/boss/HealthBarEasy{:?}.png", i)));
+        }
+        assets.health_bar_easy = health_bar_easy;
+
+        let mut health_bar_medium = vec![];
+        for i in 1..=7 {
+            health_bar_medium.push(asset_server.load(format!("art/boss/HealthBarMedium{:?}.png", i)));
+        }
+        assets.health_bar_medium = health_bar_medium;
+
+        let mut health_bar_hard = vec![];
+        for i in 1..=7 {
+            health_bar_hard.push(asset_server.load(format!("art/boss/HealthBarHard{:?}.png", i)));
+        }
+        assets.health_bar_hard = health_bar_hard;
+
+        let mut health_bar_enraged = vec![];
+        for i in 1..=14 {
+            health_bar_enraged.push(asset_server.load(format!("art/boss/HealthBarEnraged{:?}.png", i)));
+        }
+        assets.health_bar_enraged = health_bar_enraged;
     }
 }
 

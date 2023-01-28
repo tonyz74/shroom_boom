@@ -2,10 +2,10 @@ mod state_machine;
 mod summon;
 mod vulnerable;
 mod enraged;
-mod stage;
+pub mod stage;
 mod abilities;
 mod config;
-mod consts;
+pub mod consts;
 mod util;
 mod anim;
 

@@ -6,6 +6,7 @@ pub mod style;
 pub mod ui;
 pub mod event_handlers;
 pub mod shop_button;
+pub mod bossbar;
 
 use kayak_ui::prelude::*;
 use kayak_ui::widgets::*;
@@ -25,6 +26,7 @@ impl Plugin for GameUiPlugin {
         hud::register_hud_ui_systems(app);
         shop::register_shop_menu_ui_systems(app);
         shop_button::register_shop_button_systems(app);
+        bossbar::register_boss_bar(app);
     }
 }
 

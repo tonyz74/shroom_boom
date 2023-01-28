@@ -176,11 +176,11 @@ fn sync_hud(
 
     for (coin, health, ammo) in player_stats.iter() {
         let mut health_bar = health_bar.single_mut();
-        let index = index_for_value(health.hp, health.max_hp);
+        let index = index_for_value(health.hp, health.max_hp, PLAYER_HUD_DISPLAY_CHUNKS);
         *health_bar = assets.health[index].clone().into();
 
         let mut ammo_bar = ammo_bar.single_mut();
-        let index = index_for_value(ammo.rounds_left as i32, ammo.max_rounds as i32);
+        let index = index_for_value(ammo.rounds_left as i32, ammo.max_rounds as i32, PLAYER_HUD_DISPLAY_CHUNKS);
         *ammo_bar = assets.ammo[index].clone().into();
 
         let mut wallet_text = wallet_text.single_mut();
@@ -188,10 +188,10 @@ fn sync_hud(
     }
 }
 
-fn index_for_value(val: i32, max: i32) -> usize {
+pub fn index_for_value(val: i32, max: i32, chunks: usize) -> usize {
     if val > 0 {
         let percent = val as f32 / max as f32;
-        (percent * PLAYER_HUD_DISPLAY_CHUNKS as f32).ceil() as usize
+        (percent * chunks as f32).ceil() as usize
     } else {
         0
     }

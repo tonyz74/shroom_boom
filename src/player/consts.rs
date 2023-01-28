@@ -13,7 +13,7 @@ pub const PLAYER_COLLIDER_CAPSULE: rp::geometry::Capsule = rp::geometry::Capsule
 pub const PLAYER_SIZE_PX: Vec2 = Vec2::new(64.0, 64.0);
 
 pub const PLAYER_DASH_LENGTH: f32 = 0.13;
-pub const PLAYER_SHOOT_EXPIRATION_TIME: f32 = 0.5;
+pub const PLAYER_SHOOT_EXPIRATION_TIME: f32 = 0.7;
 
 pub const PLAYER_RUN_SPEED: f32 = 5.0;
 pub const PLAYER_JUMP_SPEED: f32 = 14.0;
@@ -45,12 +45,12 @@ pub const AMMO_LEVELS: [i32; 6] = [
 ];
 
 pub const DASH_LEVELS: [(f32, f32, i32); 6] = [
-    (1.2, 20.0, 1),
-    (1.2, 22.0, 2),
+    (1.0, 20.0, 1),
+    (1.0, 22.0, 2),
     (0.9, 25.0, 3),
     (0.7, 26.0, 4),
     (0.5, 30.0, 5),
-    (0.3, 34.0, 6)
+    (0.3, 30.0, 6)
 ];
 
 pub const SLASH_LEVELS: [(f32, i32); 6] = [
@@ -63,10 +63,10 @@ pub const SLASH_LEVELS: [(f32, i32); 6] = [
 ];
 
 pub const SHOOT_LEVELS: [(f32, f32, i32); 6] = [
-    (1.4, 8.0, 1),
-    (1.2, 9.0, 2),
-    (1.0, 10.0, 3),
-    (0.8, 11.0, 4),
-    (0.6, 12.0, 5),
-    (0.4, 14.0, 6),
+    (0.9, 10.0, 1),
+    (0.8, 11.0, 2),
+    (0.7, 12.0, 3),
+    (0.6, 13.0, 4),
+    (0.5, 14.0, 5),
+    (0.4, 16.0, 6),
 ];

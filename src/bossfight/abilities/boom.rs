@@ -51,7 +51,7 @@ fn start_booming(
         return;
     }
 
-    immunity.is_immune = false;
+    immunity.is_immune = true;
 
     boom.wait_timer.reset();
     boom.sel_timer.reset();

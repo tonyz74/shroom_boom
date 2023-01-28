@@ -66,7 +66,6 @@ pub fn boss_state_machine() -> StateMachine {
         .trans::<Slam>(DoneTrigger::Success, PickNextMove)
 
         .trans::<Idle>(BoomTrigger, Boom)
-        .trans::<Boom>(HurtTrigger, Hurt)
         .trans::<Boom>(DoneTrigger::Success, PickNextMove)
 
 

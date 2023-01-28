@@ -194,52 +194,6 @@ impl Default for ShopMenuBundle {
 }
 
 
-
-fn button_on_event(purchase: ShopPurchaseEvent) -> OnEvent {
-    OnEvent::new(move |
-        In((event_dispatcher_context, _, event, entity)): EventInput,
-        children: Query<&KChildren>,
-        mut images: Query<&mut KImage>,
-        mut evw: EventWriter<ShopPurchaseEvent>,
-        assets: Res<ShopAssets>
-    | {
-        let mut new_image = None;
-
-        match event.event_type {
-            EventType::Click(_) => {
-                evw.send(purchase);
-            }
-
-            EventType::MouseDown(_) => {
-                new_image = Some(assets.buy_pressed.clone());
-            }
-
-            EventType::Hover(_) => {
-                println!("hover");
-                new_image = Some(assets.buy_hover.clone());
-            }
-
-            EventType::MouseUp(_) => {
-                new_image = Some(assets.buy.clone());
-            }
-
-            _ => {}
-        }
-
-        if let Some(img) = new_image {
-            let k_children = children.get(entity).unwrap();
-            for child in k_children.iter() {
-                if let Ok(mut image) = images.get_mut(*child) {
-                    image.0 = img.clone();
-                }
-            }
-        }
-
-        (event_dispatcher_context, event)
-    })
-}
-
-
 pub fn register_shop_menu_ui_systems(app: &mut App) {
     app
         .init_resource::<UiShopStyleData>()
@@ -299,7 +253,7 @@ pub fn shop_menu_render(
 
 
     let window_styles = KStyle {
-        width: Value(Units::Pixels(1024.0)),
+        width: Value(Units::Pixels(840.0)),
         height: Value(Units::Pixels(680.0)),
         background_color: Value(window_color),
         offset: Value(Edge::all(Units::Stretch(1.0))),
@@ -328,7 +282,7 @@ pub fn shop_menu_render(
     };
 
     let catalog_styles = KStyle {
-        width: Value(Units::Percentage(90.0)),
+        width: Value(Units::Percentage(94.0)),
         height: Value(Units::Percentage(80.0)),
         background_color: Value(catalog_color),
         offset: Value(Edge::all(Units::Stretch(1.0))),
@@ -338,8 +292,8 @@ pub fn shop_menu_render(
     };
 
     let container_styles = KStyle {
-        width: Value(Units::Percentage(45.0)),
-        height: Value(Units::Percentage(90.0)),
+        width: Value(Units::Percentage(47.0)),
+        height: Value(Units::Percentage(94.0)),
         background_color: Value(container_color),
         offset: Value(Edge::all(Units::Stretch(1.0))),
         border_radius: Value(Corner::all(32.0)),
@@ -374,8 +328,8 @@ pub fn shop_menu_render(
 
     let item_label_styles = KStyle {
         color: Value(item_label_color),
-        font_size: Value(20.0),
-        line_height: Value(64.0),
+        font_size: Value(18.0),
+        line_height: Value(52.0),
         offset: Value(Edge::all(Units::Stretch(1.0))),
         left: Value(Units::Pixels(8.0)),
         ..default()
@@ -383,8 +337,8 @@ pub fn shop_menu_render(
 
     let cost_label_styles = KStyle {
         color: Value(cost_label_color),
-        font_size: Value(20.0),
-        line_height: Value(64.0),
+        font_size: Value(18.0),
+        line_height: Value(52.0),
         offset: Value(Edge::all(Units::Stretch(1.0))),
         right: Value(Units::Pixels(8.0)),
         ..default()

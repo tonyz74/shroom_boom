@@ -1,6 +1,5 @@
 use bevy::prelude::*;
 use bevy_debug_text_overlay::screen_print;
-use pathfinding::num_traits::real::Real;
 use crate::assets::BossAssets;
 use crate::bossfight::Boss;
 use crate::bossfight::consts::{BOSS_EASY_HEALTH_THRESHOLD, BOSS_HARD_HEALTH_THRESHOLD, BOSS_HEALTH, BOSS_MEDIUM_HEALTH_THRESHOLD};
@@ -110,7 +109,7 @@ fn percent_idx(hp: i32, max_hp: i32, parts: usize) -> usize {
     }
 
     let p = ((hp as f32 / max_hp as f32) * parts as f32).ceil();
-    parts - p as usize
+    (parts - p as usize).clamp(0, parts - 1)
 }
 
 fn remove_bossbar(

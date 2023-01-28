@@ -521,6 +521,7 @@ impl ShopAssets {
         assets.shopkeeper = Animation {
             tex: atlas_handle,
             speed: 0.75,
+            repeating: true,
             ..default()
         };
 
@@ -533,13 +534,13 @@ impl ShopAssets {
         assets.tonics = vec![
             asset_server.load("art/shop/OddTonic.png"),
             asset_server.load("art/shop/StrangeTonic.png"),
-            asset_server.load("art/shop/SuspiciousTonic.png"),
+            asset_server.load("art/shop/BizarreTonic.png"),
         ];
 
         assets.waters = vec![
-            asset_server.load("art/shop/CupOfWater.png"),
-            asset_server.load("art/shop/BucketOfWater.png"),
-            asset_server.load("art/shop/TankOfWater.png"),
+            asset_server.load("art/shop/WaterCup.png"),
+            asset_server.load("art/shop/WaterBucket.png"),
+            asset_server.load("art/shop/WaterTank.png"),
         ];
 
         assets.health_up = asset_server.load("art/shop/HealthUp.png");

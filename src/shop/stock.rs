@@ -4,10 +4,10 @@ use bevy::prelude::*;
 pub enum ShopItem {
     OddTonicItem,
     StrangeTonicItem,
-    SuspiciousTonicItem,
-    CupOfWaterItem,
-    BucketOfWaterItem,
-    TankOfWaterItem,
+    BizarreTonicItem,
+    WaterCupItem,
+    WaterBucketItem,
+    WaterTankItem,
 
     HealthUpgrade,
     AmmoUpgrade,
@@ -20,10 +20,10 @@ pub enum ShopItem {
 pub const SHOP_CATALOG_ALL: &[ShopItem] = &[
     ShopItem::OddTonicItem,
     ShopItem::StrangeTonicItem,
-    ShopItem::SuspiciousTonicItem,
-    ShopItem::CupOfWaterItem,
-    ShopItem::BucketOfWaterItem,
-    ShopItem::TankOfWaterItem,
+    ShopItem::BizarreTonicItem,
+    ShopItem::WaterCupItem,
+    ShopItem::WaterBucketItem,
+    ShopItem::WaterTankItem,
 
     ShopItem::HealthUpgrade,
     ShopItem::AmmoUpgrade,
@@ -35,10 +35,10 @@ pub const SHOP_CATALOG_ALL: &[ShopItem] = &[
 pub const SHOP_CATALOG_ITEMS: &[ShopItem] = &[
     ShopItem::OddTonicItem,
     ShopItem::StrangeTonicItem,
-    ShopItem::SuspiciousTonicItem,
-    ShopItem::CupOfWaterItem,
-    ShopItem::BucketOfWaterItem,
-    ShopItem::TankOfWaterItem
+    ShopItem::BizarreTonicItem,
+    ShopItem::WaterCupItem,
+    ShopItem::WaterBucketItem,
+    ShopItem::WaterTankItem
 ];
 
 pub const SHOP_CATALOG_UPGRADES: &[ShopItem] = &[

@@ -14,21 +14,21 @@ impl ShopItemInfo {
         match order {
             // ITEMS
 
-            ShopItem::CupOfWaterItem => Self {
+            ShopItem::WaterCupItem => Self {
                 cost: 5,
-                name: "Cup of Water",
+                name: "Water Cup",
                 icon: assets.waters[0].clone(),
             },
 
-            ShopItem::BucketOfWaterItem => Self {
+            ShopItem::WaterBucketItem => Self {
                 cost: 10,
-                name: "Bucket of Water",
+                name: "Water Bucket",
                 icon: assets.waters[1].clone(),
             },
 
-            ShopItem::TankOfWaterItem => Self {
+            ShopItem::WaterTankItem => Self {
                 cost: 20,
-                name: "Tank of Water",
+                name: "Water Tank",
                 icon: assets.waters[2].clone(),
             },
 
@@ -44,9 +44,9 @@ impl ShopItemInfo {
                 icon: assets.tonics[1].clone(),
             },
 
-            ShopItem::SuspiciousTonicItem => Self {
+            ShopItem::BizarreTonicItem => Self {
                 cost: 20,
-                name: "Suspicious Tonic",
+                name: "Bizarre Tonic",
                 icon: assets.tonics[2].clone(),
             },
 

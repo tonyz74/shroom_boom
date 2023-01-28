@@ -34,21 +34,21 @@ pub fn shop_apply_purchases(
 
         match buy.order {
             // Items
-            Item::OddTonicItem | Item::StrangeTonicItem | Item::SuspiciousTonicItem => {
+            Item::OddTonicItem | Item::StrangeTonicItem | Item::BizarreTonicItem => {
                 let hp = match buy.order {
                     Item::OddTonicItem => 10,
                     Item::StrangeTonicItem => 15,
-                    Item::SuspiciousTonicItem => 25,
+                    Item::BizarreTonicItem => 25,
                     _ => panic!()
                 };
 
                 health.hp = (health.hp + hp).clamp(0, health.max_hp);
             }
-            Item::CupOfWaterItem | Item::BucketOfWaterItem | Item::TankOfWaterItem => {
+            Item::WaterCupItem | Item::WaterBucketItem | Item::WaterTankItem => {
                 let rounds = match buy.order {
-                    Item::CupOfWaterItem => 10,
-                    Item::BucketOfWaterItem => 15,
-                    Item::TankOfWaterItem => 25,
+                    Item::WaterCupItem => 10,
+                    Item::WaterBucketItem => 15,
+                    Item::WaterTankItem => 25,
                     _ => panic!()
                 };
 

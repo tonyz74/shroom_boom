@@ -107,7 +107,6 @@ fn handle_hits(
 ) {
     for hit in hit_events.iter() {
         if let Ok((entity, mut hurt, mut health)) = q.get_mut(hit.target) {
-
             if immune.contains(entity) && immune.get(entity).unwrap().is_immune {
                 hurt.hit_event = None;
                 continue;

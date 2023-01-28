@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-#[derive(Copy, Clone, Debug, Component)]
+#[derive(Copy, Clone, Debug, Component, PartialEq)]
 pub enum ShopItem {
     OddTonicItem,
     StrangeTonicItem,

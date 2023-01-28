@@ -30,7 +30,7 @@ pub fn boss_state_machine() -> StateMachine {
         .trans::<Idle>(HurtTrigger, Hurt)
 
         .trans::<Idle>(SummonTrigger, Summon)
-        .trans::<Hurt>(SummonTrigger, Summon)
+        // .trans::<Hurt>(SummonTrigger, Summon)
         .trans::<Summon>(VulnerableTrigger, BeginVulnerable)
         .trans::<BeginVulnerable>(AlwaysTrigger, Vulnerable)
         .trans::<Vulnerable>(SummonTrigger, Summon)

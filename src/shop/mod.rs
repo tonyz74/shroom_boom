@@ -27,7 +27,7 @@ impl Plugin for ShopPlugin {
 
 
 
-#[derive(Resource, Copy, Clone, Debug, Component)]
+#[derive(Resource, Copy, Clone, Debug, PartialEq, Component)]
 pub struct ShopPurchaseEvent {
     pub cost: i32,
     pub order: ShopItem

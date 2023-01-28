@@ -177,8 +177,8 @@ fn setup_player(
     });
 }
 
-pub fn player_print_health(p: Query<&Health, Changed<Health>>) {
-    for hp in p.iter() {
-        println!("hp changed: {:?}", hp);
+pub fn player_print_health(p: Query<(&Health, &Immunity), (Changed<Health>, With<crate::bossfight::Boss>)>) {
+    for (hp, imm) in p.iter() {
+        println!("hp changed: {:?}, immunity: {:?}", hp, imm);
     }
 }

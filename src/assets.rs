@@ -466,7 +466,13 @@ pub struct ShopAssets {
     pub ammo_up: Handle<Image>,
     pub slash_up: Handle<Image>,
     pub dash_up: Handle<Image>,
-    pub shoot_up: Handle<Image>
+    pub shoot_up: Handle<Image>,
+
+    pub buy: Handle<Image>,
+    pub buy_pressed: Handle<Image>,
+    pub buy_hover: Handle<Image>,
+
+    pub blank: Handle<Image>
 }
 
 impl ShopAssets {
@@ -486,6 +492,12 @@ impl ShopAssets {
             speed: 0.75,
             ..default()
         };
+
+        assets.buy = asset_server.load("art/shop/Buy.png");
+        assets.buy_pressed = asset_server.load("art/shop/BuyPressed.png");
+        assets.buy_hover = asset_server.load("art/shop/BuyHover.png");
+
+        assets.blank = asset_server.load("art/shop/Blank.png");
 
         assets.tonics = vec![
             asset_server.load("art/shop/OddTonic.png"),

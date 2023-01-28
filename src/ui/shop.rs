@@ -10,6 +10,7 @@ use crate::shop::stock::{SHOP_CATALOG_ITEMS, SHOP_CATALOG_UPGRADES, ShopItem};
 
 use crate::ui::event_handlers::{goto_state_event, StateTransition};
 use crate::ui::EventInput;
+use crate::ui::shop_button;
 
 
 
@@ -135,21 +136,14 @@ impl Default for UiShopStyleData {
 
 #[derive(Debug, Component, PartialEq, Clone)]
 pub struct ShopMenuState {
-    pub skill_levels: PlayerSkillLevels
+    pub skill_levels: PlayerSkillLevels,
 }
 
 impl Default for ShopMenuState {
     fn default() -> Self {
         Self {
-            skill_levels: PlayerSkillLevels::default()
+            skill_levels: PlayerSkillLevels::default(),
         }
-    }
-}
-
-
-fn print_colors(inp: Res<Input<KeyCode>>, ui: Res<UiShopStyleData>) {
-    if inp.just_pressed(KeyCode::Apostrophe) {
-        println!("{:?}", ui);
     }
 }
 
@@ -201,16 +195,44 @@ impl Default for ShopMenuBundle {
 
 
 
-fn on_purchase(purchase: ShopPurchaseEvent) -> OnEvent {
+fn button_on_event(purchase: ShopPurchaseEvent) -> OnEvent {
     OnEvent::new(move |
-        In((event_dispatcher_context, _, event, _entity)): EventInput,
-        mut evw: EventWriter<ShopPurchaseEvent>
+        In((event_dispatcher_context, _, event, entity)): EventInput,
+        children: Query<&KChildren>,
+        mut images: Query<&mut KImage>,
+        mut evw: EventWriter<ShopPurchaseEvent>,
+        assets: Res<ShopAssets>
     | {
+        let mut new_image = None;
+
         match event.event_type {
             EventType::Click(_) => {
                 evw.send(purchase);
             }
+
+            EventType::MouseDown(_) => {
+                new_image = Some(assets.buy_pressed.clone());
+            }
+
+            EventType::Hover(_) => {
+                println!("hover");
+                new_image = Some(assets.buy_hover.clone());
+            }
+
+            EventType::MouseUp(_) => {
+                new_image = Some(assets.buy.clone());
+            }
+
             _ => {}
+        }
+
+        if let Some(img) = new_image {
+            let k_children = children.get(entity).unwrap();
+            for child in k_children.iter() {
+                if let Ok(mut image) = images.get_mut(*child) {
+                    image.0 = img.clone();
+                }
+            }
         }
 
         (event_dispatcher_context, event)
@@ -219,11 +241,12 @@ fn on_purchase(purchase: ShopPurchaseEvent) -> OnEvent {
 
 
 pub fn register_shop_menu_ui_systems(app: &mut App) {
-    app.add_plugin(InspectorPlugin::<UiShopStyleData>::new()).add_system_set(
-        SystemSet::new()
-            .with_system(update_shop_menu_state)
-            .with_system(print_colors)
-    );
+    app
+        .init_resource::<UiShopStyleData>()
+        .add_system_set(
+            SystemSet::new()
+                .with_system(update_shop_menu_state)
+        );
 }
 
 
@@ -389,10 +412,16 @@ pub fn shop_menu_render(
         ..default()
     };
 
-    let purchase_button_styles = KStyle {
+    let purchase_container_styles = KStyle {
         width: Value(Units::Pixels(64.0)),
         height: Value(Units::Pixels(64.0)),
         border_radius: Value(Corner::all(0.0)),
+        ..default()
+    };
+
+    let buy_image_styles = KStyle {
+        width: Value(Units::Pixels(64.0)),
+        height: Value(Units::Pixels(64.0)),
         ..default()
     };
 
@@ -403,7 +432,7 @@ pub fn shop_menu_render(
     let items = SHOP_CATALOG_ITEMS.iter().map(|i| {
         let info = ShopItemInfo::for_item(&assets, *i, None);
         let purchase = ShopPurchaseEvent { cost: info.cost, order: *i };
-        (info.icon, info.cost, info.name, on_purchase(purchase))
+        (info.icon, format!("${:?}", info.cost), info.name, Some(purchase))
     });
 
     let upgrades = SHOP_CATALOG_UPGRADES.iter().filter_map(|i| {
@@ -422,19 +451,20 @@ pub fn shop_menu_render(
         if lvl < 5 {
             Some((
                 info.icon,
-                info.cost.to_string(),
+                format!("${:?}", info.cost),
                 format!("{} lv. {}", info.name, lvl + 1),
-                on_purchase(purchase))
-            )
+                Some(purchase)
+            ))
         } else {
             Some((
                 info.icon,
                 "".to_string(),
                 format!("{} MAX", info.name),
-                OnEvent::default())
-            )
+                None
+            ))
         }
     });
+
 
     rsx! {
         <BackgroundBundle styles={window_styles}>
@@ -454,7 +484,7 @@ pub fn shop_menu_render(
                     }}/>
 
                     <BackgroundBundle styles={items_styles.clone()}>
-                    {upgrades.for_each(|(icon, cost, content, on_event)| {
+                    {upgrades.for_each(|(icon, cost, content, purchase)| {
                         constructor! {
                         <BackgroundBundle styles={sale_styles.clone()}>
 
@@ -481,10 +511,13 @@ pub fn shop_menu_render(
                                 }}
                             />
 
-                            <KButtonBundle
-                                styles={purchase_button_styles.clone()}
-                                on_event={on_event.clone()}
-                            />
+                            <BackgroundBundle styles={purchase_container_styles.clone()}>
+                                <shop_button::ShopButtonBundle
+                                    props={shop_button::ShopButtonProps {
+                                        purchase
+                                    }}
+                                />
+                            </BackgroundBundle>
 
                         </BackgroundBundle>
                         };
@@ -506,7 +539,7 @@ pub fn shop_menu_render(
                     }}/>
 
                     <BackgroundBundle styles={items_styles.clone()}>
-                    {items.for_each(|(icon, cost, content, on_event)| {
+                    {items.for_each(|(icon, cost, content, purchase)| {
                         constructor! {
                         <BackgroundBundle styles={sale_styles.clone()}>
 
@@ -528,15 +561,19 @@ pub fn shop_menu_render(
                             <TextWidgetBundle
                                 styles={cost_label_styles.clone()}
                                 text={TextProps {
-                                    content: cost.to_string(),
+                                    content: cost,
                                     ..Default::default()
                                 }}
                             />
 
-                            <KButtonBundle
-                                styles={purchase_button_styles.clone()}
-                                on_event={on_event.clone()}
-                            />
+                            <BackgroundBundle styles={purchase_container_styles.clone()}>
+                                <shop_button::ShopButtonBundle
+                                    props={shop_button::ShopButtonProps {
+                                        purchase
+                                    }}
+                                />
+                            </BackgroundBundle>
+
 
                         </BackgroundBundle>
                         };

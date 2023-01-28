@@ -31,6 +31,7 @@ pub fn player_state_machine() -> StateMachine {
 
         // To Crouching
         .trans::<Move>(tg::CrouchTrigger, Crouch)
+        .trans::<Jump>(tg::CrouchTrigger, Crouch)
         .trans::<Fall>(tg::CrouchTrigger, Crouch)
         .trans::<Idle>(tg::CrouchTrigger, Crouch)
 

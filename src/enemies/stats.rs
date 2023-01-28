@@ -21,6 +21,16 @@ impl EnemyStats {
         self.patrol_speed *= rng.gen_range(range.clone());
         self.jump_speed *= rng.gen_range(range.clone());
 
+        match &mut self.custom {
+            CustomEnemyStats::Ranged(extra) => {
+                extra.max_shoot_dist *= rng.gen_range(range.clone());
+                extra.atk_pause *= rng.gen_range(range.clone());
+                extra.atk_cd *= rng.gen_range(range.clone());
+                extra.proj_speed *= rng.gen_range(range.clone());
+            },
+            _ => {}
+        }
+
         self
 
     }
@@ -36,6 +46,7 @@ pub enum CustomEnemyStats {
 #[derive(Component, Debug, Clone, Copy)]
 pub struct RangedStats {
     pub proj_speed: f32,
-    pub atk_freq: f32,
+    pub atk_pause: f32,
+    pub atk_cd: f32,
     pub max_shoot_dist: f32,
 }

@@ -54,7 +54,7 @@ impl PumpkinEnemyBundle {
         ColliderAttackBundle {
             combat_layer: CombatLayerMask::ENEMY,
             strength: AttackStrength::new(power),
-            ..ColliderAttackBundle::from_size(Vec2::new(48.0, 32.0))
+            ..ColliderAttackBundle::from_size(Vec2::new(40.0, 32.0))
         }
     }
 
@@ -71,7 +71,8 @@ impl PumpkinEnemyBundle {
         };
 
         item.ranged_pathfinder.max_shoot_distance = extra.max_shoot_dist;
-        item.ranged_pathfinder.shoot_pause.set_duration(Duration::from_secs_f32(extra.atk_freq));
+        item.ranged_pathfinder.shoot_pause.set_duration(Duration::from_secs_f32(extra.atk_pause));
+        item.ranged_pathfinder.shoot_cooldown.set_duration(Duration::from_secs_f32(extra.atk_cd));
         item.ranged_pathfinder.projectile.attack.speed = extra.proj_speed;
 
         commands.spawn(item).with_children(|p| {

@@ -34,6 +34,7 @@ pub fn player_setup_logic(app: &mut App) {
             .with_system(enter_fall)
             .with_system(hit_ground)
             .with_system(got_hurt)
+            .with_system(start_crouch)
             .with_system(crouch)
             .with_system(player_died)
     );
@@ -203,6 +204,19 @@ pub fn fall(mut q: Query<&mut Player, Without<Dash>>) {
         player.vel.y = PLAYER_TERMINAL_VELOCITY;
     }
 
+}
+
+pub fn start_crouch(mut q: Query<&mut Player, Added<Crouch>>) {
+    if q.is_empty() {
+        return;
+    }
+
+    let mut player = q.single_mut();
+    if player.vel.y > 2.0 {
+        player.vel.y = 0.0;
+    } else if player.vel.y > -3.0 {
+        player.vel.y = player.vel.y.abs() * -2.0;
+    }
 }
 
 pub fn crouch(mut q: Query<&mut Player, With<Crouch>>) {

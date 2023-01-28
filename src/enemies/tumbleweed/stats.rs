@@ -23,7 +23,7 @@ pub const TUMBLEWEED_MEDIUM: EnemyStats = EnemyStats {
 pub const TUMBLEWEED_HARD: EnemyStats = EnemyStats {
     jump_speed: 6.0,
     patrol_speed: 3.0,
-    speed: 6.0,
+    speed: 5.5,
     attack_damage: 0,
     collision_damage: 8,
     health: 16,

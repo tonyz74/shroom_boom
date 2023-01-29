@@ -36,12 +36,12 @@ pub const HEALTH_LEVELS: [i32; 6] = [
 ];
 
 pub const AMMO_LEVELS: [i32; 6] = [
-    100,
-    115,
-    130,
-    155,
-    180,
-    200
+    50,
+    60,
+    70,
+    80,
+    90,
+    100
 ];
 
 pub const DASH_LEVELS: [(f32, f32, i32); 6] = [

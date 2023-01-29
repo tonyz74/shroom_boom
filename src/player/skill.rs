@@ -41,16 +41,25 @@ pub fn upgrade_player_from_skills(
     ammo.max_rounds = AMMO_LEVELS[ammo_lvl] as u32;
 
     let dash_lvl = lvls.dash_lvl as usize;
-    dash.cd.set_duration(Duration::from_secs_f32(DASH_LEVELS[dash_lvl].0));
+    let percent = dash.cd.percent();
+    let dur = Duration::from_secs_f32(DASH_LEVELS[dash_lvl].0);
+    dash.cd.set_duration(dur);
+    dash.cd.set_elapsed(Duration::from_secs_f32(percent * dur.as_secs_f32()));
     dash.speed = DASH_LEVELS[dash_lvl].1;
     dash.damage = DASH_LEVELS[dash_lvl].2;
 
     let slash_lvl = lvls.slash_lvl as usize;
-    slash.cd.set_duration(Duration::from_secs_f32(SLASH_LEVELS[slash_lvl].0));
+    let percent = slash.cd.percent();
+    let dur = Duration::from_secs_f32(SLASH_LEVELS[slash_lvl].0);
+    slash.cd.set_duration(dur);
+    slash.cd.set_elapsed(Duration::from_secs_f32(percent * dur.as_secs_f32()));
     slash.damage = SLASH_LEVELS[slash_lvl].1;
 
     let shoot_lvl = lvls.shoot_lvl as usize;
-    shoot.cd.set_duration(Duration::from_secs_f32(SHOOT_LEVELS[shoot_lvl].0));
+    let percent = shoot.cd.percent();
+    let dur = Duration::from_secs_f32(SHOOT_LEVELS[shoot_lvl].0);
+    shoot.cd.set_duration(dur);
+    shoot.cd.set_elapsed(Duration::from_secs_f32(percent * dur.as_secs_f32()));
     shoot.proj_speed = SHOOT_LEVELS[shoot_lvl].1;
     shoot.damage = SHOOT_LEVELS[shoot_lvl].2;
 }

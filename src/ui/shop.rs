@@ -9,12 +9,11 @@ use crate::shop::stock::{SHOP_CATALOG_ITEMS, SHOP_CATALOG_UPGRADES, ShopItem};
 
 
 use crate::ui::event_handlers::{goto_state_event, StateTransition};
-use crate::ui::EventInput;
 use crate::ui::shop_button;
 
 
 
-use bevy_inspector_egui::{Inspectable, InspectorPlugin};
+use bevy_inspector_egui::Inspectable;
 
 #[derive(Resource, Inspectable, Debug)]
 pub struct UiShopStyleData {
@@ -370,12 +369,6 @@ pub fn shop_menu_render(
         width: Value(Units::Pixels(64.0)),
         height: Value(Units::Pixels(64.0)),
         border_radius: Value(Corner::all(0.0)),
-        ..default()
-    };
-
-    let buy_image_styles = KStyle {
-        width: Value(Units::Pixels(64.0)),
-        height: Value(Units::Pixels(64.0)),
         ..default()
     };
 

@@ -5,7 +5,7 @@ use bevy::prelude::*;
 use std::collections::HashMap;
 use crate::anim::Animation;
 use crate::anim::map::AnimationMap;
-use crate::ui::hud::PLAYER_HUD_DISPLAY_CHUNKS;
+use crate::ui::hud::{DASH_CD_CHUNKS, PLAYER_HUD_DISPLAY_CHUNKS, SHOOT_CD_CHUNKS, SLASH_CD_CHUNKS};
 
 #[derive(Resource, Default, Debug)]
 pub struct PlayerAssets {
@@ -455,7 +455,11 @@ pub struct UiAssets {
     pub ammo: Vec<Handle<Image>>,
     pub coins: Handle<Image>,
     pub font: Handle<Font>,
-    pub text_style: TextStyle
+    pub text_style: TextStyle,
+
+    pub dash_cd: Vec<Handle<Image>>,
+    pub slash_cd: Vec<Handle<Image>>,
+    pub shoot_cd: Vec<Handle<Image>>,
 }
 
 impl UiAssets {
@@ -475,6 +479,30 @@ impl UiAssets {
             ammo_images.push(asset_server.load(format!("art/hud/ammo{}.png", i + 1)));
         }
         assets.ammo = ammo_images;
+
+
+
+        // Cooldowns
+        let mut slash_cd = Vec::with_capacity(SLASH_CD_CHUNKS + 1);
+        for i in 0..=SLASH_CD_CHUNKS {
+            slash_cd.push(asset_server.load(format!("art/hud/SlashCooldown{}.png", i + 1)));
+        }
+        assets.slash_cd = slash_cd;
+
+        let mut dash_cd = Vec::with_capacity(DASH_CD_CHUNKS + 1);
+        for i in 0..=DASH_CD_CHUNKS {
+            dash_cd.push(asset_server.load(format!("art/hud/DashCooldown{}.png", i + 1)));
+        }
+        assets.dash_cd = dash_cd;
+
+        let mut shoot_cd = Vec::with_capacity(SHOOT_CD_CHUNKS + 1);
+        for i in 0..=SHOOT_CD_CHUNKS {
+            shoot_cd.push(asset_server.load(format!("art/hud/ShootCooldown{}.png", i + 1)));
+        }
+        assets.shoot_cd = shoot_cd;
+
+
+
 
         assets.font = asset_server.load("fonts/FutilePro.ttf");
         assets.coins = asset_server.load("art/hud/coins.png");

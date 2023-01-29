@@ -36,9 +36,9 @@ pub fn shop_apply_purchases(
             // Items
             Item::OddTonicItem | Item::StrangeTonicItem | Item::BizarreTonicItem => {
                 let hp = match buy.order {
-                    Item::OddTonicItem => 10,
-                    Item::StrangeTonicItem => 15,
-                    Item::BizarreTonicItem => 25,
+                    Item::OddTonicItem => 8,
+                    Item::StrangeTonicItem => 12,
+                    Item::BizarreTonicItem => 24,
                     _ => panic!()
                 };
 
@@ -46,9 +46,9 @@ pub fn shop_apply_purchases(
             }
             Item::WaterCupItem | Item::WaterBucketItem | Item::WaterTankItem => {
                 let rounds = match buy.order {
-                    Item::WaterCupItem => 10,
-                    Item::WaterBucketItem => 15,
-                    Item::WaterTankItem => 25,
+                    Item::WaterCupItem => 8,
+                    Item::WaterBucketItem => 12,
+                    Item::WaterTankItem => 24,
                     _ => panic!()
                 };
 

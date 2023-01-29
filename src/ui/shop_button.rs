@@ -4,10 +4,7 @@ use kayak_ui::widgets::*;
 use crate::assets::ShopAssets;
 use crate::shop::ShopPurchaseEvent;
 
-use crate::state::GameState;
-use crate::ui::event_handlers::{goto_state_event, StateTransition};
 use crate::ui::EventInput;
-use crate::ui::style::{background_style, button_style};
 
 #[derive(Component, Clone, PartialEq, Default)]
 pub struct ShopButtonProps {
@@ -101,7 +98,7 @@ pub fn shop_button_render(
     };
 
     let on_event = OnEvent::new(move |
-        In((event_dispatcher_context, widget_state, event, entity)): EventInput,
+        In((event_dispatcher_context, _, event, _entity)): EventInput,
         mut states: Query<&mut ShopButtonState>,
         mut evw: EventWriter<ShopPurchaseEvent>,
     | {

@@ -1,12 +1,10 @@
 use bevy::prelude::*;
-use bevy_debug_text_overlay::screen_print;
 use crate::assets::BossAssets;
 use crate::bossfight::Boss;
 use crate::bossfight::consts::{BOSS_EASY_HEALTH_THRESHOLD, BOSS_HARD_HEALTH_THRESHOLD, BOSS_HEALTH, BOSS_MEDIUM_HEALTH_THRESHOLD};
 use crate::bossfight::stage::BossStage;
 use crate::combat::Health;
 use crate::entity_states::Die;
-use crate::ui::hud::index_for_value;
 
 #[derive(Resource, Debug, Clone)]
 pub struct BossHud {

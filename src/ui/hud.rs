@@ -3,12 +3,18 @@ use bevy::prelude::*;
 use crate::assets::UiAssets;
 use crate::coin::drops::CoinHolder;
 use crate::combat::Health;
+use crate::player::abilities::dash::DashAbility;
+use crate::player::abilities::shoot::ShootAbility;
+use crate::player::abilities::slash::SlashAbility;
 use crate::player::ammo::Ammo;
 use crate::player::Player;
 use crate::state::GameState;
 
 
 pub const PLAYER_HUD_DISPLAY_CHUNKS: usize = 24;
+pub const SLASH_CD_CHUNKS: usize = 12;
+pub const SHOOT_CD_CHUNKS: usize = 13;
+pub const DASH_CD_CHUNKS: usize = 10;
 
 
 #[derive(Component, Debug, Copy, Clone)]
@@ -19,6 +25,17 @@ pub struct AmmoBar;
 
 #[derive(Component, Debug, Copy, Clone)]
 pub struct WalletText;
+
+
+#[derive(Component, Debug, Copy, Clone)]
+pub struct SlashCooldownIndicator;
+
+#[derive(Component, Debug, Copy, Clone)]
+pub struct DashCooldownIndicator;
+
+#[derive(Component, Debug, Copy, Clone)]
+pub struct ShootCooldownIndicator;
+
 
 
 
@@ -39,6 +56,7 @@ pub fn register_hud_ui_systems(app: &mut App) {
         .add_system_set(
             SystemSet::new()
                 .with_system(sync_hud)
+                .with_system(sync_hud_cooldowns)
         );
 }
 
@@ -147,6 +165,44 @@ fn setup_hud(
                     ));
                 });
             });
+
+            parent.spawn(NodeBundle {
+                style: Style {
+                    size: Size::new(Val::Px(64.0 * 3.0 + 24.0 * 3.0), Val::Px(72.0)),
+                    flex_direction: FlexDirection::Row,
+                    justify_content: JustifyContent::SpaceEvenly,
+                    border: UiRect::all(Val::Px(16.0)),
+                    ..default()
+                },
+                ..default()
+            }).with_children(|parent| {
+                parent.spawn((ImageBundle {
+                    style: Style {
+                        size: Size::new(Val::Px(64.0), Val::Px(64.0)),
+                        ..default()
+                    },
+                    image: ui_assets.slash_cd[0].clone().into(),
+                    ..default()
+                }, SlashCooldownIndicator));
+
+                parent.spawn((ImageBundle {
+                    style: Style {
+                        size: Size::new(Val::Px(64.0), Val::Px(64.0)),
+                        ..default()
+                    },
+                    image: ui_assets.shoot_cd[0].clone().into(),
+                    ..default()
+                }, ShootCooldownIndicator));
+
+                parent.spawn((ImageBundle {
+                    style: Style {
+                        size: Size::new(Val::Px(64.0), Val::Px(64.0)),
+                        ..default()
+                    },
+                    image: ui_assets.dash_cd[0].clone().into(),
+                    ..default()
+                }, DashCooldownIndicator));
+            });
         }).id();
 
     hud.entity = entity;
@@ -166,9 +222,10 @@ fn sync_hud(
     )>,
 
     assets: Res<UiAssets>,
+
     mut ammo_bar: Query<&mut UiImage, (With<AmmoBar>, Without<HealthBar>)>,
     mut health_bar: Query<&mut UiImage, (With<HealthBar>, Without<AmmoBar>)>,
-    mut wallet_text: Query<&mut Text, With<WalletText>>
+    mut wallet_text: Query<&mut Text, With<WalletText>>,
 ) {
     if ammo_bar.is_empty() || health_bar.is_empty() || wallet_text.is_empty() {
         return;
@@ -188,6 +245,43 @@ fn sync_hud(
     }
 }
 
+pub fn sync_hud_cooldowns(
+    player_data: Query<(&ShootAbility, &DashAbility, &SlashAbility), With<Player>>,
+
+    mut shoot_cd: Query<&mut UiImage, (
+        With<ShootCooldownIndicator>,
+        Without<SlashCooldownIndicator>,
+        Without<DashCooldownIndicator>
+    )>,
+
+    mut slash_cd: Query<&mut UiImage, (
+        With<SlashCooldownIndicator>,
+        Without<ShootCooldownIndicator>,
+        Without<DashCooldownIndicator>
+    )>,
+
+    mut dash_cd: Query<&mut UiImage, (
+        With<DashCooldownIndicator>,
+        Without<ShootCooldownIndicator>,
+        Without<SlashCooldownIndicator>
+    )>,
+
+    assets: Res<UiAssets>
+) {
+    if player_data.is_empty() || shoot_cd.is_empty() || slash_cd.is_empty() || dash_cd.is_empty() {
+        return;
+    }
+
+    let (shoot, dash, slash): (&ShootAbility, &DashAbility, &SlashAbility) = player_data.single();
+    let mut shoot_cd = shoot_cd.single_mut();
+    let mut slash_cd = slash_cd.single_mut();
+    let mut dash_cd = dash_cd.single_mut();
+
+    shoot_cd.0 = assets.shoot_cd[index_for_cd(&shoot.cd, SHOOT_CD_CHUNKS)].clone();
+    dash_cd.0 = assets.dash_cd[index_for_cd(&dash.cd, DASH_CD_CHUNKS)].clone();
+    slash_cd.0 = assets.slash_cd[index_for_cd(&slash.cd, SLASH_CD_CHUNKS)].clone();
+}
+
 pub fn index_for_value(val: i32, max: i32, chunks: usize) -> usize {
     if val > 0 {
         let percent = val as f32 / max as f32;
@@ -195,4 +289,12 @@ pub fn index_for_value(val: i32, max: i32, chunks: usize) -> usize {
     } else {
         0
     }
+}
+
+pub fn index_for_cd(timer: &Timer, cap: usize) -> usize {
+    if timer.finished() {
+        return cap;
+    }
+
+    (timer.percent() * cap as f32).trunc() as usize
 }

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy::math::Vec3Swizzles;
 use bevy_rapier2d::prelude::*;
-use crate::combat::CombatLayerMask;
+use crate::combat::{CombatLayerMask, ProjectileAttack};
 
 use crate::util::{Facing, FacingX};
 
@@ -73,9 +73,11 @@ pub fn get_closest_target(
     self_ent: Entity,
     self_combat_layer: CombatLayerMask,
     span: f32,
+    ignore_projectiles: bool,
     transforms: &Query<&GlobalTransform>,
     combat_layers: &Query<&CombatLayerMask>,
     disabled: &Query<&Untargetable>,
+    projectiles: &Query<&ProjectileAttack>,
     rapier: &RapierContext,
 ) -> Option<(Vec2, AttackDirection)> {
 
@@ -101,7 +103,8 @@ pub fn get_closest_target(
         |colliding_entity| {
             let target_pos = transforms.get(colliding_entity).unwrap().translation().xy();
 
-            if disabled.contains(colliding_entity) {
+            if disabled.contains(colliding_entity) ||
+                (ignore_projectiles && projectiles.contains(colliding_entity)) {
                 return true;
             }
 

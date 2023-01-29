@@ -8,7 +8,7 @@ use crate::{
     combat::{MeleeAttack, MeleeAttackBundle},
     player::Player,
 };
-use crate::combat::{AttackStrength, CombatLayerMask};
+use crate::combat::{AttackStrength, CombatLayerMask, ProjectileAttack};
 use crate::entity_states::Die;
 use crate::player::abilities::autotarget::{AttackDirection, change_facing_for_direction, direction_for_facing, get_closest_target, Untargetable};
 use crate::player::consts::SLASH_LEVELS;
@@ -109,6 +109,7 @@ fn slash_ability_trigger(
     transforms: Query<&GlobalTransform>,
     combat_layers: Query<&CombatLayerMask>,
     untargetable: Query<&Untargetable>,
+    projectiles: Query<&ProjectileAttack>,
     rapier: Res<RapierContext>
 ) {
     if q.is_empty() {
@@ -124,9 +125,11 @@ fn slash_ability_trigger(
         entity,
         CombatLayerMask::PLAYER,
         240.0,
+        false,
         &transforms,
         &combat_layers,
         &untargetable,
+        &projectiles,
         &rapier
     ) {
         b

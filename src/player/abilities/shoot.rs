@@ -53,6 +53,7 @@ fn start_shoot(
     transforms: Query<&GlobalTransform>,
     combat_layers: Query<&CombatLayerMask>,
     untargetable: Query<&Untargetable>,
+    projectiles: Query<&ProjectileAttack>,
     rapier: Res<RapierContext>
 ) {
     if q.is_empty() {
@@ -66,9 +67,11 @@ fn start_shoot(
         entity,
         CombatLayerMask::PLAYER,
         512.0,
+        true,
         &transforms,
         &combat_layers,
         &untargetable,
+        &projectiles,
         &rapier
     );
 

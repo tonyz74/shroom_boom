@@ -189,10 +189,6 @@ impl Trigger for EnragedTrigger {
         let stage = *bosses.get(entity).unwrap();
         let ok = stage == BossStage::Enraged;
 
-        if ok {
-            println!("ok");
-        }
-
         ok
     }
 }

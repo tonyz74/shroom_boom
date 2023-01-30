@@ -171,7 +171,6 @@ fn summon_update(
             },
             rand_range: 0.9..1.1,
             extra_components: Some(|cmd, x| {
-                println!("inserting summoned enemy");
                 cmd.entity(x).insert(SummonedEnemy);
             })
         });

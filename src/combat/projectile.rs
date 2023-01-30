@@ -195,7 +195,6 @@ pub fn projectile_hit_targets(
         );
 
         if hit_wall {
-            println!("collided");
             proj.collided = true;
         };
 

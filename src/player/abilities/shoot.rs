@@ -11,7 +11,7 @@ use crate::player::consts::{PLAYER_SHOOT_EXPIRATION_TIME, SHOOT_LEVELS};
 use crate::player::Player;
 use crate::state::GameState;
 use crate::anim::Animator;
-use crate::util::Facing;
+use crate::util::{Facing, quat_rot2d_rad};
 
 
 #[derive(Component, Default, Debug)]
@@ -105,9 +105,10 @@ fn spawn_player_projectile(
                     ..default()
                 },
 
-                texture_atlas: assets.anims["IDLE"].tex.clone(),
+                texture_atlas: assets.bullet.tex.clone(),
 
-                transform: Transform::from_xyz(player_pos.x, player_pos.y, 10.0),
+                transform: Transform::from_xyz(player_pos.x, player_pos.y, 10.0)
+                    .with_rotation(quat_rot2d_rad(-dir.angle_between(Vec2::X))),
 
                 ..default()
             },

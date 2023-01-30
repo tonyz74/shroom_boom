@@ -10,6 +10,7 @@ use crate::ui::hud::{DASH_CD_CHUNKS, PLAYER_HUD_DISPLAY_CHUNKS, SHOOT_CD_CHUNKS,
 #[derive(Resource, Default, Debug)]
 pub struct PlayerAssets {
     pub anims: AnimationMap,
+    pub bullet: Animation
 }
 
 impl PlayerAssets {
@@ -66,6 +67,12 @@ impl PlayerAssets {
             ("CROUCH".to_string(), Animation::new("CROUCH".to_string(), crouch_handle, 0.4)),
             ("SLASH".to_string(), Animation::new("SLASH".to_string(), slash_handle, 0.05)),
         ]));
+
+
+        let bullet_sheet = asset_server.load("art/player/Bullet.png");
+        let bullet_atlas = TextureAtlas::from_grid(bullet_sheet, Vec2::new(16.0, 16.0), 1, 1, None, None);
+        let bullet_handle = texture_atlases.add(bullet_atlas);
+        player_assets.bullet = Animation::new("BULLET".to_string(), bullet_handle, 1.0);
 
     }
 }

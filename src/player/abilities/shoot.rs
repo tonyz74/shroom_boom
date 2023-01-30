@@ -101,13 +101,13 @@ fn spawn_player_projectile(
             sprite_sheet: SpriteSheetBundle {
 
                 sprite: TextureAtlasSprite {
-                    custom_size: Some(Vec2::new(16., 16.)),
+                    custom_size: Some(Vec2::new(32., 32.)),
                     ..default()
                 },
 
                 texture_atlas: assets.anims["IDLE"].tex.clone(),
 
-                transform: Transform::from_xyz(player_pos.x, player_pos.y, 0.0),
+                transform: Transform::from_xyz(player_pos.x, player_pos.y, 10.0),
 
                 ..default()
             },

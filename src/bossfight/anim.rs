@@ -1,9 +1,10 @@
 use bevy::prelude::*;
-use crate::anim::AnimationChangeEvent;
+use crate::anim::{AnimationChangeEvent, Animator};
 use crate::anim::map::AnimationMap;
 use crate::bossfight::abilities::{RelocateAbility, RestAbility};
 use crate::bossfight::Boss;
 use crate::bossfight::enraged::EnragedAttackMove;
+use crate::bossfight::stage::BossStage;
 
 use crate::bossfight::state_machine::{BeginVulnerable, Boom, Hover, Relocate, Rest, Slam, Summon};
 use crate::state::GameState;
@@ -20,6 +21,7 @@ pub fn register_boss_animations(app: &mut App) {
             .with_system(boss_anim_hover)
             .with_system(boss_anim_rest)
             .with_system(boss_anim_summon)
+            .with_system(boss_anim_begin_vulnerable)
             .with_system(boss_anim_vulnerable)
     );
 }
@@ -37,7 +39,7 @@ fn boss_anim_summon(
     }
 }
 
-fn boss_anim_vulnerable(
+fn boss_anim_begin_vulnerable(
     q: Query<(&AnimationMap, Entity), (Added<BeginVulnerable>, With<Boss>, Without<Die>)>,
     mut ev: EventWriter<AnimationChangeEvent>
 ) {
@@ -46,6 +48,28 @@ fn boss_anim_vulnerable(
             e: boss,
             new_anim: anims["VULNERABLE"].clone()
         });
+    }
+}
+
+fn boss_anim_vulnerable(
+    q: Query<(&Animator, &AnimationMap, Entity, &BossStage), (With<Boss>, Without<Die>)>,
+    mut ev: EventWriter<AnimationChangeEvent>
+) {
+    for (animator, anims, boss, stage) in q.iter() {
+        if ![
+            BossStage::VulnerableEasy,
+            BossStage::VulnerableMedium,
+            BossStage::VulnerableHard
+        ].contains(stage) {
+            continue;
+        }
+
+        if animator.anim.name == anims["VULNERABLE"].name && animator.total_looped == 1 {
+            ev.send(AnimationChangeEvent {
+                e: boss,
+                new_anim: anims["VULNERABLE_IDLE"].clone()
+            });
+        }
     }
 }
 

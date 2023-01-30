@@ -99,6 +99,7 @@ pub fn animation_tick(
 
             if spr.index + 1 == atlas.textures.len() {
                 if !anim.anim.repeating {
+                    anim.total_looped = 1;
                     continue;
                 }
 

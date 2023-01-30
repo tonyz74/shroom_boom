@@ -7,6 +7,7 @@ use crate::entity_states::*;
 use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 use crate::state::GameState;
 use crate::anim::Animator;
+use crate::level::solid::SolidTile;
 
 #[derive(Copy, Clone, Reflect, FromReflect)]
 pub struct CollidedTrigger;
@@ -160,6 +161,7 @@ pub fn projectile_hit_targets(
         &mut ProjectileAttack,
         &KnockbackModifier
     )>,
+    solids: Query<&SolidTile>,
     rapier: Res<RapierContext>,
 
     combat_layers: Query<&CombatLayerMask>,
@@ -170,16 +172,30 @@ pub fn projectile_hit_targets(
         let proj_pos = transform.translation();
 
         // If hit a wall
-        if rapier.intersection_with_shape(
+        let mut hit_wall = false;
+        rapier.intersections_with_shape(
             Vect::new(proj_pos.x, proj_pos.y),
             Rot::default(),
             collider,
             QueryFilter {
                 flags: QueryFilterFlags::ONLY_FIXED | QueryFilterFlags::EXCLUDE_SENSORS,
-                groups: Some(SOLIDS_INTERACTION_GROUP),
                 ..default()
             },
-        ).is_some() {
+            |ent| {
+                if hit_wall == true {
+                    return true;
+                }
+
+                if solids.contains(ent) {
+                    hit_wall = true;
+                }
+
+                true
+            }
+        );
+
+        if hit_wall {
+            println!("collided");
             proj.collided = true;
         };
 

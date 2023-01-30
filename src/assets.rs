@@ -404,6 +404,11 @@ impl BossAssets {
         vulnerable_anim.repeating = false;
         anims.insert(vulnerable_anim.name.to_string(), vulnerable_anim.clone());
 
+        let vulnerable_idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 2, 1, None, Some(Vec2::new(55.0, 0.0) * SIZE));
+        let vulnerable_idle_atlas_handle = texture_atlases.add(vulnerable_idle_atlas);
+        let vulnerable_idle_anim = Animation::new("VULNERABLE_IDLE".to_string(), vulnerable_idle_atlas_handle, 0.75);
+        anims.insert(vulnerable_idle_anim.name.to_string(), vulnerable_idle_anim.clone());
+
         assets.anims = AnimationMap::new(anims);
 
 

@@ -10,6 +10,9 @@ use crate::pathfind::{Pathfinder, Region};
 pub use crate::pathfind::state_machine::*;
 use crate::state::GameState;
 
+
+const BOOM_SIZE: f32 = 72.0;
+
 #[derive(Copy, Clone, Debug, Reflect, Component)]
 pub struct Detonate;
 
@@ -84,8 +87,8 @@ pub fn flower_enemy_detonate(
         indicators.send(
             Indicator {
                 region: Region {
-                    tl: Vec2::new(pos.x, pos.y) + Vec2::new(-48.0, 48.0),
-                    br: Vec2::new(pos.x, pos.y) + Vec2::new(48.0, -48.0)
+                    tl: Vec2::new(pos.x, pos.y) + Vec2::new(-BOOM_SIZE, BOOM_SIZE),
+                    br: Vec2::new(pos.x, pos.y) + Vec2::new(BOOM_SIZE, -BOOM_SIZE)
                 },
 
                 wait_time: 0.0,
@@ -121,7 +124,7 @@ pub fn flower_enemy_tick(
                 ExplosionEvent {
                     pos: Vec2::new(pos.x, pos.y),
                     max_damage: flower.explosion_power,
-                    radius: 48.0,
+                    radius: BOOM_SIZE,
                     combat_layer: CombatLayerMask::empty()
                 }
             );

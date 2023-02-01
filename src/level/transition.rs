@@ -10,8 +10,8 @@ use crate::shop::Shop;
 
 #[derive(Resource, Default)]
 pub struct LevelTransition {
-    pub next: u32,
-    pub entry_point_id: u32,
+    pub next: i32,
+    pub entry_point_id: i32,
     pub transition_effect: TransitionEffect
 }
 
@@ -138,13 +138,18 @@ pub fn transition_on_update(
     mut state: ResMut<State<GameState>>
 ) {
     let dt = time.delta();
-    let next_level = trans.next as usize;
+    let next_level = trans.next;
 
     match &mut trans.transition_effect {
         TransitionEffect::Fade(fade) => {
             fade.fade_in.tick(dt);
             if fade.fade_in.just_finished() {
-                *sel = LevelSelection::Index(next_level);
+                if next_level == -1 {
+                    std::process::exit(1);
+                }
+
+
+                *sel = LevelSelection::Index(next_level as usize);
             }
 
             if fade.fade_in.finished() && !fade.fade_in.just_finished() {

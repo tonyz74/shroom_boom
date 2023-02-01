@@ -58,7 +58,7 @@ impl DandelionEnemyBundle {
                 facing: Facing::default(),
                 immunity: Immunity::default(),
                 coins: CoinHolder::default(),
-                collider: Collider::cuboid(24.0, 24.0),
+                collider: Collider::cuboid(32.0, 32.0),
                 rigid_body: RigidBody::KinematicPositionBased,
 
                 character_controller: KinematicCharacterController {
@@ -72,7 +72,7 @@ impl DandelionEnemyBundle {
 
                 sprite_sheet: SpriteSheetBundle {
                     sprite: TextureAtlasSprite {
-                        custom_size: Some(Vec2::new(56.0, 56.0)),
+                        custom_size: Some(Vec2::new(72.0, 72.0)),
                         ..default()
                     },
                     texture_atlas: assets.map["IDLE"].clone().tex,

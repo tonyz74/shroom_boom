@@ -565,11 +565,11 @@ impl ShopAssets {
             ..default()
         };
 
-        assets.buy = asset_server.load("art/shop/Buy.png");
-        assets.buy_pressed = asset_server.load("art/shop/BuyPressed.png");
-        assets.buy_hover = asset_server.load("art/shop/BuyHover.png");
+        assets.buy = asset_server.load("art/shop/Buy1.png");
+        assets.buy_hover = asset_server.load("art/shop/Buy2.png");
+        assets.buy_pressed = asset_server.load("art/shop/Buy3.png");
 
-        assets.blank = asset_server.load("art/shop/Blank.png");
+        assets.blank = asset_server.load("art/shop/Buy4.png");
 
         assets.tonics = vec![
             asset_server.load("art/shop/OddTonic.png"),

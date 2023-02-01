@@ -138,7 +138,7 @@ fn boom_spawn_explosions(
     for point in points {
         events.send(ExplosionEvent {
             pos: *point,
-            max_damage: 20,
+            max_damage: 80,
             radius: 60.0,
             combat_layer: CombatLayerMask::ENEMY
         });

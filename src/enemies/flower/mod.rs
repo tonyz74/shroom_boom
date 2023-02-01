@@ -82,7 +82,7 @@ impl FlowerEnemyBundle {
                 facing: Facing::default(),
                 immunity: Immunity::default(),
                 coins: CoinHolder::default(),
-                collider: Collider::cuboid(24.0, 24.0),
+                collider: Collider::cuboid(32.0, 24.0),
                 rigid_body: RigidBody::KinematicPositionBased,
 
                 character_controller: KinematicCharacterController {

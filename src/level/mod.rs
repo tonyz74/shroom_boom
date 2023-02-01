@@ -153,7 +153,7 @@ fn move_player(
     for inst in pos.iter() {
         let entry_point_id = util::val_expect_i32(&inst.field_instances[0].value).unwrap();
 
-        if entry_point_id as u32 != transition.entry_point_id {
+        if entry_point_id != transition.entry_point_id {
             continue;
         }
 

@@ -243,7 +243,8 @@ pub fn shop_menu_render(
     let sale_color = data.sale_color;
     let item_label_color = data.item_label_color;
     let cost_label_color = data.cost_label_color;
-    let h_sep_color = data.h_sep_color;
+    // let h_sep_color = data.h_sep_color;
+    let h_sep_color = data.container_color;
     let frame_color = data.frame_color;
 
 
@@ -345,7 +346,14 @@ pub fn shop_menu_render(
 
     let h_sep_styles = KStyle {
         width: Value(Units::Percentage(100.0)),
-        height: Value(Units::Pixels(4.0)),
+        height: Value(Units::Pixels(6.0)),
+        background_color: Value(h_sep_color),
+        ..default()
+    };
+
+    let v_sep_styles = KStyle {
+        width: Value(Units::Pixels(6.0)),
+        height: Value(Units::Percentage(100.0)),
         background_color: Value(h_sep_color),
         ..default()
     };
@@ -458,6 +466,8 @@ pub fn shop_menu_render(
                                 }}
                             />
 
+                            <BackgroundBundle styles={v_sep_styles.clone()} />
+
                             <BackgroundBundle styles={purchase_container_styles.clone()}>
                                 <shop_button::ShopButtonBundle
                                     props={shop_button::ShopButtonProps {
@@ -512,6 +522,8 @@ pub fn shop_menu_render(
                                     ..Default::default()
                                 }}
                             />
+
+                            <BackgroundBundle styles={v_sep_styles.clone()} />
 
                             <BackgroundBundle styles={purchase_container_styles.clone()}>
                                 <shop_button::ShopButtonBundle

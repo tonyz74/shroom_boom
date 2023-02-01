@@ -26,8 +26,8 @@ pub struct ExitTileBundle {
 
 #[derive(Component)]
 pub struct LevelExit {
-    pub link: u32,
-    pub entry_point_id: u32
+    pub link: i32,
+    pub entry_point_id: i32
 }
 
 pub fn register_exit_entity(app: &mut App) {
@@ -66,8 +66,7 @@ fn add_exit_entities(
             ),
 
             LevelExit {
-                link: link as u32,
-                entry_point_id: entry_point_id as u32
+                link, entry_point_id
             }
         ));
     }

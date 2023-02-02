@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_debug_text_overlay::screen_print;
 use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::Done;
 
@@ -7,6 +8,9 @@ use crate::state::GameState;
 use crate::pathfind::{Pathfinder, WalkPathfinder, walk_pathfinder_jump_if_needed, Patrol, walk_pathfinder_get_suitable_target};
 use crate::enemies::Enemy;
 use crate::entity_states::*;
+use crate::level::door::DoorTile;
+use crate::level::one_way::OneWayTile;
+use crate::level::solid::SolidTile;
 use crate::util::{Facing, FacingX, quat_rot2d_rad};
 
 #[derive(Component, Clone)]
@@ -52,14 +56,16 @@ pub fn register_ranged_pathfinders(app: &mut App) {
 }
 
 pub fn has_clear_line_of_sight(
+    commands: &mut Commands,
     start: Vec2,
     end: Vec2,
     shape: &Collider,
+    one_ways: &Query<Entity, With<OneWayTile>>,
     rapier: &Res<RapierContext>,
 ) -> bool {
     let distance = start.distance(end);
 
-    rapier.cast_shape(
+    let out = rapier.cast_shape(
         start,
         Rot::default(),
         (end - start).normalize(),
@@ -69,12 +75,22 @@ pub fn has_clear_line_of_sight(
             flags: QueryFilterFlags::ONLY_FIXED | QueryFilterFlags::EXCLUDE_SENSORS,
             ..default()
         }
-    ).is_none()
+    );
+
+    if let Some(o) = out {
+        if one_ways.contains(o.0) {
+            return true;
+        }
+    }
+
+    out.is_none()
 }
 
 pub fn is_valid_shot(
+    commands: &mut Commands,
     start: Vec2,
     end: Vec2,
+    one_ways: &Query<Entity, With<OneWayTile>>,
     ranged: &RangedPathfinder,
     rapier: &Res<RapierContext>
 ) -> bool {
@@ -84,13 +100,14 @@ pub fn is_valid_shot(
     let shoot_angle = (diff.y / diff.length()).asin().abs();
 
     let ok = start.distance(end).abs() <= ranged.max_shoot_distance
-        && has_clear_line_of_sight(start, end, proj_collider, rapier)
+        && has_clear_line_of_sight(commands, start, end, proj_collider, one_ways, rapier)
         && shoot_angle <= ranged.max_shoot_angle;
 
     ok
 }
 
 pub fn ranged_pathfinder_move(
+    mut commands: Commands,
     transforms: Query<&GlobalTransform>,
     combat_layers: Query<&CombatLayerMask>,
     mut ranged_pathfinders: Query<&mut RangedPathfinder>,
@@ -104,6 +121,7 @@ pub fn ranged_pathfinder_move(
         &mut Facing,
         &mut Patrol
     ), (Without<Hurt>, Without<Shoot>, Without<Die>, With<RangedPathfinder>)>,
+    one_ways: Query<Entity, With<OneWayTile>>,
     rapier: Res<RapierContext>
 ) {
     let _ = rapier;
@@ -128,13 +146,17 @@ pub fn ranged_pathfinder_move(
 
         // If there is a player within the enemy's region
         if let Some(mut target) = pathfinder.target {
-            target = walk_pathfinder_get_suitable_target(self_pos, target, &pathfinder);
+            // target = walk_pathfinder_get_suitable_target(self_pos, target, &pathfinder);
 
-            let is_valid_shot = is_valid_shot(self_pos, target, &ranged, &rapier);
+            let is_valid_shot = is_valid_shot(&mut commands, self_pos, target, &one_ways, &ranged, &rapier);
 
             if (target.x - self_pos.x).abs() <= 2.0 {
                 if patrol.lost_target {
                     pathfinder.target = None;
+                }
+
+                if is_valid_shot {
+                    ranged.shoot_target = Some(target);
                 }
 
                 enemy.vel.x = 0.0;
@@ -165,6 +187,7 @@ pub fn ranged_pathfinder_move(
             } else {
                 ranged.shoot_target = Some(target);
             }
+
         } else {
             let new_region = pathfinder.region.expanded_by(ranged.max_shoot_distance);
             let half_extents = new_region.extents() / 2.0;
@@ -197,7 +220,7 @@ pub fn ranged_pathfinder_move(
                     opposition_pos.y
                 );
 
-                if is_valid_shot(self_pos, opposition_pos, &ranged, &rapier) {
+                if is_valid_shot(&mut commands, self_pos, opposition_pos, &one_ways, &ranged, &rapier) {
                     ranged.shoot_target = Some(opposition_pos);
                     patrol.can_patrol = false;
                 }

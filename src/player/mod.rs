@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy_debug_text_overlay::screen_print;
 use bevy_rapier2d::prelude::*;
 use leafwing_input_manager::InputManagerBundle;
 use seldom_state::prelude::StateMachine;
@@ -86,6 +87,7 @@ impl Plugin for PlayerPlugin {
 
         app
             .add_system(player_print_health)
+            .add_system(player_pos)
             .add_system(upgrade_player_from_skills);
 
         anim::player_setup_anim(app);
@@ -180,5 +182,13 @@ fn setup_player(
 pub fn player_print_health(p: Query<(&Health, &Immunity), Changed<Health>>) {
     for (hp, imm) in p.iter() {
         println!("hp changed: {:?}, immunity: {:?}", hp, imm);
+    }
+}
+
+pub fn player_pos(
+    p: Query<&GlobalTransform, With<Player>>
+) {
+    for tf in p.iter() {
+        screen_print!("{:?}", tf.translation());
     }
 }

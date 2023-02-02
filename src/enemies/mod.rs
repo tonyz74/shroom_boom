@@ -11,6 +11,7 @@ use crate::enemies::pumpkin::register_pumpkin_enemy;
 
 use crate::enemies::spawner::register_enemy_spawner;
 use crate::entity_states::Die;
+use crate::fx::smoke::SmokeEvent;
 use crate::pathfind::PathfinderBundle;
 use crate::state::GameState;
 use crate::util::Facing;
@@ -84,10 +85,11 @@ fn move_enemies(mut q: Query<(&Enemy, &mut KinematicCharacterController)>) {
 
 fn enemies_died(
     mut collider_attacks: Query<&mut ColliderAttack>,
-    mut enemies: Query<(Entity, &Children, &AnimationMap), (With<Enemy>, Added<Die>)>,
-    mut change_events: EventWriter<AnimationChangeEvent>
+    mut enemies: Query<(Entity, &GlobalTransform, &Children, &AnimationMap), (With<Enemy>, Added<Die>)>,
+    mut change_events: EventWriter<AnimationChangeEvent>,
+    mut smoke: EventWriter<SmokeEvent>
 ) {
-    for (entity, children, anims) in enemies.iter_mut() {
+    for (entity, tf, children, anims) in enemies.iter_mut() {
         for child in children.iter() {
             if let Ok(mut collider_attacks) = collider_attacks.get_mut(*child) {
                 collider_attacks.enabled = false;
@@ -97,6 +99,10 @@ fn enemies_died(
         change_events.send(AnimationChangeEvent {
             e: entity,
             new_anim: anims["DEATH"].clone()
+        });
+
+        smoke.send(SmokeEvent {
+            pos: Vec2::new(tf.translation().x, tf.translation().y)
         });
     }
 }

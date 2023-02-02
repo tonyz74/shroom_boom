@@ -449,15 +449,26 @@ impl BossAssets {
 #[derive(Resource, Default, Debug)]
 pub struct IndicatorAssets {
     pub tr: Handle<Image>,
+    pub smoke_map: AnimationMap
 }
 
 impl IndicatorAssets {
     pub fn load(
         asset_server: Res<AssetServer>,
+        mut texture_atlases: ResMut<Assets<TextureAtlas>>,
         mut assets: ResMut<IndicatorAssets>,
     ) {
         let tr = asset_server.load("sprites/util/indicator_top_right.png");
         assets.tr = tr;
+
+
+        const SMOKE_SIZE: Vec2 = Vec2::new(16.0, 32.0);
+        let smoke_img = asset_server.load("art/misc/Smoke-Sheet.png");
+        let smoke_atlas = TextureAtlas::from_grid(smoke_img, SMOKE_SIZE, 8, 1, None, None);
+        let smoke_handle = texture_atlases.add(smoke_atlas);
+        let mut smoke_anim = Animation::new("SMOKE".to_string(), smoke_handle, 0.1);
+        smoke_anim.repeating = false;
+        assets.smoke_map = AnimationMap::new(HashMap::from([(smoke_anim.name.clone(), smoke_anim)]));
     }
 }
 

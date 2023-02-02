@@ -29,6 +29,7 @@ use crate::combat::consts::EXPLOSION_RADIUS;
 use crate::combat::spore_cloud::SporeCloudAttackBundle;
 use crate::entity_states::*;
 use crate::fx::shake::ScreenShakeEvent;
+use crate::fx::smoke::SmokeEvent;
 
 use crate::state::GameState;
 pub struct AttackPlugin;
@@ -84,6 +85,9 @@ fn temp_explosion(
 
     if events.just_pressed(MouseButton::Left) {
         shakes.send(ScreenShakeEvent::LARGE);
+        // smokes.send(SmokeEvent {
+        //     pos: cpos,
+        // });
     }
 
     if events.just_pressed(MouseButton::Right) {

@@ -162,7 +162,7 @@ pub fn projectile_hit_targets(
         &mut ProjectileAttack,
         &KnockbackModifier
     )>,
-    solids: Query<Entity, (With<SolidTile>, With<DoorTile>)>,
+    solids: Query<Entity, Or<(With<SolidTile>, With<DoorTile>)>>,
     rapier: Res<RapierContext>,
 
     combat_layers: Query<&CombatLayerMask>,

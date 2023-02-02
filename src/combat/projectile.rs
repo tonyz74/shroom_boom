@@ -7,6 +7,7 @@ use crate::entity_states::*;
 use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 use crate::state::GameState;
 use crate::anim::Animator;
+use crate::level::door::DoorTile;
 use crate::level::solid::SolidTile;
 
 #[derive(Copy, Clone, Reflect, FromReflect)]
@@ -161,7 +162,7 @@ pub fn projectile_hit_targets(
         &mut ProjectileAttack,
         &KnockbackModifier
     )>,
-    solids: Query<&SolidTile>,
+    solids: Query<Entity, (With<SolidTile>, With<DoorTile>)>,
     rapier: Res<RapierContext>,
 
     combat_layers: Query<&CombatLayerMask>,

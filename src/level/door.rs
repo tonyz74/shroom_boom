@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
+use crate::anim::{AnimationChangeEvent, AnimationPlugin, Animator};
+use crate::anim::map::AnimationMap;
+use crate::assets::LevelAssets;
 use crate::enemies::Enemy;
 use crate::state::GameState;
 
@@ -33,15 +36,26 @@ pub fn register_doors(app: &mut App) {
 
 fn spawn_doors(
     mut commands: Commands,
-    q: Query<Entity, Added<DoorTileSpawnMarker>>
+    q: Query<Entity, Added<DoorTileSpawnMarker>>,
+    assets: Res<LevelAssets>
 ) {
     for e in q.iter() {
         commands.entity(e).with_children(|parent| {
             parent.spawn((
                 DoorTile { cleared: false },
                 Collider::cuboid(4., 4.),
-                RigidBody::Fixed,
-                TransformBundle::default()
+                Animator::new(assets.anims["SOLID"].clone()),
+                assets.anims.clone(),
+
+                SpriteSheetBundle {
+                    sprite: TextureAtlasSprite {
+                        custom_size: Some(Vec2::new(8.0, 8.0)),
+                        ..default()
+                    },
+                    texture_atlas: assets.anims["SOLID"].tex.clone(),
+                    transform: Transform::from_xyz(0.0, 0.0, 100.0),
+                    ..default()
+                }
             ));
         });
     }
@@ -50,17 +64,24 @@ fn spawn_doors(
 fn clear_doors_on_enemy_deaths(
     mut commands: Commands,
     enemies: Query<&Enemy>,
-    mut doors: Query<(Entity, &mut DoorTile)>
+    mut doors: Query<(Entity, &mut DoorTile, &Animator)>,
+    mut ev: EventWriter<AnimationChangeEvent>,
+    assets: Res<LevelAssets>
 ) {
     if !enemies.is_empty() {
         return;
     }
 
-    for (entity, mut door) in doors.iter_mut() {
+    for (entity, mut door, animator) in doors.iter_mut() {
         door.cleared = true;
 
-        if let Some(mut cmd) = commands.get_entity(entity) {
-            cmd.insert(Sensor);
+        ev.send(AnimationChangeEvent {
+            e: entity,
+            new_anim: assets.anims["DISINTEGRATE"].clone()
+        });
+
+        if animator.anim.name == "DISINTEGRATE" && animator.total_looped == 1 {
+            commands.entity(entity).despawn_recursive();
         }
     }
 }

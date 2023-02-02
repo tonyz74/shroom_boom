@@ -462,6 +462,36 @@ impl IndicatorAssets {
 }
 
 #[derive(Resource, Default, Debug)]
+pub struct LevelAssets {
+    pub anims: AnimationMap,
+}
+
+impl LevelAssets {
+    pub fn load(
+        asset_server: Res<AssetServer>,
+        mut texture_atlases: ResMut<Assets<TextureAtlas>>,
+        mut assets: ResMut<LevelAssets>,
+    ) {
+        const SIZE: Vec2 = Vec2::new(8.0, 8.0);
+
+        let vines = asset_server.load("art/misc/Vine-Sheet.png");
+        let vines_atlas = TextureAtlas::from_grid(vines.clone(), SIZE, 1, 1, None, None);
+        let vines_handle = texture_atlases.add(vines_atlas);
+        let vines_anim = Animation::new("SOLID".to_string(), vines_handle, 0.1);
+
+        let vines_disintegrate_atlas = TextureAtlas::from_grid(vines.clone(), SIZE, 8, 1, None, None);
+        let vines_disintegrate_handle = texture_atlases.add(vines_disintegrate_atlas);
+        let mut vines_disintegrate_anim = Animation::new("DISINTEGRATE".to_string(), vines_disintegrate_handle, 0.1);
+        vines_disintegrate_anim.repeating = false;
+
+        assets.anims = AnimationMap::new(HashMap::from([
+            (vines_anim.name.clone(), vines_anim),
+            (vines_disintegrate_anim.name.clone(), vines_disintegrate_anim)
+        ]));
+    }
+}
+
+#[derive(Resource, Default, Debug)]
 pub struct UiAssets {
     pub health: Vec<Handle<Image>>,
     pub ammo: Vec<Handle<Image>>,
@@ -609,6 +639,7 @@ impl Plugin for AssetLoaderPlugin {
             .init_resource::<IndicatorAssets>()
             .init_resource::<UiAssets>()
             .init_resource::<ShopAssets>()
+            .init_resource::<LevelAssets>()
 
             .add_state(GameState::AssetLoading)
             .add_startup_system_set(
@@ -626,6 +657,7 @@ impl Plugin for AssetLoaderPlugin {
                     .with_system(IndicatorAssets::load)
                     .with_system(UiAssets::load)
                     .with_system(ShopAssets::load)
+                    .with_system(LevelAssets::load)
             )
 
             .add_startup_system(enter_main_menu.after("assets"));

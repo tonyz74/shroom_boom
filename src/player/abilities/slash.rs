@@ -53,44 +53,48 @@ fn transform_for_direction(dir: AttackDirection) -> (Transform, BVec2) {
     let mut flip = BVec2::new(false, false);
     let mut tf = Transform::from_xyz(0.0, 0.0, 1.0);
 
+    const DIAG_OFF: f32 = 32.0;
+    const OFF: f32 = 32.0;
+    const OFF_SIDE: f32 = 48.0;
+
     match dir {
         AttackDirection::Up => {
             tf.rotate(quat_rot2d_deg(90.0));
-            tf = tf.with_translation(Vec3::new(0.0, 32.0, 0.0));
+            tf = tf.with_translation(Vec3::new(0.0, OFF, 0.0));
         },
 
         AttackDirection::UpRight => {
             tf.rotate(quat_rot2d_deg(45.0));
-            tf = tf.with_translation(Vec3::new(24.0, 24.0, 0.0));
+            tf = tf.with_translation(Vec3::new(DIAG_OFF, DIAG_OFF, 0.0));
         },
 
         AttackDirection::UpLeft => {
             tf.rotate(quat_rot2d_deg(135.0));
-            tf = tf.with_translation(Vec3::new(-24.0, 24.0, 0.0));
+            tf = tf.with_translation(Vec3::new(-DIAG_OFF, DIAG_OFF, 0.0));
         }
 
         AttackDirection::Down => {
             tf.rotate(quat_rot2d_deg(-90.0));
-            tf = tf.with_translation(Vec3::new(0.0, -32.0, 0.0));
+            tf = tf.with_translation(Vec3::new(0.0, -OFF, 0.0));
         },
 
         AttackDirection::DownRight => {
             tf.rotate(quat_rot2d_deg(315.0));
-            tf = tf.with_translation(Vec3::new(24.0, -24.0, 0.0));
+            tf = tf.with_translation(Vec3::new(DIAG_OFF, -DIAG_OFF, 0.0));
         },
 
         AttackDirection::DownLeft => {
             tf.rotate(quat_rot2d_deg(225.0));
-            tf = tf.with_translation(Vec3::new(-24.0, -24.0, 0.0));
+            tf = tf.with_translation(Vec3::new(-DIAG_OFF, -DIAG_OFF, 0.0));
         },
 
         AttackDirection::Left => {
-            tf = tf.with_translation(Vec3::new(-24.0, 0.0, 0.0));
+            tf = tf.with_translation(Vec3::new(-OFF_SIDE, 0.0, 0.0));
             flip.x = true;
         },
 
         AttackDirection::Right => {
-            tf = tf.with_translation(Vec3::new(24.0, 0.0, 0.0));
+            tf = tf.with_translation(Vec3::new(OFF_SIDE, 0.0, 0.0));
         },
     };
 
@@ -154,8 +158,7 @@ fn slash_ability_trigger(
                     },
 
                     transform: tf,
-
-                    texture_atlas: assets.anims["SLASH"].tex.clone(),
+                    texture_atlas: assets.slash.tex.clone(),
 
                     ..default()
                 },
@@ -171,7 +174,7 @@ fn slash_ability_trigger(
 
                 combat_layer: CombatLayerMask::PLAYER,
 
-                anim: Animator::new(assets.anims["SLASH"].clone()),
+                anim: Animator::new(assets.slash.clone()),
 
                 ..MeleeAttackBundle::from_size(Vec2::new(72.0, 48.0))
             }

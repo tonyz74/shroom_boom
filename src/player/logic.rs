@@ -95,22 +95,26 @@ fn run_common(
 
     let pos = tf.translation();
 
-    let span = (PLAYER_COLLIDER_CAPSULE.segment.a.coords.xy().y).abs()
+    let span_x = (PLAYER_COLLIDER_CAPSULE.segment.a.coords.xy().x).abs()
+        + (PLAYER_COLLIDER_CAPSULE.segment.b.coords.xy().x).abs()
+        + (PLAYER_COLLIDER_CAPSULE.radius);
+
+    let span_y = (PLAYER_COLLIDER_CAPSULE.segment.a.coords.xy().y).abs()
         + (PLAYER_COLLIDER_CAPSULE.segment.b.coords.xy().y).abs()
         + (PLAYER_COLLIDER_CAPSULE.radius);
 
     // Cast from both head and feet
     let raycast_origins = [
-        Vect::new(pos.x, pos.y + (span / 2.0)),
-        Vect::new(pos.x, pos.y + (0.00000000)),
-        Vect::new(pos.x, pos.y - (span / 2.0)),
+        Vect::new(pos.x, pos.y + span_y / 2.0),
+        Vect::new(pos.x, pos.y + 0.0000000000),
+        Vect::new(pos.x, pos.y - span_y / 2.0),
     ];
 
     for origin in raycast_origins.iter() {
         let rc = ctx.cast_ray(
             *origin,
             Vect::new(vel_x, 0.0).normalize(),
-            PLAYER_COLLIDER_CAPSULE.radius + 1.0,
+            PLAYER_COLLIDER_CAPSULE.radius + span_x / 2.0 + 1.0,
             true,
             QueryFilter {
                 flags: QueryFilterFlags::EXCLUDE_SENSORS,
@@ -167,7 +171,7 @@ pub fn run(
         &GlobalTransform,
         &mut Player,
         &mut Facing
-    ), (Without<Hurt>, Without<Dash>, Without<Die>)>,
+    ), (Without<Hurt>, Without<Dash>, Without<Die>, Without<Crouch>)>,
     mut rapier: ResMut<RapierContext>
 ) {
     if q.is_empty() {
@@ -212,6 +216,7 @@ pub fn start_crouch(mut q: Query<&mut Player, Added<Crouch>>) {
     }
 
     let mut player = q.single_mut();
+    player.vel.x = 0.0;
     if player.vel.y > 2.0 {
         player.vel.y = 0.0;
     } else if player.vel.y > -3.0 {

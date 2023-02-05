@@ -10,6 +10,7 @@ use crate::ui::hud::{DASH_CD_CHUNKS, PLAYER_HUD_DISPLAY_CHUNKS, SHOOT_CD_CHUNKS,
 #[derive(Resource, Default, Debug)]
 pub struct PlayerAssets {
     pub anims: AnimationMap,
+    pub slash: Animation,
     pub bullet: Animation
 }
 
@@ -19,54 +20,80 @@ impl PlayerAssets {
         mut texture_atlases: ResMut<Assets<TextureAtlas>>,
         mut player_assets: ResMut<PlayerAssets>,
     ) {
-        const SIZE: Vec2 = Vec2::new(24., 24.);
-        let sheet = asset_server.load("dino/sheets/yellow.png");
+        const SIZE: Vec2 = Vec2::new(64., 64.);
+        let sheet = asset_server.load("art/player/Player-Sheet.png");
+
+        let mut anims = HashMap::new();
 
         // IDLE
-
-        let idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 4, 1, None, None);
-
+        let idle_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 2, 1, None, Some(Vec2::new(1.0, 0.0) * SIZE));
         let idle_handle = texture_atlases.add(idle_atlas);
+        let idle_anim = Animation::new("IDLE".to_string(), idle_handle, 0.75);
+        anims.insert(idle_anim.name.clone(), idle_anim);
 
         // RUN
-
-        let run_atlas = TextureAtlas::from_grid(
-            sheet.clone(),
-            SIZE,
-            6,
-            1,
-            None,
-            Some(Vec2::new(3., 0.) * SIZE),
-        );
-
+        let run_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 6, 1, None, Some(Vec2::new(3.0, 0.0) * SIZE));
         let run_handle = texture_atlases.add(run_atlas);
+        let run_anim = Animation::new("RUN".to_string(), run_handle, 0.1);
+        anims.insert(run_anim.name.clone(), run_anim);
 
         // CROUCH
-
-        let crouch_atlas = TextureAtlas::from_grid(
-            sheet.clone(),
-            SIZE,
-            1,
-            1,
-            None,
-            Some(Vec2::new(17., 0.) * SIZE),
-        );
-
+        let crouch_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 3, 1, None, Some(Vec2::new(9.0, 0.0) * SIZE));
         let crouch_handle = texture_atlases.add(crouch_atlas);
+        let mut crouch_anim = Animation::new("CROUCH".to_string(), crouch_handle, 0.06);
+        crouch_anim.repeating = false;
+        anims.insert(crouch_anim.name.clone(), crouch_anim);
+
+        // JUMP
+        let jump_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 3, 1, None, Some(Vec2::new(12.0, 0.0) * SIZE));
+        let jump_handle = texture_atlases.add(jump_atlas);
+        let mut jump_anim = Animation::new("JUMP".to_string(), jump_handle, 0.1);
+        jump_anim.repeating = false;
+        anims.insert(jump_anim.name.clone(), jump_anim);
+
+        // HIT
+        let hit_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 4, 1, None, Some(Vec2::new(15.0, 0.0) * SIZE));
+        let hit_handle = texture_atlases.add(hit_atlas);
+        let mut hit_anim = Animation::new("HIT".to_string(), hit_handle, 0.05);
+        hit_anim.repeating = false;
+        anims.insert(hit_anim.name.clone(), hit_anim);
+
+        // DASH
+        let dash_init_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 3, 1, None, Some(Vec2::new(19.0, 0.0) * SIZE));
+        let dash_init_handle = texture_atlases.add(dash_init_atlas);
+        let mut dash_init_anim = Animation::new("DASH_INIT".to_string(), dash_init_handle, 0.02);
+        dash_init_anim.repeating = false;
+        anims.insert(dash_init_anim.name.clone(), dash_init_anim);
+
+        // for (i, dir) in &[
+        //     "UP",
+        //     "DOWN",
+        //     "LEFT",
+        //     "RIGHT",
+        //     "UP_LEFT",
+        //     "DOWN_LEFT",
+        //     "UP_RIGHT",
+        //     "DOWN_RIGHT"
+        // ].iter().enumerate() {
+        //     let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 3, 1, None, Some(Vec2::new(23.0, 0.0) * SIZE));
+        //     let handle = texture_atlases.add(atlas);
+        //     // let mut shoot_anim = Animation::new()
+        // }
+
+
+
+        player_assets.anims = AnimationMap::new(anims);
+
+
+
 
         // SLASH
         let slash_sheet = asset_server.load("slash/slash longgg.png");
         let slash_atlas =
             TextureAtlas::from_grid(slash_sheet, Vec2::new(36.0, 24.0), 3, 1, None, None);
         let slash_handle = texture_atlases.add(slash_atlas);
-
-
-        player_assets.anims = AnimationMap::new(HashMap::from([
-            ("IDLE".to_string(), Animation::new("IDLE".to_string(), idle_handle, 0.2)),
-            ("RUN".to_string(), Animation::new("RUN".to_string(), run_handle, 0.08)),
-            ("CROUCH".to_string(), Animation::new("CROUCH".to_string(), crouch_handle, 0.4)),
-            ("SLASH".to_string(), Animation::new("SLASH".to_string(), slash_handle, 0.05)),
-        ]));
+        let slash_anim = Animation::new("SLASH".to_string(), slash_handle, 0.05);
+        player_assets.slash = slash_anim;
 
 
         let bullet_sheet = asset_server.load("art/player/Bullet.png");

@@ -21,6 +21,10 @@ pub fn player_setup_anim(app: &mut App) {
             .with_system(anim_run)
             .with_system(anim_idle)
             .with_system(anim_crouch)
+            .with_system(anim_slash)
+            .with_system(anim_dash)
+            .with_system(anim_fall)
+            .with_system(anim_jump)
             // .with_system(flip_sprite_on_direction)
     );
 }
@@ -58,6 +62,51 @@ fn anim_idle(
     });
 }
 
+fn anim_fall(
+    anims: Res<PlayerAssets>,
+    mut q: Query<Entity, (With<Player>, Added<Fall>)>,
+    mut evw: EventWriter<AnimationChangeEvent>
+) {
+    if q.is_empty() {
+        return;
+    }
+
+    evw.send(AnimationChangeEvent {
+        e: q.single(),
+        new_anim: anims.anims["IDLE"].clone()
+    });
+}
+
+fn anim_jump(
+    anims: Res<PlayerAssets>,
+    mut q: Query<Entity, (With<Player>, Added<Jump>)>,
+    mut evw: EventWriter<AnimationChangeEvent>
+) {
+    if q.is_empty() {
+        return;
+    }
+
+    evw.send(AnimationChangeEvent {
+        e: q.single(),
+        new_anim: anims.anims["JUMP"].clone()
+    });
+}
+
+fn anim_slash(
+    anims: Res<PlayerAssets>,
+    mut q: Query<Entity, (With<Player>, Added<Slash>)>,
+    mut evw: EventWriter<AnimationChangeEvent>
+) {
+    if q.is_empty() {
+        return;
+    }
+
+    evw.send(AnimationChangeEvent {
+        e: q.single(),
+        new_anim: anims.anims["HIT"].clone()
+    })
+}
+
 fn anim_crouch(
     anims: Res<PlayerAssets>,
     mut q: Query<Entity, (With<Player>, Added<Crouch>)>,
@@ -70,5 +119,20 @@ fn anim_crouch(
     evw.send(AnimationChangeEvent {
         e: q.single(),
         new_anim: anims.anims["CROUCH"].clone()
+    });
+}
+
+fn anim_dash(
+    anims: Res<PlayerAssets>,
+    mut q: Query<Entity, (With<Player>, Added<Dash>)>,
+    mut evw: EventWriter<AnimationChangeEvent>
+) {
+    if q.is_empty() {
+        return;
+    }
+
+    evw.send(AnimationChangeEvent {
+        e: q.single(),
+        new_anim: anims.anims["DASH_INIT"].clone()
     });
 }

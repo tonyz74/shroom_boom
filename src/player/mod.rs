@@ -174,7 +174,7 @@ fn setup_player(
             strength: AttackStrength::new(0),
             combat_layer: CombatLayerMask::PLAYER,
             attack: ColliderAttack { enabled: false },
-            ..ColliderAttackBundle::from_size(Vec2::new(32.0, 40.0))
+            ..ColliderAttackBundle::from_size(Vec2::new(64.0, 52.0))
         });
     });
 }

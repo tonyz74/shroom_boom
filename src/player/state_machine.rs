@@ -63,7 +63,6 @@ pub fn player_state_machine() -> StateMachine {
         .trans::<Fall>(tg::DashTrigger, Dash)
         .trans::<Jump>(tg::DashTrigger, Dash)
         .trans::<Slash>(tg::DashTrigger, Dash)
-        .trans::<Crouch>(tg::DashTrigger, Dash)
 
         // Exiting Hurting
         .trans::<Hurt>(DoneTrigger::Success, Fall)
@@ -84,7 +83,6 @@ pub fn player_state_machine() -> StateMachine {
         .trans::<Fall>(ShootTrigger, Shoot)
         .trans::<Move>(ShootTrigger, Shoot)
         .trans::<Jump>(ShootTrigger, Shoot)
-        .trans::<Crouch>(ShootTrigger, Shoot)
         .trans::<Shoot>(DoneTrigger::Success, Fall)
 
         // Death

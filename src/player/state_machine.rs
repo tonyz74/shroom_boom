@@ -53,7 +53,6 @@ pub fn player_state_machine() -> StateMachine {
         // To Jumping
         .trans::<Idle>(tg::JumpTrigger, Jump)
         .trans::<Move>(tg::JumpTrigger, Jump)
-        .trans::<Crouch>(tg::JumpTrigger, Jump)
         .trans::<Slash>(tg::JumpTrigger, Jump)
         .trans::<Fall>(tg::JumpTrigger, Jump)
 

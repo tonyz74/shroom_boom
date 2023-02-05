@@ -26,7 +26,7 @@ impl Default for AttackDirection {
     }
 }
 
-fn attack_direction_between(self_pos: Vec2, target_pos: Vec2) -> AttackDirection {
+pub fn attack_direction_between(self_pos: Vec2, target_pos: Vec2) -> AttackDirection {
     let dir = (target_pos - self_pos).normalize_or_zero();
     if dir == Vec2::ZERO {
         return AttackDirection::Up;

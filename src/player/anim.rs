@@ -13,6 +13,8 @@ use crate::{
 
 use std::time::Duration;
 use crate::anim::AnimationChangeEvent;
+use crate::player::abilities::autotarget::AttackDirection;
+use crate::player::abilities::shoot::{shoot_ability_trigger, ShootAbility};
 use crate::util::Facing;
 
 pub fn player_setup_anim(app: &mut App) {
@@ -25,6 +27,7 @@ pub fn player_setup_anim(app: &mut App) {
             .with_system(anim_dash)
             .with_system(anim_fall)
             .with_system(anim_jump)
+            .with_system(anim_shoot.after(shoot_ability_trigger))
             // .with_system(flip_sprite_on_direction)
     );
 }
@@ -134,5 +137,43 @@ fn anim_dash(
     evw.send(AnimationChangeEvent {
         e: q.single(),
         new_anim: anims.anims["DASH_INIT"].clone()
+    });
+}
+
+fn anim_shoot(
+    anims: Res<PlayerAssets>,
+    q: Query<(Entity, &ShootAbility), (With<Player>, Added<Shoot>)>,
+    mut evw: EventWriter<AnimationChangeEvent>
+) {
+    if q.is_empty() {
+        return;
+    }
+
+    let (entity, shoot) = q.single();
+
+    let name = match shoot.shoot_target {
+        Some((_, dir)) => match dir {
+            AttackDirection::Left | AttackDirection::Right => {
+                "SHOOT_STRAIGHT"
+            },
+            AttackDirection::Up => {
+                "SHOOT_UP"
+            },
+            AttackDirection::Down => {
+                "SHOOT_DOWN"
+            },
+            AttackDirection::UpLeft | AttackDirection::UpRight => {
+                "SHOOT_UP"
+            },
+            AttackDirection::DownLeft | AttackDirection::DownRight => {
+                "SHOOT_DOWN"
+            }
+        },
+        None => "SHOOT_STRAIGHT"
+    };
+    println!("{:?}", name);
+    evw.send(AnimationChangeEvent {
+        e: entity,
+        new_anim: anims.anims[name].clone()
     });
 }

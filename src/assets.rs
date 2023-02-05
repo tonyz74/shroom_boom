@@ -65,21 +65,21 @@ impl PlayerAssets {
         dash_init_anim.repeating = false;
         anims.insert(dash_init_anim.name.clone(), dash_init_anim);
 
-        // for (i, dir) in &[
-        //     "UP",
-        //     "DOWN",
-        //     "LEFT",
-        //     "RIGHT",
-        //     "UP_LEFT",
-        //     "DOWN_LEFT",
-        //     "UP_RIGHT",
-        //     "DOWN_RIGHT"
-        // ].iter().enumerate() {
-        //     let atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 3, 1, None, Some(Vec2::new(23.0, 0.0) * SIZE));
-        //     let handle = texture_atlases.add(atlas);
-        //     // let mut shoot_anim = Animation::new()
-        // }
 
+        // SHOOTING
+        for (i, dir) in ["STRAIGHT", "UP", "DOWN"].iter().enumerate() {
+            let atlas = TextureAtlas::from_grid(
+                sheet.clone(),
+                SIZE,
+                4, 1,
+                None, Some(Vec2::new(22.0 + i as f32 * 4.0, 0.0) * SIZE)
+            );
+
+            let handle = texture_atlases.add(atlas);
+            let mut anim = Animation::new(format!("SHOOT_{}", dir), handle, 0.075);
+            anim.repeating = false;
+            anims.insert(anim.name.clone(), anim);
+        }
 
 
         player_assets.anims = AnimationMap::new(anims);

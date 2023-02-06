@@ -17,6 +17,7 @@ pub enum EnragedAttackMove {
 }
 
 pub const ATTACK_SEQUENCE: &[EnragedAttackMove] = &[
+    EnragedAttackMove::Rest(0.1),
     EnragedAttackMove::Boom,
     EnragedAttackMove::Rest(1.0),
 

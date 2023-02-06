@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 pub const BOSS_FULL_SIZE: Vec2 = Vec2::new(256.0, 512.0);
-pub const BOSS_HALF_SIZE: Vec2 = Vec2::new(120.0, 256.0);
+pub const BOSS_HALF_SIZE: Vec2 = Vec2::new(128.0, 256.0);
 pub const BOSS_HEAD_HALF_SIZE: Vec2 = Vec2::new(48.0, BOSS_HALF_SIZE.x);
 
 pub const BOSS_CHARGE_SPEED: f32 = 44.0;
@@ -23,6 +23,7 @@ pub const BOSS_RELOCATE_EXTEND_TIME: f32 = 0.8;
 pub const BOSS_BOOM_EXPLOSION_COUNT: usize = 16;
 pub const BOSS_BOOM_SELECTION_TIME: f32 = 0.1;
 pub const BOSS_BOOM_WAIT_TIME: f32 = 0.8;
+pub const BOSS_BOOM_SUMMON_WAIT_TIME: f32 = 0.6;
 pub const BOSS_BOOM_PARTITION_SIZE: f32 = 128.0;
 
 pub const BOSS_HEALTH: i32 = 500;

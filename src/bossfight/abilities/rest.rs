@@ -1,11 +1,12 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::Collider;
 use seldom_state::prelude::*;
 use crate::bossfight::{Boss, BossConfig};
 use crate::bossfight::consts::{BOSS_HALF_SIZE, BOSS_FULL_SIZE, BOSS_HEAD_HALF_SIZE};
 use crate::bossfight::enraged::EnragedAttackMove;
 use crate::bossfight::stage::BossStage;
 use crate::bossfight::state_machine::{AbilityStartup, Rest};
-use crate::combat::Immunity;
+use crate::combat::{ColliderAttack, Immunity};
 use crate::enemies::Enemy;
 use crate::fx::indicator::Indicator;
 use crate::pathfind::Region;
@@ -36,7 +37,9 @@ pub fn register_rest_ability(app: &mut App) {
 
 
 fn start_resting(
+    mut colliders: Query<(&mut ColliderAttack, &mut Collider, &mut Transform)>,
     mut q: Query<(
+        &Children,
         &GlobalTransform,
         &mut Immunity,
         &mut RestAbility,
@@ -51,7 +54,7 @@ fn start_resting(
         return;
     }
 
-    let (transform, mut immunity, mut rest, mut enemy, boss, cfg) = q.single_mut();
+    let (children, transform, mut immunity, mut rest, mut enemy, boss, cfg) = q.single_mut();
     let pos = transform.translation();
 
     let len = match boss.current_move() {
@@ -71,6 +74,18 @@ fn start_resting(
     let next = boss.next_move();
     match next {
         EnragedAttackMove::ChargeLeft | EnragedAttackMove::ChargeRight => {
+            for child in children {
+                if let Ok((mut atk, mut collider, mut transform)) = colliders.get_mut(*child) {
+                    *collider = Collider::cuboid(BOSS_HALF_SIZE.y / 2.0, BOSS_HALF_SIZE.x);
+                    transform.translation.y = match next {
+                        EnragedAttackMove::ChargeLeft => -1.0,
+                        EnragedAttackMove::ChargeRight => 1.0,
+                        _ => panic!()
+                    } * BOSS_HALF_SIZE.y / 2.0;
+                    atk.enabled = true;
+                }
+            }
+
             let region = match next {
                 EnragedAttackMove::ChargeLeft => Region {
                     tl: Vec2::new(

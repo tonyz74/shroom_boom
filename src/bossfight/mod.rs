@@ -219,12 +219,20 @@ impl Plugin for BossPlugin {
 
 
 pub fn print_stage(
-    q: Query<(&Boss, &BossStage, &Facing)>
+    colliders: Query<&ColliderAttack>,
+    q: Query<(&Children, &Boss, &BossStage, &Facing)>
 ) {
-    for (boss, stage, facing) in q.iter() {
+    for (children, boss, stage, facing) in q.iter() {
+        let mut c = None;
+        for child in children {
+            if let Ok(atk) = colliders.get(*child) {
+                c = Some(atk);
+            }
+        }
+
         screen_print!(
-            "boss stage: {:?}, current move: {:?}, facing: {:?}",
-            stage, boss.current_move(), facing
+            "boss stage: {:?}, current move: {:?}, facing: {:?}, c: {:?}",
+            stage, boss.current_move(), facing, c
         );
     }
 }

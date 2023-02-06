@@ -29,8 +29,8 @@ impl InputAction {
             (Keyboard(KC::E), Interact),
 
             (Keyboard(KC::J), Slash),
-            (Keyboard(KC::K), Dash),
-            (Keyboard(KC::L), Shoot),
+            (Keyboard(KC::K), Shoot),
+            (Keyboard(KC::L), Dash),
         ])
     }
 

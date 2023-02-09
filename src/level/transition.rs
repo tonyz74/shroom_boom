@@ -12,19 +12,18 @@ use crate::shop::Shop;
 
 #[derive(Resource, Default)]
 pub struct TransitionCleanupEvent {
-    pub new_level: usize
+    pub new_level: String
 }
 
 #[derive(Resource, Default)]
 pub struct TransitionSetupEvent {
-    pub new_level: usize
+    pub new_level: String
 }
 
 
 #[derive(Resource, Default)]
 pub struct LevelTransition {
-    pub next: i32,
-    pub entry_point_id: i32,
+    pub next: String,
     pub transition_effect: TransitionEffect
 }
 
@@ -104,7 +103,7 @@ pub fn transition_cleanup_old(
     }
 
     for ev in transition_cleanup_event.iter() {
-        if LevelSelection::Index(trans.next as usize) != sel.clone() {
+        if LevelSelection::Identifier(trans.next.clone()) != sel.clone() {
             for exit in exits.iter() {
                 commands.entity(exit).despawn();
             }
@@ -131,7 +130,7 @@ pub fn transition_cleanup_old(
             }
         }
 
-        setup.send(TransitionSetupEvent { new_level: ev.new_level });
+        setup.send(TransitionSetupEvent { new_level: ev.new_level.clone() });
     }
 }
 
@@ -144,7 +143,7 @@ pub fn transition_setup_new(
     }
 
     for ev in setup.iter() {
-        *sel = LevelSelection::Index(ev.new_level);
+        *sel = LevelSelection::Identifier(ev.new_level.clone());
     }
 }
 
@@ -189,19 +188,19 @@ pub fn transition_on_update(
     mut events: EventWriter<TransitionCleanupEvent>
 ) {
     let dt = time.delta();
-    let next_level = trans.next;
+    let next_level = trans.next.clone();
 
     match &mut trans.transition_effect {
         TransitionEffect::Fade(fade) => {
-            if next_level == -1 {
-                trans.next = 0;
+            if next_level == "None" {
+                trans.next = String::from("Level_0");
                 state.push(GameState::GameWonMenu).unwrap();
                 return;
             }
 
             fade.fade_in.tick(dt);
             if fade.fade_in.just_finished() {
-                events.send(TransitionCleanupEvent { new_level: next_level as usize });
+                events.send(TransitionCleanupEvent { new_level: next_level.clone() });
             }
 
             if fade.fade_in.finished() && !fade.fade_in.just_finished() {

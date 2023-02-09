@@ -43,7 +43,7 @@ impl Plugin for AttackPlugin {
                 SystemSet::on_update(GameState::Gameplay)
                     .with_system(resolve_melee_attacks)
                     .with_system(handle_hits)
-                    .with_system(temp_explosion)
+                    // .with_system(temp_explosion)
             )
 
             .add_event::<CombatEvent>()
@@ -58,7 +58,7 @@ impl Plugin for AttackPlugin {
     }
 }
 
-fn temp_explosion(
+fn _temp_explosion(
     events: Res<Input<MouseButton>>,
     windows: Res<Windows>,
     camera: Query<&GlobalTransform, With<GameCamera>>,

@@ -63,7 +63,7 @@ fn update_state(
     mut ui_state: Query<&mut UiState>
 ) {
     for mut ui_state in ui_state.iter_mut() {
-        screen_print!("state is {:?}", state.current());
+        // screen_print!("state is {:?}", state.current());
         ui_state.state = Some(state.current().clone());
     }
 }

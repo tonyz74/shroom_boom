@@ -100,8 +100,8 @@ pub fn menu_state_setup(
         }
     }
 
-    trans.next = 0;
-    *sel = LevelSelection::Index(0);
+    trans.next = String::from("Level_0");
+    *sel = LevelSelection::Identifier(String::from("Level_0"));
 }
 
 

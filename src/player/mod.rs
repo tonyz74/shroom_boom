@@ -30,6 +30,7 @@ use crate::player::abilities::slash::SlashAbility;
 use crate::player::abilities::jump::JumpAbility;
 use crate::player::abilities::shoot::ShootAbility;
 use crate::player::ammo::Ammo;
+use crate::player::consts::HEALTH_LEVELS;
 use crate::player::skill::{PlayerSkillLevels, upgrade_player_from_skills};
 use crate::util::Facing;
 
@@ -157,7 +158,7 @@ fn setup_player(
 
             skill_levels: PlayerSkillLevels::default(),
 
-            coin_holder: CoinHolder { total_value: 1000 },
+            coin_holder: CoinHolder { total_value: 0 },
             coin_collector: CoinCollector,
 
             input: InputAction::input_manager_bundle(),
@@ -165,7 +166,7 @@ fn setup_player(
             state_machine: state_machine::player_state_machine(),
 
             combat_layer: CombatLayerMask::PLAYER,
-            health: Health::new(1),
+            health: Health::new(HEALTH_LEVELS[0]),
 
             immunity: Immunity::default()
         }
@@ -188,7 +189,7 @@ pub fn player_print_health(p: Query<(&Health, &Immunity), Changed<Health>>) {
 pub fn player_pos(
     p: Query<&GlobalTransform, With<Player>>
 ) {
-    for tf in p.iter() {
-        screen_print!("{:?}", tf.translation());
+    for _tf in p.iter() {
+        // screen_print!("{:?}", tf.translation());
     }
 }

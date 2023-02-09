@@ -57,7 +57,7 @@ impl Plugin for LevelPlugin {
                 ..default()
             })
             .init_resource::<LevelInfo>()
-            .insert_resource(LevelSelection::Index(0))
+            .insert_resource(LevelSelection::Identifier(String::from("Level_0")))
             .register_ldtk_entity::<PlayerTileBundle>("EntryPoint");
 
         solid::register_solid_tile(app);
@@ -145,17 +145,17 @@ pub struct FinishedTransitioning;
 
 fn move_player(
     mut commands: Commands,
-    transition: Res<transition::LevelTransition>,
+    // transition: Res<transition::LevelTransition>,
     mut q: Query<(Entity, &mut Transform), With<Player>>,
     pos: Query<&EntityInstance, Added<PlayerTileMarker>>,
     lvl_info: Res<LevelInfo>,
 ) {
     for inst in pos.iter() {
-        let entry_point_id = util::val_expect_i32(&inst.field_instances[0].value).unwrap();
+        // let entry_point_id = util::val_expect_i32(&inst.field_instances[0].value).unwrap();
 
-        if entry_point_id != transition.entry_point_id {
-            continue;
-        }
+        // if entry_point_id != transition.entry_point_id {
+        //     continue;
+        // }
 
         let (e, mut tf) = q.single_mut();
         tf.translation = coord::grid_coord_to_translation(
@@ -166,5 +166,6 @@ fn move_player(
         tf.translation.x += PLAYER_SIZE_PX.x / 2.0;
 
         commands.entity(e).insert(FinishedTransitioning);
+        return;
     }
 }

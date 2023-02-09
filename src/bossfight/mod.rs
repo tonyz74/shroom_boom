@@ -230,10 +230,10 @@ pub fn print_stage(
             }
         }
 
-        screen_print!(
-            "boss stage: {:?}, current move: {:?}, facing: {:?}, c: {:?}",
-            stage, boss.current_move(), facing, c
-        );
+        // screen_print!(
+        //     "boss stage: {:?}, current move: {:?}, facing: {:?}, c: {:?}",
+        //     stage, boss.current_move(), facing, c
+        // );
     }
 }
 

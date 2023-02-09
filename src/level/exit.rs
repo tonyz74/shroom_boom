@@ -26,8 +26,7 @@ pub struct ExitTileBundle {
 
 #[derive(Component)]
 pub struct LevelExit {
-    pub link: i32,
-    pub entry_point_id: i32
+    pub link: String,
 }
 
 pub fn register_exit_entity(app: &mut App) {
@@ -50,8 +49,7 @@ fn add_exit_entities(
     lvl_info: Res<LevelInfo>
 ) {
     for inst in q.iter() {
-        let link = util::val_expect_i32(&inst.field_instances[0].value).unwrap();
-        let entry_point_id = util::val_expect_i32(&inst.field_instances[1].value).unwrap();
+        let link = util::val_expect_string(&inst.field_instances[0].value).unwrap();
 
         let tl = coord::grid_coord_to_translation(inst.grid, lvl_info.grid_size.as_ivec2());
 
@@ -66,7 +64,7 @@ fn add_exit_entities(
             ),
 
             LevelExit {
-                link, entry_point_id
+                link
             }
         ));
     }
@@ -86,8 +84,7 @@ fn on_player_collide_with_exit(
     for (exit, info) in exit_q.iter() {
         if rapier.intersection_pair(exit, p).is_some() {
             *sel = LevelTransition {
-                next: info.link,
-                entry_point_id: info.entry_point_id,
+                next: info.link.clone(),
                 transition_effect: TransitionEffect::default()
             };
         }

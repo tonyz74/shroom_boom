@@ -14,6 +14,14 @@ pub fn val_expect_ent_ref(fv: &FieldValue) -> Option<FieldInstanceEntityReferenc
         _ => None
     }
 }
+
+pub fn val_expect_string(fv: &FieldValue) -> Option<String> {
+    match fv {
+        FieldValue::String(Some(e)) => Some(e.clone()),
+        _ => None
+    }
+}
+
 pub fn val_expect_point(fv: &FieldValue) -> Option<IVec2> {
     match fv {
         FieldValue::Point(Some(e)) => Some(e.clone()),

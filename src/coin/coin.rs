@@ -58,6 +58,11 @@ fn coin_added_die(mut coins: Query<&mut CoinMovement, Added<Die>>) {
 
 fn coin_shrink(mut coins: Query<&mut Transform, (With<Coin>, With<Die>)>) {
     for mut transform in coins.iter_mut() {
+        if transform.scale.x <= 0.0 {
+            transform.scale.x = 0.0;
+            transform.scale.y = 0.0;
+        }
+
         transform.scale -= (1.0 / 0.1) * PHYSICS_STEP_DELTA;
     }
 }

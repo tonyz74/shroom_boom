@@ -159,18 +159,21 @@ pub fn projectile_hit_targets(
         &Collider,
         &CombatLayerMask,
         &AttackStrength,
-        &mut ProjectileAttack,
         &KnockbackModifier
-    )>,
+    ), With<ProjectileAttack>>,
+    mut proj_attacks: Query<&mut ProjectileAttack>,
     solids: Query<Entity, Or<(With<SolidTile>, With<DoorTile>)>>,
     rapier: Res<RapierContext>,
 
     combat_layers: Query<&CombatLayerMask>,
     mut hit_events: EventWriter<CombatEvent>,
 ) {
-    for (entity, collider, proj_combat_layer, strength, mut proj, kb) in projectiles.iter_mut() {
+    for (entity, collider, proj_combat_layer, strength, kb) in projectiles.iter_mut() {
         let transform = transforms.get(entity).unwrap();
         let proj_pos = transform.translation();
+
+        let mut collided = false;
+        let vel = if let Ok(e) = proj_attacks.get(entity) { e.vel } else { Vec2::ZERO };
 
         // If hit a wall
         let mut hit_wall = false;
@@ -196,7 +199,7 @@ pub fn projectile_hit_targets(
         );
 
         if hit_wall {
-            proj.collided = true;
+            collided = true;
         };
 
         rapier.intersections_with_shape(
@@ -211,7 +214,7 @@ pub fn projectile_hit_targets(
                 if let Ok(layer) = combat_layers.get(hit_entity) {
 
                     let immune = immunities.contains(hit_entity) && immunities.get(hit_entity).unwrap().is_immune;
-                    if layer.is_ally_with(*proj_combat_layer) || immune {
+                    if layer.is_ally_with(*proj_combat_layer) || immune || proj_attacks.contains(hit_entity) {
                         return true;
                     }
 
@@ -219,7 +222,7 @@ pub fn projectile_hit_targets(
                     let dir = (hit_pos - proj_pos).normalize();
                     let knockback = (kb.mod_fn)(projectile_knockback(
                         Vec2::new(dir.x, dir.y),
-                        proj.vel
+                        vel
                     ));
 
                     hit_events.send(CombatEvent {
@@ -228,11 +231,15 @@ pub fn projectile_hit_targets(
                         kb: knockback
                     });
 
-                    proj.collided = true;
+                    collided = true;
                 }
 
                 true
             }
         );
+
+        if collided {
+            proj_attacks.get_mut(entity).unwrap().collided = true;
+        }
    }
 }

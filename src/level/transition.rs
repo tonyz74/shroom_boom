@@ -1,12 +1,25 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use crate::camera::GameCamera;
-use crate::combat::ProjectileAttack;
+use crate::coin::coin::Coin;
+use crate::combat::{ExplosionAttack, ProjectileAttack};
 use crate::enemies::Enemy;
 use crate::level::{FinishedTransitioning, exit::LevelExit};
 use crate::state::GameState;
 use crate::player::Player;
 use crate::shop::Shop;
+
+
+#[derive(Resource, Default)]
+pub struct TransitionCleanupEvent {
+    pub new_level: usize
+}
+
+#[derive(Resource, Default)]
+pub struct TransitionSetupEvent {
+    pub new_level: usize
+}
+
 
 #[derive(Resource, Default)]
 pub struct LevelTransition {
@@ -51,16 +64,19 @@ impl Default for FadeTransition {
 
 pub fn register_transition_systems(app: &mut App) {
     app
+        .add_event::<TransitionCleanupEvent>()
+        .add_event::<TransitionSetupEvent>()
         .init_resource::<LevelTransition>()
         .add_system_set(
             SystemSet::on_update(GameState::LevelTransition)
                 .with_system(transition_update_effect)
                 .with_system(transition_on_update)
+                .with_system(transition_cleanup_old)
+                .with_system(transition_setup_new)
         )
         .add_system_set(
             SystemSet::on_enter(GameState::LevelTransition)
                 .with_system(transition_on_start)
-                .with_system(transition_cleanup_old)
         )
         .add_system_set(
             SystemSet::on_exit(GameState::LevelTransition)
@@ -74,34 +90,67 @@ pub fn transition_cleanup_old(
     mut player: Query<(Entity, &mut Player)>,
     enemies: Query<Entity, With<Enemy>>,
     shopkeepers: Query<Entity, With<Shop>>,
-    projectiles: Query<Entity, With<ProjectileAttack>>
+    projectiles: Query<Entity, With<ProjectileAttack>>,
+    misc: Query<Entity, Or<(With<ProjectileAttack>, With<ExplosionAttack>, With<Coin>)>>,
+
+    mut transition_cleanup_event: EventReader<TransitionCleanupEvent>,
+    mut setup: EventWriter<TransitionSetupEvent>,
+
+    sel: Res<LevelSelection>,
+    trans: Res<LevelTransition>
 ) {
-    for exit in exits.iter() {
-        commands.entity(exit).despawn();
+    if transition_cleanup_event.is_empty() {
+        return;
     }
 
-    for (entity, mut player) in player.iter_mut() {
-        commands.entity(entity).remove::<FinishedTransitioning>();
-        player.vel = Vec2::ZERO;
+    for ev in transition_cleanup_event.iter() {
+        if LevelSelection::Index(trans.next as usize) != sel.clone() {
+            for exit in exits.iter() {
+                commands.entity(exit).despawn();
+            }
+
+            for (entity, mut player) in player.iter_mut() {
+                commands.entity(entity).remove::<FinishedTransitioning>();
+                player.vel = Vec2::ZERO;
+            }
+
+            for enemy in enemies.iter() {
+                commands.entity(enemy).despawn_recursive();
+            }
+
+            for shopkeeper in shopkeepers.iter() {
+                commands.entity(shopkeeper).despawn_recursive();
+            }
+
+            for misc in misc.iter() {
+                commands.entity(misc).despawn_recursive();
+            }
+
+            for proj in projectiles.iter() {
+                commands.entity(proj).despawn_recursive();
+            }
+        }
+
+        setup.send(TransitionSetupEvent { new_level: ev.new_level });
+    }
+}
+
+pub fn transition_setup_new(
+    mut setup: EventReader<TransitionSetupEvent>,
+    mut sel: ResMut<LevelSelection>
+) {
+    if setup.is_empty() {
+        return;
     }
 
-    for enemy in enemies.iter() {
-        commands.entity(enemy).despawn_recursive();
-    }
-
-    for shopkeeper in shopkeepers.iter() {
-        commands.entity(shopkeeper).despawn_recursive();
-    }
-
-    for proj in projectiles.iter() {
-        commands.entity(proj).despawn_recursive();
+    for ev in setup.iter() {
+        *sel = LevelSelection::Index(ev.new_level);
     }
 }
 
 pub fn transition_on_start(
     mut commands: Commands,
     mut trans: ResMut<LevelTransition>,
-    mut state: ResMut<State<GameState>>
 ) {
     match &mut trans.transition_effect {
         TransitionEffect::Fade(fade) => {
@@ -136,7 +185,8 @@ pub fn transition_on_update(
     time: Res<Time>,
     mut trans: ResMut<LevelTransition>,
     mut sel: ResMut<LevelSelection>,
-    mut state: ResMut<State<GameState>>
+    mut state: ResMut<State<GameState>>,
+    mut events: EventWriter<TransitionCleanupEvent>
 ) {
     let dt = time.delta();
     let next_level = trans.next;
@@ -151,7 +201,7 @@ pub fn transition_on_update(
 
             fade.fade_in.tick(dt);
             if fade.fade_in.just_finished() {
-                *sel = LevelSelection::Index(next_level as usize);
+                events.send(TransitionCleanupEvent { new_level: next_level as usize });
             }
 
             if fade.fade_in.finished() && !fade.fade_in.just_finished() {

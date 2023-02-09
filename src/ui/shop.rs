@@ -255,10 +255,19 @@ pub fn shop_menu_render(
     let window_styles = KStyle {
         width: Value(Units::Pixels(840.0)),
         height: Value(Units::Pixels(680.0)),
-        background_color: Value(window_color),
+        // background_color: Value(window_color),
         offset: Value(Edge::all(Units::Stretch(1.0))),
-        border_radius: Value(Corner::all(32.0)),
+        // border_radius: Value(Corner::all(32.0)),
         layout_type: Value(LayoutType::Column),
+        ..default()
+    };
+
+    let image_styles = KStyle {
+        width: Value(Units::Pixels(848.0)),
+        height: Value(Units::Pixels(688.0)),
+
+        position_type: Value(KPositionType::SelfDirected),
+
         ..default()
     };
 
@@ -286,7 +295,7 @@ pub fn shop_menu_render(
         height: Value(Units::Percentage(80.0)),
         background_color: Value(catalog_color),
         offset: Value(Edge::all(Units::Stretch(1.0))),
-        border_radius: Value(Corner::all(32.0)),
+        // border_radius: Value(Corner::all(32.0)),
         layout_type: Value(LayoutType::Row),
         ..default()
     };
@@ -296,7 +305,7 @@ pub fn shop_menu_render(
         height: Value(Units::Percentage(94.0)),
         background_color: Value(container_color),
         offset: Value(Edge::all(Units::Stretch(1.0))),
-        border_radius: Value(Corner::all(32.0)),
+        // border_radius: Value(Corner::all(32.0)),
         layout_type: Value(LayoutType::Column),
         ..default()
     };
@@ -422,139 +431,146 @@ pub fn shop_menu_render(
 
 
     rsx! {
-        <BackgroundBundle styles={window_styles}>
-            <TextWidgetBundle styles={title_styles.clone()} text={TextProps {
-                content: "Toadstool".into(),
-                alignment: Alignment::Middle,
-                ..Default::default()
-            }}/>
-
-            <BackgroundBundle styles={catalog_styles}>
-                <BackgroundBundle styles={container_styles.clone()}>
-
-                    <TextWidgetBundle styles={label_styles.clone()} text={TextProps {
-                        content: "Upgrades".into(),
-                        alignment: Alignment::Middle,
-                        ..Default::default()
-                    }}/>
-
-                    <BackgroundBundle styles={items_styles.clone()}>
-                    {upgrades.for_each(|(icon, cost, content, purchase)| {
-                        constructor! {
-                        <BackgroundBundle styles={sale_styles.clone()}>
-
-                            <BackgroundBundle styles={frame_styles.clone()}>
-                                <KImageBundle
-                                    styles={icon_styles.clone()}
-                                    image={KImage(icon.clone())}
-                                />
-                            </BackgroundBundle>
-
-                            <TextWidgetBundle
-                                styles={item_label_styles.clone()}
-                                text={TextProps {
-                                    content,
-                                    ..Default::default()
-                                }}
-                            />
-
-                            <TextWidgetBundle
-                                styles={cost_label_styles.clone()}
-                                text={TextProps {
-                                    content: cost,
-                                    ..Default::default()
-                                }}
-                            />
-
-                            <BackgroundBundle styles={v_sep_styles.clone()} />
-
-                            <BackgroundBundle styles={purchase_container_styles.clone()}>
-                                <shop_button::ShopButtonBundle
-                                    props={shop_button::ShopButtonProps {
-                                        purchase
-                                    }}
-                                />
-                            </BackgroundBundle>
-
-                        </BackgroundBundle>
-                        };
-                        constructor! {
-                        <BackgroundBundle styles={h_sep_styles.clone()}/>
-                        };
-                    })}
-
-                    </BackgroundBundle>
-
-                </BackgroundBundle>
-
-                <BackgroundBundle styles={container_styles.clone()}>
-
-                    <TextWidgetBundle styles={label_styles.clone()} text={TextProps {
-                        content: "Items".into(),
-                        alignment: Alignment::Middle,
-                        ..Default::default()
-                    }}/>
-
-                    <BackgroundBundle styles={items_styles.clone()}>
-                    {items.for_each(|(icon, cost, content, purchase)| {
-                        constructor! {
-                        <BackgroundBundle styles={sale_styles.clone()}>
-
-                            <BackgroundBundle styles={frame_styles.clone()}>
-                                <KImageBundle
-                                    styles={icon_styles.clone()}
-                                    image={KImage(icon.clone())}
-                                />
-                            </BackgroundBundle>
-
-                            <TextWidgetBundle
-                                styles={item_label_styles.clone()}
-                                text={TextProps {
-                                    content: content.to_string(),
-                                    ..Default::default()
-                                }}
-                            />
-
-                            <TextWidgetBundle
-                                styles={cost_label_styles.clone()}
-                                text={TextProps {
-                                    content: cost,
-                                    ..Default::default()
-                                }}
-                            />
-
-                            <BackgroundBundle styles={v_sep_styles.clone()} />
-
-                            <BackgroundBundle styles={purchase_container_styles.clone()}>
-                                <shop_button::ShopButtonBundle
-                                    props={shop_button::ShopButtonProps {
-                                        purchase
-                                    }}
-                                />
-                            </BackgroundBundle>
-
-
-                        </BackgroundBundle>
-                        };
-
-                        constructor! {
-                        <BackgroundBundle styles={h_sep_styles.clone()}/>
-                        };
-                    })}
-
-                    </BackgroundBundle>
-
-                </BackgroundBundle>
-            </BackgroundBundle>
-
-            <KButtonBundle
-                button={KButton {
-                    text: "Ok".into(),
-                    ..default()
-                }}
-                styles={button_styles}
-                on_event={click_return_to_gameplay}
+        <BackgroundBundle styles={window_styles.clone()}>
+            <KImageBundle
+                image={KImage(assets.shop_bg.clone())}
+                styles={image_styles}
             />
+
+            <BackgroundBundle styles={window_styles.clone()}>
+                <TextWidgetBundle styles={title_styles.clone()} text={TextProps {
+                    content: "Toadstool".into(),
+                    alignment: Alignment::Middle,
+                    ..Default::default()
+                }}/>
+
+                <BackgroundBundle styles={catalog_styles}>
+                    <BackgroundBundle styles={container_styles.clone()}>
+
+                        <TextWidgetBundle styles={label_styles.clone()} text={TextProps {
+                            content: "Upgrades".into(),
+                            alignment: Alignment::Middle,
+                            ..Default::default()
+                        }}/>
+
+                        <BackgroundBundle styles={items_styles.clone()}>
+                        {upgrades.for_each(|(icon, cost, content, purchase)| {
+                            constructor! {
+                            <BackgroundBundle styles={sale_styles.clone()}>
+
+                                <BackgroundBundle styles={frame_styles.clone()}>
+                                    <KImageBundle
+                                        styles={icon_styles.clone()}
+                                        image={KImage(icon.clone())}
+                                    />
+                                </BackgroundBundle>
+
+                                <TextWidgetBundle
+                                    styles={item_label_styles.clone()}
+                                    text={TextProps {
+                                        content,
+                                        ..Default::default()
+                                    }}
+                                />
+
+                                <TextWidgetBundle
+                                    styles={cost_label_styles.clone()}
+                                    text={TextProps {
+                                        content: cost,
+                                        ..Default::default()
+                                    }}
+                                />
+
+                                <BackgroundBundle styles={v_sep_styles.clone()} />
+
+                                <BackgroundBundle styles={purchase_container_styles.clone()}>
+                                    <shop_button::ShopButtonBundle
+                                        props={shop_button::ShopButtonProps {
+                                            purchase
+                                        }}
+                                    />
+                                </BackgroundBundle>
+
+                            </BackgroundBundle>
+                            };
+                            constructor! {
+                            <BackgroundBundle styles={h_sep_styles.clone()}/>
+                            };
+                        })}
+
+                        </BackgroundBundle>
+
+                    </BackgroundBundle>
+
+                    <BackgroundBundle styles={container_styles.clone()}>
+
+                        <TextWidgetBundle styles={label_styles.clone()} text={TextProps {
+                            content: "Items".into(),
+                            alignment: Alignment::Middle,
+                            ..Default::default()
+                        }}/>
+
+                        <BackgroundBundle styles={items_styles.clone()}>
+                        {items.for_each(|(icon, cost, content, purchase)| {
+                            constructor! {
+                            <BackgroundBundle styles={sale_styles.clone()}>
+
+                                <BackgroundBundle styles={frame_styles.clone()}>
+                                    <KImageBundle
+                                        styles={icon_styles.clone()}
+                                        image={KImage(icon.clone())}
+                                    />
+                                </BackgroundBundle>
+
+                                <TextWidgetBundle
+                                    styles={item_label_styles.clone()}
+                                    text={TextProps {
+                                        content: content.to_string(),
+                                        ..Default::default()
+                                    }}
+                                />
+
+                                <TextWidgetBundle
+                                    styles={cost_label_styles.clone()}
+                                    text={TextProps {
+                                        content: cost,
+                                        ..Default::default()
+                                    }}
+                                />
+
+                                <BackgroundBundle styles={v_sep_styles.clone()} />
+
+                                <BackgroundBundle styles={purchase_container_styles.clone()}>
+                                    <shop_button::ShopButtonBundle
+                                        props={shop_button::ShopButtonProps {
+                                            purchase
+                                        }}
+                                    />
+                                </BackgroundBundle>
+
+
+                            </BackgroundBundle>
+                            };
+
+                            constructor! {
+                            <BackgroundBundle styles={h_sep_styles.clone()}/>
+                            };
+                        })}
+
+                        </BackgroundBundle>
+
+                    </BackgroundBundle>
+                </BackgroundBundle>
+
+                <KButtonBundle
+                    button={KButton {
+                        text: "Ok".into(),
+                        ..default()
+                    }}
+                    styles={button_styles}
+                    on_event={click_return_to_gameplay}
+                />
+            </BackgroundBundle>
         </BackgroundBundle>
     };
 

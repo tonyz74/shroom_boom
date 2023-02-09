@@ -7,6 +7,8 @@ pub mod ui;
 pub mod event_handlers;
 pub mod shop_button;
 pub mod bossbar;
+pub mod win;
+pub mod lose;
 
 use kayak_ui::prelude::*;
 use kayak_ui::widgets::*;
@@ -41,6 +43,8 @@ fn startup_ui(
 
     ui::register_ui(&mut widget_context);
     menu::register_menu_ui(&mut widget_context);
+    win::register_win_menu_ui(&mut widget_context);
+    lose::register_lose_menu_ui(&mut widget_context);
     pause::register_pause_ui(&mut widget_context);
     shop::register_shop_menu_ui(&mut widget_context);
     shop_button::register_shop_button_ui(&mut widget_context);

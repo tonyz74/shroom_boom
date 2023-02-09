@@ -4,6 +4,7 @@ use crate::assets::CoinAssets;
 use crate::coin::coin::{Coin, CoinBundle, CoinMovement};
 use crate::state::GameState;
 use crate::entity_states::Die;
+use crate::player::Player;
 
 
 #[derive(Copy, Clone, Debug, Component, Default)]
@@ -39,7 +40,7 @@ fn spawn_random_coin<R: Rng + ?Sized>(
 
 fn drop_coins_on_death(
     mut commands: Commands,
-    dead: Query<(&CoinHolder, &GlobalTransform), Added<Die>>,
+    dead: Query<(&CoinHolder, &GlobalTransform), (Added<Die>, Without<Player>)>,
     assets: Res<CoinAssets>
 ) {
     for (drop, transform) in dead.iter() {

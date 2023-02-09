@@ -1,44 +1,23 @@
 use bevy::prelude::*;
-use bevy_rapier2d::parry::query::SplitResult::Positive;
 use kayak_ui::prelude::*;
 use kayak_ui::widgets::*;
 use crate::assets::UiAssets;
+use crate::player::Player;
 use crate::state::GameState;
-use crate::ui::event_handlers::{goto_state_event, StateTransition};
 use crate::ui::EventInput;
 use crate::ui::menu::GotoMenuEvent;
 use crate::ui::style::{background_style, button_style};
 
-pub fn register_pause_systems(app: &mut App) {
-    app
-        .add_system_set(
-            SystemSet::on_update(GameState::Gameplay)
-                .with_system(pause_if_needed)
-        );
-}
-
-fn pause_if_needed(
-    mut state: ResMut<State<GameState>>,
-    key: Res<Input<KeyCode>>,
-) {
-    if !key.just_pressed(KeyCode::Escape) || state.current() != &GameState::Gameplay {
-        return;
-    }
-
-    state.push(GameState::PauseMenu).unwrap();
-}
-
-
 #[derive(Component, Clone, PartialEq, Default)]
-pub struct PauseMenuProps {
+pub struct WinMenuProps {
 }
 
-impl Widget for PauseMenuProps {
+impl Widget for WinMenuProps {
 }
 
 #[derive(Bundle)]
-pub struct PauseMenuBundle {
-    pub props: PauseMenuProps,
+pub struct WinMenuBundle {
+    pub props: WinMenuProps,
     pub styles: KStyle,
     pub computed_styles: ComputedStyles,
     pub children: KChildren,
@@ -46,31 +25,31 @@ pub struct PauseMenuBundle {
     pub widget_name: WidgetName,
 }
 
-impl Default for PauseMenuBundle {
+impl Default for WinMenuBundle {
     fn default() -> Self {
         Self {
-            props: PauseMenuProps::default(),
+            props: WinMenuProps::default(),
             styles: KStyle::default(),
             computed_styles: ComputedStyles::default(),
             children: KChildren::default(),
             on_event: OnEvent::default(),
-            widget_name: PauseMenuProps::default().get_name(),
+            widget_name: WinMenuProps::default().get_name(),
         }
     }
 }
 
 
-pub fn register_pause_ui(widget_context: &mut KayakRootContext) {
-    widget_context.add_widget_data::<PauseMenuProps, EmptyState>();
+pub fn register_win_menu_ui(widget_context: &mut KayakRootContext) {
+    widget_context.add_widget_data::<WinMenuProps, EmptyState>();
 
     widget_context.add_widget_system(
-        PauseMenuProps::default().get_name(),
-        widget_update::<PauseMenuProps, EmptyState>,
-        pause_menu_render,
+        WinMenuProps::default().get_name(),
+        widget_update::<WinMenuProps, EmptyState>,
+        win_menu_render,
     );
 }
 
-fn pause_menu_render(
+fn win_menu_render(
     In((widget_context, entity)): In<(KayakWidgetContext, Entity)>,
     mut commands: Commands,
     assets: Res<UiAssets>,
@@ -122,21 +101,7 @@ fn pause_menu_render(
 
     let parent_id = Some(entity);
 
-    let click_resume = OnEvent::new(move |
-        In((event_dispatcher_context, _, event, _entity)): EventInput,
-        mut state: ResMut<State<GameState>>,
-    | {
-        match event.event_type {
-            EventType::Click(_) => {
-                state.pop().unwrap();
-            }
-            _ => {}
-        }
-
-        (event_dispatcher_context, event)
-    });
-
-    let click_exit = OnEvent::new(move |
+    let click_go_back = OnEvent::new(move |
         In((event_dispatcher_context, _, event, _entity)): EventInput,
         mut state: ResMut<State<GameState>>,
         mut goto: ResMut<GotoMenuEvent>
@@ -152,7 +117,20 @@ fn pause_menu_render(
         (event_dispatcher_context, event)
     });
 
-    // let click_exit = goto_state_event(StateTransition::Set(GameState::MainMenu));
+    let content = "You Won!";
+
+    let click_exit = OnEvent::new(move |
+        In((event_dispatcher_context, _, event, _entity)): EventInput,
+    | {
+        match event.event_type {
+            EventType::Click(_) => {
+                std::process::exit(0);
+            }
+            _ => {}
+        }
+
+        (event_dispatcher_context, event)
+    });
 
     rsx! {
         <BackgroundBundle styles={background_styles.clone()}>
@@ -165,7 +143,7 @@ fn pause_menu_render(
             <BackgroundBundle styles={background_styles.clone()}>
                 <TextWidgetBundle
                     text={TextProps {
-                        content: "Paused".to_string(),
+                        content: content.to_string(),
                         ..default()
                     }}
                     styles={title_styles}
@@ -174,9 +152,9 @@ fn pause_menu_render(
                 <KButtonBundle
                     styles={button_styles.clone()}
                     button={KButton {
-                        text: "Resume".into()
+                        text: "Main Menu".into()
                     }}
-                    on_event={click_resume}
+                    on_event={click_go_back}
                 />
 
                 <KButtonBundle

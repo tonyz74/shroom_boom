@@ -100,7 +100,8 @@ pub fn transition_cleanup_old(
 
 pub fn transition_on_start(
     mut commands: Commands,
-    mut trans: ResMut<LevelTransition>
+    mut trans: ResMut<LevelTransition>,
+    mut state: ResMut<State<GameState>>
 ) {
     match &mut trans.transition_effect {
         TransitionEffect::Fade(fade) => {
@@ -142,13 +143,14 @@ pub fn transition_on_update(
 
     match &mut trans.transition_effect {
         TransitionEffect::Fade(fade) => {
+            if next_level == -1 {
+                trans.next = 0;
+                state.push(GameState::GameWonMenu).unwrap();
+                return;
+            }
+
             fade.fade_in.tick(dt);
             if fade.fade_in.just_finished() {
-                if next_level == -1 {
-                    std::process::exit(1);
-                }
-
-
                 *sel = LevelSelection::Index(next_level as usize);
             }
 

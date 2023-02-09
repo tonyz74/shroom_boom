@@ -19,9 +19,12 @@ use crate::{
     level::consts::SOLIDS_INTERACTION_GROUP,
     entity_states::*
 };
+use crate::anim::{AnimationChangeEvent, Animator};
+use crate::assets::PlayerAssets;
 use crate::combat::HurtAbility;
 use crate::common::PHYSICS_STEP_DELTA;
 use crate::player::abilities::shoot;
+use crate::ui::menu::GotoMenuEvent;
 use crate::util::{Facing, FacingX};
 
 pub fn player_setup_logic(app: &mut App) {
@@ -37,6 +40,7 @@ pub fn player_setup_logic(app: &mut App) {
             .with_system(start_crouch)
             .with_system(crouch)
             .with_system(player_died)
+            .with_system(player_despawn)
     );
 
     dash::register_dash_ability(app);
@@ -53,13 +57,42 @@ pub fn player_setup_logic(app: &mut App) {
     );
 }
 
-pub fn player_died(mut q: Query<&mut Player, Added<Die>>) {
+pub fn player_died(
+    mut commands: Commands,
+    mut q: Query<(Entity, &mut Player), Added<Die>>,
+    mut anim: EventWriter<AnimationChangeEvent>,
+    anims: Res<PlayerAssets>
+) {
     if q.is_empty() {
         return;
     }
 
-    let mut player = q.single_mut();
+    let (e, mut player) = q.single_mut();
     player.vel.x = 0.0;
+
+    commands.entity(e).despawn_descendants();
+    anim.send(AnimationChangeEvent {
+        e, new_anim: anims.anims["DEATH"].clone()
+    });
+}
+
+pub fn player_despawn(
+    mut q: Query<(Entity, &mut Die, &Animator), With<Player>>,
+    mut state: ResMut<State<GameState>>,
+    trans: Res<GotoMenuEvent>
+) {
+    if q.is_empty() {
+        return;
+    }
+
+    let (e, mut die, animator) = q.single_mut();
+
+    if animator.anim.name == "DEATH" && animator.total_looped == 1 {
+        if !trans.attempt {
+            die.should_despawn = true;
+            state.push(GameState::GameLostMenu).unwrap();
+        }
+    }
 }
 
 pub fn idle(mut q: Query<&mut Player, (With<Idle>, Without<Die>)>) {
@@ -245,7 +278,7 @@ pub fn physics_update(
     mut q: Query<(&mut KinematicCharacterController, &Player)>,
     state: Res<State<GameState>>
 ) {
-    if *state.current() != GameState::Gameplay {
+    if *state.current() != GameState::Gameplay || q.is_empty() {
         return;
     }
 

@@ -33,7 +33,7 @@ impl Default for ShootAbility {
             proj_speed: SHOOT_LEVELS[0].1,
             damage: SHOOT_LEVELS[0].2,
 
-            startup: Timer::from_seconds(0.3, TimerMode::Once),
+            startup: Timer::from_seconds(0.2, TimerMode::Once),
             shoot_target: None
         }
     }

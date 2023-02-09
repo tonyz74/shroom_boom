@@ -64,6 +64,14 @@ impl PlayerAssets {
         let mut dash_init_anim = Animation::new("DASH_INIT".to_string(), dash_init_handle, 0.02);
         dash_init_anim.repeating = false;
         anims.insert(dash_init_anim.name.clone(), dash_init_anim);
+        
+        
+        // DEATH
+        let death_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 3, 1, None, Some(Vec2::new(19.0, 0.0) * SIZE));
+        let death_handle = texture_atlases.add(death_atlas);
+        let mut death_anim = Animation::new("DEATH".to_string(), death_handle, 0.1);
+        death_anim.repeating = false;
+        anims.insert(death_anim.name.clone(), death_anim);
 
 
         // SHOOTING
@@ -76,7 +84,7 @@ impl PlayerAssets {
             );
 
             let handle = texture_atlases.add(atlas);
-            let mut anim = Animation::new(format!("SHOOT_{}", dir), handle, 0.075);
+            let mut anim = Animation::new(format!("SHOOT_{}", dir), handle, 0.05);
             anim.repeating = false;
             anims.insert(anim.name.clone(), anim);
         }
@@ -537,6 +545,8 @@ pub struct UiAssets {
     pub font: Handle<Font>,
     pub text_style: TextStyle,
 
+    pub pause_bg: Handle<Image>,
+
     pub dash_cd: Vec<Handle<Image>>,
     pub slash_cd: Vec<Handle<Image>>,
     pub shoot_cd: Vec<Handle<Image>>,
@@ -587,6 +597,9 @@ impl UiAssets {
         assets.font = asset_server.load("fonts/FutilePro.ttf");
         assets.coins = asset_server.load("art/hud/coins.png");
 
+
+        assets.pause_bg = asset_server.load("art/hud/Pause.png");
+
         assets.text_style = TextStyle {
             font: assets.font.clone(),
             font_size: 24.0,
@@ -610,8 +623,9 @@ pub struct ShopAssets {
     pub buy: Handle<Image>,
     pub buy_pressed: Handle<Image>,
     pub buy_hover: Handle<Image>,
+    pub blank: Handle<Image>,
 
-    pub blank: Handle<Image>
+    pub shop_bg: Handle<Image>,
 }
 
 impl ShopAssets {
@@ -636,8 +650,9 @@ impl ShopAssets {
         assets.buy = asset_server.load("art/shop/Buy1.png");
         assets.buy_hover = asset_server.load("art/shop/Buy2.png");
         assets.buy_pressed = asset_server.load("art/shop/Buy3.png");
-
         assets.blank = asset_server.load("art/shop/Buy4.png");
+
+        assets.shop_bg = asset_server.load("art/shop/ShopBackground.png");
 
         assets.tonics = vec![
             asset_server.load("art/shop/OddTonic.png"),

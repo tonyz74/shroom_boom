@@ -6,5 +6,7 @@ pub enum GameState {
     PauseMenu,
     ShopMenu,
     Gameplay,
-    LevelTransition
+    LevelTransition,
+    GameWonMenu,
+    GameLostMenu
 }

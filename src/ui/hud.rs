@@ -16,7 +16,6 @@ pub const SLASH_CD_CHUNKS: usize = 12;
 pub const SHOOT_CD_CHUNKS: usize = 13;
 pub const DASH_CD_CHUNKS: usize = 10;
 
-
 #[derive(Component, Debug, Copy, Clone)]
 pub struct HealthBar;
 

@@ -1,9 +1,10 @@
 use crate::state::GameState;
 use bevy::prelude::*;
+use bevy_debug_text_overlay::screen_print;
 
 use kayak_ui::prelude::*;
 use kayak_ui::widgets::*;
-use crate::ui::{menu, pause, shop};
+use crate::ui::{menu, pause, shop, win, lose};
 
 
 #[derive(Debug, Component, PartialEq, Clone)]
@@ -62,6 +63,7 @@ fn update_state(
     mut ui_state: Query<&mut UiState>
 ) {
     for mut ui_state in ui_state.iter_mut() {
+        screen_print!("state is {:?}", state.current());
         ui_state.state = Some(state.current().clone());
     }
 }
@@ -96,12 +98,6 @@ fn ui_render(
 
     rsx! {
         <ElementBundle>
-            {if state.state == Some(GameState::MainMenu) {
-                constructor! {
-                    <menu::MainMenuBundle/>
-                }
-            }}
-
             {if state.state == Some(GameState::PauseMenu) {
                 constructor! {
                     <pause::PauseMenuBundle/>
@@ -111,6 +107,25 @@ fn ui_render(
             {if state.state == Some(GameState::ShopMenu) {
                 constructor! {
                     <shop::ShopMenuBundle/>
+                }
+            }}
+
+            {if state.state == Some(GameState::GameWonMenu) {
+                constructor! {
+                    <win::WinMenuBundle/>
+                }
+            }}
+
+
+            {if state.state == Some(GameState::GameLostMenu) {
+                constructor! {
+                    <lose::LoseMenuBundle/>
+                }
+            }}
+
+            {if state.state == Some(GameState::MainMenu) {
+                constructor! {
+                    <menu::MainMenuBundle/>
                 }
             }}
         </ElementBundle>

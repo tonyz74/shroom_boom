@@ -18,7 +18,7 @@ pub fn goto_state_event(trans: StateTransition) -> OnEvent {
             EventType::Click(_) => {
                 match trans.clone() {
                     StateTransition::Pop => state.pop().unwrap(),
-                    StateTransition::Set(new) => state.set(new).unwrap()
+                    StateTransition::Set(new) => state.overwrite_set(new).unwrap()
                 }
             }
 

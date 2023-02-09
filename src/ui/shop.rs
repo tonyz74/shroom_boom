@@ -14,6 +14,7 @@ use crate::ui::shop_button;
 
 
 use bevy_inspector_egui::Inspectable;
+use crate::ui::style::button_style;
 
 #[derive(Resource, Inspectable, Debug)]
 pub struct UiShopStyleData {
@@ -305,7 +306,6 @@ pub fn shop_menu_render(
         height: Value(Units::Percentage(94.0)),
         background_color: Value(container_color),
         offset: Value(Edge::all(Units::Stretch(1.0))),
-        // border_radius: Value(Corner::all(32.0)),
         layout_type: Value(LayoutType::Column),
         ..default()
     };
@@ -313,9 +313,8 @@ pub fn shop_menu_render(
     let button_styles = KStyle {
         width: Value(Units::Percentage(20.0)),
         height: Value(Units::Pixels(48.0)),
-        background_color: Value(button_color),
         offset: Value(Edge::all(Units::Stretch(1.0))),
-        ..default()
+        ..button_style()
     };
 
     let items_styles = KStyle {
@@ -564,7 +563,7 @@ pub fn shop_menu_render(
 
                 <KButtonBundle
                     button={KButton {
-                        text: "Ok".into(),
+                        text: "Back".into(),
                         ..default()
                     }}
                     styles={button_styles}

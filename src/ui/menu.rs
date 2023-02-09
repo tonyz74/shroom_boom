@@ -16,6 +16,7 @@ use crate::player::Player;
 use crate::shop::Shop;
 
 use crate::state::GameState;
+use crate::ui::bossbar::BossBar;
 use crate::ui::event_handlers::{goto_state_event, StateTransition};
 use crate::ui::EventInput;
 use crate::ui::hud::Hud;
@@ -78,6 +79,7 @@ pub fn menu_state_setup(
         With<Smoke>,
         With<ExplosionAttack>,
         With<ProjectileAttack>,
+        With<BossBar>
     )>>,
 
     mut hud: ResMut<Hud>,

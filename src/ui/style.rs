@@ -25,11 +25,15 @@ pub fn background_style() -> KStyle {
 
 pub fn button_style() -> KStyle {
     KStyle {
-        background_color: StyleProp::Value(Color::BLACK),
+        background_color: StyleProp::Value(Color::rgb(0.06, 0.06, 0.06)),
+        border_color: StyleProp::Value(Color::rgb_u8(0x2B, 0x20, 0x1D)),
         height: StyleProp::Value(Units::Pixels(50.0)),
         width: StyleProp::Value(Units::Pixels(200.0)),
         padding_top: StyleProp::Value(Units::Stretch(1.0)),
         padding_bottom: StyleProp::Value(Units::Stretch(1.0)),
+        border_radius: StyleProp::Value(Corner::all(0.0)),
+        font_size: StyleProp::Value(48.0),
+        line_height: StyleProp::Value(40.0),
 
         ..Default::default()
     }

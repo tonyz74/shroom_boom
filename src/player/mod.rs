@@ -165,7 +165,7 @@ fn setup_player(
             state_machine: state_machine::player_state_machine(),
 
             combat_layer: CombatLayerMask::PLAYER,
-            health: Health::new(100),
+            health: Health::new(1),
 
             immunity: Immunity::default()
         }

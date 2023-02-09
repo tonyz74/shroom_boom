@@ -67,9 +67,9 @@ impl PlayerAssets {
         
         
         // DEATH
-        let death_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 3, 1, None, Some(Vec2::new(19.0, 0.0) * SIZE));
+        let death_atlas = TextureAtlas::from_grid(sheet.clone(), SIZE, 7, 1, None, Some(Vec2::new(34.0, 0.0) * SIZE));
         let death_handle = texture_atlases.add(death_atlas);
-        let mut death_anim = Animation::new("DEATH".to_string(), death_handle, 0.1);
+        let mut death_anim = Animation::new("DEATH".to_string(), death_handle, 0.12);
         death_anim.repeating = false;
         anims.insert(death_anim.name.clone(), death_anim);
 

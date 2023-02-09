@@ -21,8 +21,9 @@ use crate::{
 };
 use crate::anim::{AnimationChangeEvent, Animator};
 use crate::assets::PlayerAssets;
-use crate::combat::HurtAbility;
+use crate::combat::{CombatLayerMask, ExplosionEvent, HurtAbility};
 use crate::common::PHYSICS_STEP_DELTA;
+use crate::fx::smoke::SmokeEvent;
 use crate::player::abilities::shoot;
 use crate::ui::menu::GotoMenuEvent;
 use crate::util::{Facing, FacingX};
@@ -59,20 +60,34 @@ pub fn player_setup_logic(app: &mut App) {
 
 pub fn player_died(
     mut commands: Commands,
-    mut q: Query<(Entity, &mut Player), Added<Die>>,
+    mut q: Query<(Entity, &mut Player, &GlobalTransform), Added<Die>>,
     mut anim: EventWriter<AnimationChangeEvent>,
-    anims: Res<PlayerAssets>
+    anims: Res<PlayerAssets>,
+    mut explosions: EventWriter<ExplosionEvent>,
+    mut smoke: EventWriter<SmokeEvent>
 ) {
     if q.is_empty() {
         return;
     }
 
-    let (e, mut player) = q.single_mut();
+    let (e, mut player, tf) = q.single_mut();
     player.vel.x = 0.0;
 
     commands.entity(e).despawn_descendants();
     anim.send(AnimationChangeEvent {
         e, new_anim: anims.anims["DEATH"].clone()
+    });
+
+    let pos = Vec2::new(tf.translation().x, tf.translation().y);
+    explosions.send(ExplosionEvent {
+        pos,
+        max_damage: 1,
+        radius: 48.0,
+        combat_layer: CombatLayerMask::PLAYER
+    });
+
+    smoke.send(SmokeEvent {
+        pos
     });
 }
 

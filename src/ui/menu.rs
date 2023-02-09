@@ -167,6 +167,13 @@ pub fn main_menu_render(
         ..default()
     };
 
+    let bg_image_styles = KStyle {
+        width: StyleProp::Value(Units::Pixels(1280.0)),
+        height: StyleProp::Value(Units::Pixels(720.0)),
+        position_type: StyleProp::Value(KPositionType::SelfDirected),
+        ..default()
+    };
+
     let background_styles = KStyle {
         left: StyleProp::Value(Units::Stretch(1.0)),
         right: StyleProp::Value(Units::Stretch(1.0)),
@@ -202,6 +209,12 @@ pub fn main_menu_render(
     let parent_id = Some(entity);
 
     rsx! {
+        <ElementBundle>
+        <KImageBundle
+            styles={bg_image_styles.clone()}
+            image={KImage(assets.splash_screen.clone())}
+            />
+
         <BackgroundBundle styles={background_styles.clone()}>
             <KImageBundle
                 image={KImage(assets.pause_bg.clone())}
@@ -231,6 +244,7 @@ pub fn main_menu_render(
                 />
             </BackgroundBundle>
         </BackgroundBundle>
+        </ElementBundle>
     };
 
     true

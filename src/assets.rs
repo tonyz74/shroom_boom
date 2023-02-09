@@ -546,6 +546,7 @@ pub struct UiAssets {
     pub text_style: TextStyle,
 
     pub pause_bg: Handle<Image>,
+    pub splash_screen: Handle<Image>,
 
     pub dash_cd: Vec<Handle<Image>>,
     pub slash_cd: Vec<Handle<Image>>,
@@ -605,6 +606,8 @@ impl UiAssets {
             font_size: 24.0,
             color: Color::WHITE
         };
+
+        assets.splash_screen = asset_server.load("art/misc/Background.png");
     }
 }
 

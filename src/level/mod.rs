@@ -10,6 +10,7 @@ pub mod util;
 pub mod door;
 pub mod boss;
 pub mod shop;
+pub mod tutorial;
 
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
@@ -68,6 +69,7 @@ impl Plugin for LevelPlugin {
         door::register_doors(app);
         boss::register_boss_spawnpoints(app);
         shop::register_shop_spawnpoints(app);
+        tutorial::register_tutorial_text(app);
 
         app.add_system_set(
             SystemSet::on_enter(GameState::LevelTransition)

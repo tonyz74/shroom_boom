@@ -12,6 +12,7 @@ use crate::enemies::Enemy;
 use crate::fx::indicator::Indicator;
 use crate::fx::smoke::Smoke;
 use crate::level::transition::LevelTransition;
+use crate::level::tutorial::HelpText;
 use crate::player::Player;
 use crate::shop::Shop;
 
@@ -79,7 +80,8 @@ pub fn menu_state_setup(
         With<Smoke>,
         With<ExplosionAttack>,
         With<ProjectileAttack>,
-        With<BossBar>
+        With<BossBar>,
+        With<HelpText>
     )>>,
 
     mut hud: ResMut<Hud>,

@@ -5,6 +5,7 @@ use crate::coin::coin::Coin;
 use crate::combat::{ExplosionAttack, ProjectileAttack};
 use crate::enemies::Enemy;
 use crate::level::{FinishedTransitioning, exit::LevelExit};
+use crate::level::tutorial::HelpText;
 use crate::state::GameState;
 use crate::player::Player;
 use crate::shop::Shop;
@@ -90,7 +91,7 @@ pub fn transition_cleanup_old(
     enemies: Query<Entity, With<Enemy>>,
     shopkeepers: Query<Entity, With<Shop>>,
     projectiles: Query<Entity, With<ProjectileAttack>>,
-    misc: Query<Entity, Or<(With<ProjectileAttack>, With<ExplosionAttack>, With<Coin>)>>,
+    misc: Query<Entity, Or<(With<ProjectileAttack>, With<ExplosionAttack>, With<Coin>, With<HelpText>)>>,
 
     mut transition_cleanup_event: EventReader<TransitionCleanupEvent>,
     mut setup: EventWriter<TransitionSetupEvent>,

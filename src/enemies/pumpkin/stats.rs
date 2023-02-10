@@ -1,5 +1,21 @@
 use crate::enemies::stats::{CustomEnemyStats, EnemyStats, RangedStats};
 
+pub const PUMPKIN_MELLOW: EnemyStats = EnemyStats {
+    jump_speed: 6.0,
+    patrol_speed: 1.0,
+    speed: 1.0,
+    attack_damage: 4,
+    collision_damage: 0,
+    health: 5,
+    custom: CustomEnemyStats::Ranged(RangedStats {
+        proj_speed: 6.0,
+        atk_pause: 2.2,
+        atk_cd: 2.2,
+        max_shoot_dist: 240.0,
+    })
+};
+
+
 pub const PUMPKIN_EASY: EnemyStats = EnemyStats {
     jump_speed: 8.0,
     patrol_speed: 1.0,

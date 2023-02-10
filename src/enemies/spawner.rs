@@ -2,18 +2,19 @@ use std::ops::Range;
 use bevy::prelude::*;
 use crate::assets::{DandelionEnemyAssets, FlowerEnemyAssets, PumpkinEnemyAssets, TumbleweedEnemyAssets};
 use crate::enemies::dandelion::DandelionEnemyBundle;
-use crate::enemies::dandelion::stats::{DANDELION_EASY, DANDELION_HARD, DANDELION_MEDIUM};
+use crate::enemies::dandelion::stats::{DANDELION_EASY, DANDELION_HARD, DANDELION_MEDIUM, DANDELION_MELLOW};
 use crate::enemies::EnemyBundle;
 use crate::enemies::flower::FlowerEnemyBundle;
-use crate::enemies::flower::stats::{FLOWER_EASY, FLOWER_HARD, FLOWER_MEDIUM};
+use crate::enemies::flower::stats::{FLOWER_EASY, FLOWER_HARD, FLOWER_MEDIUM, FLOWER_MELLOW};
 use crate::enemies::pumpkin::PumpkinEnemyBundle;
-use crate::enemies::pumpkin::stats::{PUMPKIN_EASY, PUMPKIN_HARD, PUMPKIN_MEDIUM};
-use crate::enemies::tumbleweed::stats::{TUMBLEWEED_EASY, TUMBLEWEED_HARD, TUMBLEWEED_MEDIUM};
+use crate::enemies::pumpkin::stats::{PUMPKIN_EASY, PUMPKIN_HARD, PUMPKIN_MEDIUM, PUMPKIN_MELLOW};
+use crate::enemies::tumbleweed::stats::{TUMBLEWEED_EASY, TUMBLEWEED_HARD, TUMBLEWEED_MEDIUM, TUMBLEWEED_MELLOW};
 use crate::enemies::tumbleweed::TumbleweedEnemyBundle;
 use crate::pathfind::Region;
 
 #[derive(Copy, Clone, Debug, Component)]
 pub enum EnemyDifficulty {
+    Mellow,
     Easy,
     Medium,
     Hard
@@ -76,9 +77,10 @@ fn spawn_enemies(
                 configure_enemy(&mut bundle.enemy, &enemy);
 
                 let stats = match enemy.difficulty {
+                    EnemyDifficulty::Mellow => FLOWER_MELLOW,
                     EnemyDifficulty::Easy => FLOWER_EASY,
                     EnemyDifficulty::Medium => FLOWER_MEDIUM,
-                    EnemyDifficulty::Hard => FLOWER_HARD
+                    EnemyDifficulty::Hard => FLOWER_HARD,
                 }.randomized(enemy.rand_range.clone());
 
                 FlowerEnemyBundle::spawn_with_stats(&mut commands, bundle, stats)
@@ -89,6 +91,7 @@ fn spawn_enemies(
                 configure_enemy(&mut bundle.enemy, &enemy);
 
                 let stats = match enemy.difficulty {
+                    EnemyDifficulty::Mellow => DANDELION_MELLOW,
                     EnemyDifficulty::Easy => DANDELION_EASY,
                     EnemyDifficulty::Medium => DANDELION_MEDIUM,
                     EnemyDifficulty::Hard => DANDELION_HARD
@@ -102,6 +105,7 @@ fn spawn_enemies(
                 configure_enemy(&mut bundle.enemy, &enemy);
 
                 let stats = match enemy.difficulty {
+                    EnemyDifficulty::Mellow => PUMPKIN_MELLOW,
                     EnemyDifficulty::Easy => PUMPKIN_EASY,
                     EnemyDifficulty::Medium => PUMPKIN_MEDIUM,
                     EnemyDifficulty::Hard => PUMPKIN_HARD
@@ -116,6 +120,7 @@ fn spawn_enemies(
                 configure_enemy(&mut bundle.enemy, &enemy);
 
                 let stats = match enemy.difficulty {
+                    EnemyDifficulty::Mellow => TUMBLEWEED_MELLOW,
                     EnemyDifficulty::Easy => TUMBLEWEED_EASY,
                     EnemyDifficulty::Medium => TUMBLEWEED_MEDIUM,
                     EnemyDifficulty::Hard => TUMBLEWEED_HARD

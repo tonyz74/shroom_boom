@@ -61,25 +61,44 @@ fn spawn_enemies(
         let e_ref = util::val_expect_ent_ref(&inst.field_instances[1].value).unwrap();
         let patrol_region = patrol_regions_map[&e_ref.entity_iid];
 
-        let enemy_type = match &inst.field_instances[0].value {
-            FieldValue::Enum(Some(name)) => name.clone(),
-            _ => panic!()
-        };
+
 
         let n_coins = util::val_expect_i32(&inst.field_instances[2].value).unwrap();
 
-        let enemy_ty = match enemy_type.as_str() {
-            "Flower" => EnemyType::Flower,
-            "Pumpkin" => EnemyType::Pumpkin,
-            "Dandelion" => EnemyType::Dandelion,
-            "Tumbleweed" => EnemyType::Tumbleweed,
-            _ => panic!()
+        let enemy_ty = {
+            let enemy_type = match &inst.field_instances[0].value {
+                FieldValue::Enum(Some(name)) => name.clone(),
+                _ => panic!()
+            };
+
+            match enemy_type.as_str() {
+                "Flower" => EnemyType::Flower,
+                "Pumpkin" => EnemyType::Pumpkin,
+                "Dandelion" => EnemyType::Dandelion,
+                "Tumbleweed" => EnemyType::Tumbleweed,
+                _ => panic!()
+            }
+        };
+
+        let enemy_difficulty = {
+            let d = match &inst.field_instances[3].value {
+                FieldValue::Enum(Some(name)) => name.clone(),
+                _ => panic!()
+            };
+
+            match d.as_str() {
+                "Mellow" => EnemyDifficulty::Mellow,
+                "Easy" => EnemyDifficulty::Easy,
+                "Medium" => EnemyDifficulty::Medium,
+                "Hard" => EnemyDifficulty::Hard,
+                _ => panic!()
+            }
         };
         
         let ev = EnemySpawnEvent {
             ty: enemy_ty,
             coins: n_coins,
-            difficulty: EnemyDifficulty::Easy,
+            difficulty: enemy_difficulty,
             location: EnemyLocation {
                 pos: coord::grid_coord_to_translation(
                     inst.grid, lvl_info.grid_size.as_ivec2()

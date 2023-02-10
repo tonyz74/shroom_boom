@@ -1,5 +1,15 @@
 use crate::enemies::stats::{CustomEnemyStats, EnemyStats};
 
+pub const DANDELION_MELLOW: EnemyStats = EnemyStats {
+    jump_speed: 0.0,
+    patrol_speed: 1.0,
+    speed: 1.6,
+    attack_damage: 0,
+    collision_damage: 2,
+    health: 6,
+    custom: CustomEnemyStats::Fly
+};
+
 pub const DANDELION_EASY: EnemyStats = EnemyStats {
     jump_speed: 0.0,
     patrol_speed: 1.0,

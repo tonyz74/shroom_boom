@@ -1,12 +1,22 @@
 use crate::enemies::stats::{CustomEnemyStats, EnemyStats};
 
+pub const TUMBLEWEED_MELLOW: EnemyStats = EnemyStats {
+    jump_speed: 6.0,
+    patrol_speed: 1.0,
+    speed: 2.0,
+    attack_damage: 0,
+    collision_damage: 2,
+    health: 4,
+    custom: CustomEnemyStats::Melee
+};
+
 pub const TUMBLEWEED_EASY: EnemyStats = EnemyStats {
     jump_speed: 8.0,
     patrol_speed: 2.0,
     speed: 3.0,
     attack_damage: 0,
     collision_damage: 4,
-    health: 8,
+    health: 6,
     custom: CustomEnemyStats::Melee
 };
 

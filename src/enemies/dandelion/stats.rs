@@ -6,7 +6,7 @@ pub const DANDELION_MELLOW: EnemyStats = EnemyStats {
     speed: 1.6,
     attack_damage: 0,
     collision_damage: 2,
-    health: 6,
+    health: 5,
     custom: CustomEnemyStats::Fly
 };
 

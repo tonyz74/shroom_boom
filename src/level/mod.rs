@@ -1,23 +1,23 @@
-pub mod coord;
 pub mod consts;
+pub mod coord;
 
-pub mod solid;
-pub mod one_way;
-pub mod exit;
-pub mod transition;
-pub mod enemies;
-pub mod util;
-pub mod door;
 pub mod boss;
+pub mod door;
+pub mod enemies;
+pub mod exit;
+pub mod one_way;
 pub mod shop;
+pub mod solid;
+pub mod transition;
 pub mod tutorial;
+pub mod util;
 
-use bevy::prelude::*;
-use bevy_rapier2d::prelude::*;
-use bevy_ecs_ldtk::prelude::*;
 use crate::level::consts::{RENDERED_TILE_SIZE, TILE_SIZE};
 use crate::pathfind::Region;
 use crate::state::GameState;
+use bevy::prelude::*;
+use bevy_ecs_ldtk::prelude::*;
+use bevy_rapier2d::prelude::*;
 
 #[derive(Resource, Default, Copy, Clone)]
 pub struct LevelInfo {
@@ -28,7 +28,7 @@ impl LevelInfo {
     pub fn bounds(&self) -> Region {
         Region {
             tl: Vec2::new(0.0, self.grid_size.y * RENDERED_TILE_SIZE),
-            br: Vec2::new(self.grid_size.x * RENDERED_TILE_SIZE, 0.0)
+            br: Vec2::new(self.grid_size.x * RENDERED_TILE_SIZE, 0.0),
         }
     }
 }
@@ -40,7 +40,7 @@ pub struct PlayerTileMarker;
 pub struct PlayerTileBundle {
     marker: PlayerTileMarker,
     #[from_entity_instance]
-    entity_instance: EntityInstance
+    entity_instance: EntityInstance,
 }
 
 #[derive(Component)]
@@ -50,8 +50,7 @@ pub struct LevelPlugin;
 
 impl Plugin for LevelPlugin {
     fn build(&self, app: &mut App) {
-        app
-            .add_plugin(LdtkPlugin)
+        app.add_plugin(LdtkPlugin)
             .insert_resource(LdtkSettings {
                 int_grid_rendering: IntGridRendering::Invisible,
                 level_background: LevelBackground::Nonexistent,
@@ -71,16 +70,13 @@ impl Plugin for LevelPlugin {
         shop::register_shop_spawnpoints(app);
         tutorial::register_tutorial_text(app);
 
-        app.add_system_set(
-            SystemSet::on_enter(GameState::LevelTransition)
-                .with_system(load_level)
-        );
+        app.add_system_set(SystemSet::on_enter(GameState::LevelTransition).with_system(load_level));
 
         app.add_system_set(
             SystemSet::on_update(GameState::LevelTransition)
                 .with_system(move_player)
                 .with_system(refresh_level)
-                .with_system(reconfigure_region_to_fit_level)
+                .with_system(reconfigure_region_to_fit_level),
         );
     }
 }
@@ -88,29 +84,31 @@ impl Plugin for LevelPlugin {
 fn load_level(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    levels: Query<Entity, With<LevelSet>>
+    levels: Query<Entity, With<LevelSet>>,
 ) {
     if !levels.is_empty() {
         return;
     }
 
-    commands.spawn(
-        LdtkWorldBundle {
+    commands
+        .spawn(LdtkWorldBundle {
             ldtk_handle: asset_server.load("levels/levels.ldtk"),
-            transform: Transform::from_scale(
-                Vec3::new(consts::SCALE_FACTOR, consts::SCALE_FACTOR, 1.0)
-            ),
+            transform: Transform::from_scale(Vec3::new(
+                consts::SCALE_FACTOR,
+                consts::SCALE_FACTOR,
+                1.0,
+            )),
             ..default()
-        }
-    ).with_children(|parent| {
-        parent.spawn((
-            Sensor,
-            RigidBody::Fixed,
-            Collider::cuboid(1.0, 1.0),
-            TransformBundle::default(),
-            LevelRegion
-        ));
-    });
+        })
+        .with_children(|parent| {
+            parent.spawn((
+                Sensor,
+                RigidBody::Fixed,
+                Collider::cuboid(1.0, 1.0),
+                TransformBundle::default(),
+                LevelRegion,
+            ));
+        });
 }
 
 pub fn refresh_level(
@@ -118,19 +116,23 @@ pub fn refresh_level(
     assets: Res<Assets<LdtkAsset>>,
     sel: Res<LevelSelection>,
 
-    mut lvl_info: ResMut<LevelInfo>
+    mut lvl_info: ResMut<LevelInfo>,
 ) {
     if levels.is_empty() || assets.is_empty() {
         return;
     }
 
-    let lvl = assets.get(levels.single()).unwrap().get_level(&sel).unwrap();
+    let lvl = assets
+        .get(levels.single())
+        .unwrap()
+        .get_level(&sel)
+        .unwrap();
     lvl_info.grid_size = IVec2::new(lvl.px_wid, lvl.px_hei).as_vec2() / TILE_SIZE;
 }
 
 pub fn reconfigure_region_to_fit_level(
     mut region: Query<(&mut Transform, &mut Collider), With<LevelRegion>>,
-    lvl_info: Res<LevelInfo>
+    lvl_info: Res<LevelInfo>,
 ) {
     for (mut region, mut collider) in region.iter_mut() {
         let half_extents = (lvl_info.grid_size * TILE_SIZE) / 2.0;
@@ -139,8 +141,8 @@ pub fn reconfigure_region_to_fit_level(
     }
 }
 
-use crate::player::Player;
 use crate::player::consts::PLAYER_SIZE_PX;
+use crate::player::Player;
 
 #[derive(Component)]
 pub struct FinishedTransitioning;
@@ -160,10 +162,8 @@ fn move_player(
         // }
 
         let (e, mut tf) = q.single_mut();
-        tf.translation = coord::grid_coord_to_translation(
-            inst.grid,
-            lvl_info.grid_size.as_ivec2()
-        ).extend(1.0);
+        tf.translation =
+            coord::grid_coord_to_translation(inst.grid, lvl_info.grid_size.as_ivec2()).extend(1.0);
 
         tf.translation.x += PLAYER_SIZE_PX.x / 2.0;
 

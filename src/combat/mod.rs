@@ -30,6 +30,7 @@ use crate::combat::spore_cloud::SporeCloudAttackBundle;
 use crate::entity_states::*;
 use crate::fx::shake::ScreenShakeEvent;
 use crate::fx::smoke::SmokeEvent;
+use crate::player::Player;
 
 use crate::state::GameState;
 pub struct AttackPlugin;
@@ -43,7 +44,7 @@ impl Plugin for AttackPlugin {
                 SystemSet::on_update(GameState::Gameplay)
                     .with_system(resolve_melee_attacks)
                     .with_system(handle_hits)
-                    // .with_system(temp_explosion)
+                    .with_system(temp_explosion)
             )
 
             .add_event::<CombatEvent>()
@@ -58,10 +59,11 @@ impl Plugin for AttackPlugin {
     }
 }
 
-fn _temp_explosion(
+fn temp_explosion(
     events: Res<Input<MouseButton>>,
     windows: Res<Windows>,
     camera: Query<&GlobalTransform, With<GameCamera>>,
+    mut player_pos: Query<&mut Transform, With<Player>>,
     mut explosions: EventWriter<ExplosionEvent>,
     mut shakes: EventWriter<ScreenShakeEvent>
 ) {
@@ -85,6 +87,11 @@ fn _temp_explosion(
 
     if events.just_pressed(MouseButton::Left) {
         shakes.send(ScreenShakeEvent::LARGE);
+
+        let mut pos = player_pos.single_mut();
+        pos.translation.x = world_pos.x;
+        pos.translation.y = world_pos.y;
+
         // smokes.send(SmokeEvent {
         //     pos: cpos,
         // });

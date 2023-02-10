@@ -51,7 +51,7 @@ fn drop_coins_on_death(
 
         let mut rng = thread_rng();
 
-        const COIN_SPLIT: usize = 10;
+        const COIN_SPLIT: usize = 5;
 
         let value_split = drop.total_value / (COIN_SPLIT as i32);
         let remaining = drop.total_value % (COIN_SPLIT as i32);

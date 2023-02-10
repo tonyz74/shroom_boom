@@ -1,7 +1,7 @@
 use crate::enemies::stats::{CustomEnemyStats, EnemyStats};
 
 pub const FLOWER_MELLOW: EnemyStats = EnemyStats {
-    jump_speed: 7.0,
+    jump_speed: 8.0,
     patrol_speed: 1.0,
     speed: 1.4,
     attack_damage: 12,

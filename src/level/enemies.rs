@@ -63,7 +63,7 @@ fn spawn_enemies(
 
 
 
-        let n_coins = util::val_expect_i32(&inst.field_instances[2].value).unwrap();
+        // let n_coins = util::val_expect_i32(&inst.field_instances[2].value).unwrap();
 
         let enemy_ty = {
             let enemy_type = match &inst.field_instances[0].value {
@@ -81,7 +81,7 @@ fn spawn_enemies(
         };
 
         let enemy_difficulty = {
-            let d = match &inst.field_instances[3].value {
+            let d = match &inst.field_instances[2].value {
                 FieldValue::Enum(Some(name)) => name.clone(),
                 _ => panic!()
             };
@@ -93,6 +93,13 @@ fn spawn_enemies(
                 "Hard" => EnemyDifficulty::Hard,
                 _ => panic!()
             }
+        };
+
+        let n_coins = match enemy_difficulty {
+            EnemyDifficulty::Mellow => 5,
+            EnemyDifficulty::Easy => 10,
+            EnemyDifficulty::Medium => 15,
+            EnemyDifficulty::Hard => 20,
         };
         
         let ev = EnemySpawnEvent {

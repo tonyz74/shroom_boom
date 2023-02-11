@@ -49,6 +49,7 @@ pub fn register_shoot_ability(app: &mut App) {
 }
 
 pub fn shoot_ability_trigger(
+    mut commands: Commands,
     mut q: Query<(Entity, &mut ShootAbility), Added<Shoot>>,
     transforms: Query<&GlobalTransform>,
     combat_layers: Query<&CombatLayerMask>,
@@ -64,6 +65,7 @@ pub fn shoot_ability_trigger(
     shoot.startup.reset();
 
     shoot.shoot_target = autotarget::get_closest_target(
+        &mut commands,
         entity,
         CombatLayerMask::PLAYER,
         512.0,
@@ -72,6 +74,7 @@ pub fn shoot_ability_trigger(
         &combat_layers,
         &untargetable,
         &projectiles,
+        true,
         &rapier
     );
 
@@ -81,15 +84,17 @@ pub fn shoot_ability_trigger(
 fn off_for_direction(atk_dir: AttackDirection) -> Vec2 {
     const Y_OFF: f32 = 48.0;
     const X_OFF: f32 = 64.0;
-    const DIAG_OFF: f32 = 24.0;
+
+    const DIAG_X_OFF: f32 = 32.0;
+    const DIAG_Y_OFF: f32 = 24.0;
 
     match atk_dir {
         AttackDirection::Up => { Vec2::new(0.0, Y_OFF) },
         AttackDirection::Down => { Vec2::new(0.0, -Y_OFF) },
-        AttackDirection::UpRight => { Vec2::new(DIAG_OFF, DIAG_OFF) },
-        AttackDirection::DownRight => { Vec2::new(DIAG_OFF, -DIAG_OFF) },
-        AttackDirection::UpLeft => { Vec2::new(-DIAG_OFF, DIAG_OFF) },
-        AttackDirection::DownLeft => { Vec2::new(-DIAG_OFF, -DIAG_OFF) },
+        AttackDirection::UpRight => { Vec2::new(DIAG_X_OFF, DIAG_Y_OFF) },
+        AttackDirection::DownRight => { Vec2::new(DIAG_X_OFF, -DIAG_Y_OFF) },
+        AttackDirection::UpLeft => { Vec2::new(-DIAG_X_OFF, DIAG_Y_OFF) },
+        AttackDirection::DownLeft => { Vec2::new(-DIAG_X_OFF, -DIAG_Y_OFF) },
         AttackDirection::Left => { Vec2::new(-X_OFF, 0.0) },
         AttackDirection::Right => { Vec2::new(X_OFF, 0.0) }
     }
@@ -106,7 +111,7 @@ fn spawn_player_projectile(
     let (dir, off) = match shoot.shoot_target {
         Some((enemy_pos, atk_dir)) => {
             let off = off_for_direction(atk_dir);
-            (enemy_pos - player_pos, off)
+            (enemy_pos - (player_pos + off), off)
         },
         None => {
             let dir = direction_for_facing(*facing);

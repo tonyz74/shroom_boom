@@ -126,6 +126,7 @@ fn slash_ability_trigger(
     slash.dur.reset();
 
     let direction = if let Some((_, b)) = get_closest_target(
+        &mut commands,
         entity,
         CombatLayerMask::PLAYER,
         240.0,
@@ -134,6 +135,7 @@ fn slash_ability_trigger(
         &combat_layers,
         &untargetable,
         &projectiles,
+        false,
         &rapier
     ) {
         b

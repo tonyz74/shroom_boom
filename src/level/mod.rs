@@ -78,6 +78,8 @@ impl Plugin for LevelPlugin {
                 .with_system(refresh_level)
                 .with_system(reconfigure_region_to_fit_level),
         );
+
+        app.register_type::<GridCoords>();
     }
 }
 

@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use bevy::math::Vec3Swizzles;
 use bevy_rapier2d::prelude::*;
 use crate::combat::{CombatLayerMask, ProjectileAttack};
+use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 
 use crate::util::{Facing, FacingX};
 
@@ -69,7 +70,32 @@ pub fn attack_direction_between(self_pos: Vec2, target_pos: Vec2) -> AttackDirec
     best
 }
 
+
+fn has_clear_line_of_sight(_commands: &mut Commands, start: Vec2, end: Vec2, rapier: &RapierContext) -> bool {
+    let hit = rapier.cast_ray(
+        start,
+        (end - start).normalize(),
+        end.distance(start).abs(),
+        true,
+        QueryFilter {
+            flags: QueryFilterFlags::ONLY_FIXED | QueryFilterFlags::EXCLUDE_SENSORS,
+            groups: Some(SOLIDS_INTERACTION_GROUP),
+            ..default()
+        }
+    );
+
+    // println!("hit: {:?}", hit);
+    //
+    // if let Some((e, t)) = hit {
+    //     commands.entity(e).despawn_recursive();
+    // }
+
+    hit.is_none()
+}
+
+
 pub fn get_closest_target(
+    commands: &mut Commands,
     self_ent: Entity,
     self_combat_layer: CombatLayerMask,
     span: f32,
@@ -78,11 +104,13 @@ pub fn get_closest_target(
     combat_layers: &Query<&CombatLayerMask>,
     disabled: &Query<&Untargetable>,
     projectiles: &Query<&ProjectileAttack>,
+    prefer_los: bool,
     rapier: &RapierContext,
 ) -> Option<(Vec2, AttackDirection)> {
 
     let self_pos = transforms.get(self_ent).unwrap().translation().xy();
     let mut closest_target: Option<Vec2> = None;
+    let mut closest_los_target: Option<Vec2> = None;
 
     rapier.intersections_with_shape(
         self_pos,
@@ -116,14 +144,41 @@ pub fn get_closest_target(
                 closest_target = Some(target_pos);
             }
 
+            if prefer_los {
+                println!("yess");
+                if let Some(best) = closest_los_target {
+                    if best.distance(self_pos) > target_pos.distance(self_pos) {
+                        println!("candidate: {:?}", target_pos);
+                        if has_clear_line_of_sight(commands, self_pos, target_pos, &rapier) {
+                            closest_los_target = Some(target_pos);
+                        }
+                    }
+                } else {
+                    if has_clear_line_of_sight(commands, self_pos, target_pos, &rapier) {
+                        closest_los_target = Some(target_pos);
+                    }
+                }
+            }
+
             true
         }
     );
 
-    if let Some(target) = closest_target {
+    let rv = if let Some(target) = closest_target {
         Some((target, attack_direction_between(self_pos, target)))
     } else {
         None
+    };
+
+    println!("{:?} {:?}", closest_target, closest_los_target);
+
+    if prefer_los {
+        match closest_los_target {
+            Some(target) => Some((target, attack_direction_between(self_pos, target))),
+            None => rv
+        }
+    } else {
+        rv
     }
 }
 

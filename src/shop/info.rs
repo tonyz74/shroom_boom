@@ -2,6 +2,9 @@ use bevy::prelude::*;
 use crate::assets::ShopAssets;
 use crate::shop::stock::ShopItem;
 
+
+// Without killing optional enemies, players can get 1365 coins
+
 #[derive(Clone, Component)]
 pub struct ShopItemInfo {
     pub cost: i32,

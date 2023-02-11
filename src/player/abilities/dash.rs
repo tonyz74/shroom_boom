@@ -51,6 +51,8 @@ pub fn register_dash_ability(app: &mut App) {
 
 
 fn dash_ability_trigger(
+    mut commands: Commands,
+
     mut q: Query<(
         Entity,
         &Children,
@@ -87,6 +89,7 @@ fn dash_ability_trigger(
 
     if player.vel.x == 0.0 {
         let dir = if let Some((_, dir)) = autotarget::get_closest_target(
+            &mut commands,
             entity,
             *combat_layer,
             256.0,
@@ -95,6 +98,7 @@ fn dash_ability_trigger(
             &combat_layers,
             &untargetable,
             &projectiles,
+            false,
             &rapier
         ) {
             match dir {

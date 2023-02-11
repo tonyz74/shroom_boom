@@ -1,5 +1,14 @@
 /target
-.DS_Store
+dist
 assets/.DS_Store
-assets/creatures/.DS_Store
+assets/art/.DS_Store
+assets/art/__junkyard/.DS_Store
+assets/art/hud/.DS_Store
+assets/art/player/.DS_Store
+assets/fonts
 .idea
+assets/art/shop/.DS_Store
+assets/art/boss/.DS_Store
+assets/art/enemies/.DS_Store
+src/.DS_Store
+.DS_Store

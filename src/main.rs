@@ -1,9 +1,9 @@
 use bevy::prelude::*;
-use shroom_boom::entry::ShadePlugin;
+use shroom_boom::entry::ShroomBoomPlugin;
 
 fn main() {
     App::new()
-        .add_plugin(ShadePlugin)
+        .add_plugin(ShroomBoomPlugin)
         .run();
 }
 

@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+use bevy::window::WindowResizeConstraints;
 use bevy_rapier2d::prelude::*;
 use seldom_state::prelude::*;
 use kayak_ui::prelude::*;
@@ -27,14 +28,25 @@ use crate::{
     anim::AnimationPlugin
 };
 
-pub struct ShadePlugin;
+pub struct ShroomBoomPlugin;
 
-impl Plugin for ShadePlugin {
+impl Plugin for ShroomBoomPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_plugins(
                 DefaultPlugins
                     .set(ImagePlugin::default_nearest())
+                    .set(WindowPlugin {
+                        window: WindowDescriptor {
+                            width: 1280.0,
+                            height: 720.0,
+
+                            resizable: false,
+                            title: "Shroom Boom!".to_string(),
+                            ..default()
+                        },
+                        ..default()
+                    })
             )
 
             .add_plugin(KayakContextPlugin)

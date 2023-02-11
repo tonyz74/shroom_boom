@@ -18,7 +18,7 @@ impl ShopItemInfo {
             // ITEMS
 
             ShopItem::WaterCupItem => Self {
-                cost: 5,
+                cost: 10,
                 name: "Water Cup",
                 icon: assets.waters[0].clone(),
             },

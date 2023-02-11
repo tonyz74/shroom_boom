@@ -32,7 +32,7 @@
 	"backupLimit": 10,
 	"levelNamePattern": "Level",
 	"tutorialDesc": null,
-	"flags": [],
+	"flags": ["IgnoreBackupSuggest"],
 	"defs": { "layers": [
 		{
 			"__type": "Entities",
@@ -3248,7 +3248,7 @@
 									"entityIid": "84684d60-9f30-11ed-ada5-2fb97de72a2c",
 									"layerIid": "c57e9b10-9f30-11ed-ada5-f7a0e7519c2a",
 									"levelIid": "c57e4cf0-9f30-11ed-ada5-076362e12df3",
-									"worldIid": "f204c550-9f30-11ed-9227-c7200dea4803"
+									"worldIid": "67db9f80-9f30-11ed-8ac1-f5552c376d42"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["84684d60-9f30-11ed-ada5-2fb97de72a2c"]
@@ -3322,7 +3322,7 @@
 									"entityIid": "d630ed90-9f30-11ed-ada5-53b51b606dea",
 									"layerIid": "c57e9b10-9f30-11ed-ada5-f7a0e7519c2a",
 									"levelIid": "c57e4cf0-9f30-11ed-ada5-076362e12df3",
-									"worldIid": "f204c550-9f30-11ed-9227-c7200dea4803"
+									"worldIid": "67db9f80-9f30-11ed-8ac1-f5552c376d42"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["d630ed90-9f30-11ed-ada5-53b51b606dea"]
@@ -3415,9 +3415,9 @@
 							"height": 8,
 							"defUid": 92,
 							"px": [416,104],
-							"fieldInstances": [{ "__identifier": "Text", "__value": "This is a walking enemy.\nTry using [J] to slash at it.", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
+							"fieldInstances": [{ "__identifier": "Text", "__value": "This is a walking enemy.\nTry using [LEFT] to slash at it.", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
 								"id": "V_String",
-								"params": ["This is a walking enemy.\nTry using [J] to slash at it."]
+								"params": ["This is a walking enemy.\nTry using [LEFT] to slash at it."]
 							}] }]
 						},
 						{
@@ -3432,9 +3432,9 @@
 							"height": 8,
 							"defUid": 92,
 							"px": [232,112],
-							"fieldInstances": [{ "__identifier": "Text", "__value": "This is a flying enemy.\nTry using [K] to shoot\nat it with your garden hose!", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
+							"fieldInstances": [{ "__identifier": "Text", "__value": "This is a flying enemy.\nTry using [UP] to shoot\nat it with your garden hose!", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
 								"id": "V_String",
-								"params": ["This is a flying enemy.\nTry using [K] to shoot\nat it with your garden hose!"]
+								"params": ["This is a flying enemy.\nTry using [UP] to shoot\nat it with your garden hose!"]
 							}] }]
 						},
 						{
@@ -3472,7 +3472,7 @@
 									"entityIid": "bb689090-9f30-11ed-b0d8-ad17f8c8ae2c",
 									"layerIid": "c57e9b10-9f30-11ed-ada5-f7a0e7519c2a",
 									"levelIid": "c57e4cf0-9f30-11ed-ada5-076362e12df3",
-									"worldIid": "f204c550-9f30-11ed-9227-c7200dea4803"
+									"worldIid": "67db9f80-9f30-11ed-8ac1-f5552c376d42"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["bb689090-9f30-11ed-b0d8-ad17f8c8ae2c"]
@@ -3495,9 +3495,9 @@
 							"height": 8,
 							"defUid": 92,
 							"px": [40,176],
-							"fieldInstances": [{ "__identifier": "Text", "__value": "This next one is a ranged\nenemy. Use [L] to dash\nthrough the bullets.\n", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
+							"fieldInstances": [{ "__identifier": "Text", "__value": "This next one is a ranged\nenemy. Use [RIGHT] to dash\nthrough the bullets.\n", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
 								"id": "V_String",
-								"params": ["This next one is a ranged\nenemy. Use [L] to dash\nthrough the bullets.\n"]
+								"params": ["This next one is a ranged\nenemy. Use [RIGHT] to dash\nthrough the bullets.\n"]
 							}] }]
 						},
 						{

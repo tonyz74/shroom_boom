@@ -1,5 +1,5 @@
 /target
-dist
+dist/ShroomBoom.app
 assets/.DS_Store
 assets/art/.DS_Store
 assets/art/__junkyard/.DS_Store

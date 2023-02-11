@@ -100,7 +100,6 @@ pub fn menu_state_setup(
 
     if let Some(cmd) = commands.get_entity(hud.entity) {
         if hud.entity != Entity::from_raw(0) {
-            println!("despawning");
             cmd.despawn_recursive();
             hud.entity = Entity::from_raw(0);
         }

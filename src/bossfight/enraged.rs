@@ -51,7 +51,7 @@ pub const ATTACK_SEQUENCE: &[EnragedAttackMove] = &[
     EnragedAttackMove::Slam,
     EnragedAttackMove::Rest(1.0),
 
-    EnragedAttackMove::Rest(1.0),
+    EnragedAttackMove::Rest(1.5),
 ];
 
 pub fn register_boss_enraged(app: &mut App) {

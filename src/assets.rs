@@ -493,7 +493,7 @@ impl IndicatorAssets {
         mut texture_atlases: ResMut<Assets<TextureAtlas>>,
         mut assets: ResMut<IndicatorAssets>,
     ) {
-        let tr = asset_server.load("sprites/util/indicator_top_right.png");
+        let tr = asset_server.load("art/misc/IndicatorTopRight.png");
         assets.tr = tr;
 
 
@@ -561,13 +561,13 @@ impl UiAssets {
     ) {
         let mut health_images = Vec::with_capacity(PLAYER_HUD_DISPLAY_CHUNKS + 1);
         for i in 0..=PLAYER_HUD_DISPLAY_CHUNKS {
-            health_images.push(asset_server.load(format!("art/hud/health{}.png", i + 1)));
+            health_images.push(asset_server.load(format!("art/hud/Health{}.png", i + 1)));
         }
         assets.health = health_images;
 
         let mut ammo_images = Vec::with_capacity(PLAYER_HUD_DISPLAY_CHUNKS + 1);
         for i in 0..=PLAYER_HUD_DISPLAY_CHUNKS {
-            ammo_images.push(asset_server.load(format!("art/hud/ammo{}.png", i + 1)));
+            ammo_images.push(asset_server.load(format!("art/hud/Ammo{}.png", i + 1)));
         }
         assets.ammo = ammo_images;
 

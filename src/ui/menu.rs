@@ -13,6 +13,7 @@ use crate::fx::indicator::Indicator;
 use crate::fx::smoke::Smoke;
 use crate::level::transition::LevelTransition;
 use crate::level::tutorial::HelpText;
+use crate::player::logic::PlayerScore;
 use crate::player::Player;
 use crate::shop::Shop;
 
@@ -84,10 +85,13 @@ pub fn menu_state_setup(
         With<HelpText>
     )>>,
 
+    mut score: ResMut<PlayerScore>,
     mut hud: ResMut<Hud>,
     mut trans: ResMut<LevelTransition>,
     mut sel: ResMut<LevelSelection>,
 ) {
+    score.score = 0;
+
     for e in q.iter() {
         if let Some(cmd) = commands.get_entity(e) {
             cmd.despawn_recursive();

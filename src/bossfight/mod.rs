@@ -171,7 +171,7 @@ impl BossBundle {
             combat_layer: CombatLayerMask::ENEMY,
 
             coins: CoinHolder {
-                total_value: 1000
+                total_value: 800
             },
 
             sprite_sheet: SpriteSheetBundle {

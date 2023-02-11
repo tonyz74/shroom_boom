@@ -21,12 +21,21 @@ use crate::{
 };
 use crate::anim::{AnimationChangeEvent, Animator};
 use crate::assets::PlayerAssets;
+use crate::coin::drops::CoinHolder;
 use crate::combat::{CombatLayerMask, ExplosionEvent, HurtAbility};
 use crate::common::PHYSICS_STEP_DELTA;
 use crate::fx::smoke::SmokeEvent;
 use crate::player::abilities::shoot;
 use crate::ui::menu::GotoMenuEvent;
 use crate::util::{Facing, FacingX};
+
+
+
+#[derive(Resource, Copy, Clone, Default)]
+pub struct PlayerScore {
+    pub score: u32
+}
+
 
 pub fn player_setup_logic(app: &mut App) {
     use crate::player::abilities::{dash, slash, jump};
@@ -42,12 +51,15 @@ pub fn player_setup_logic(app: &mut App) {
             .with_system(crouch)
             .with_system(player_died)
             .with_system(player_despawn)
+            .with_system(player_sync_score)
     );
 
     dash::register_dash_ability(app);
     slash::register_slash_ability(app);
     jump::register_jump_ability(app);
     shoot::register_shoot_ability(app);
+
+    app.init_resource::<PlayerScore>();
 
     app.add_system_set(
         SystemSet::on_update(GameState::Gameplay)
@@ -56,6 +68,19 @@ pub fn player_setup_logic(app: &mut App) {
             .with_system(physics_update)
             .with_system(update_grounded)
     );
+}
+
+
+
+pub fn player_sync_score(
+    mut score: ResMut<PlayerScore>,
+    q: Query<&CoinHolder, With<Player>>
+) {
+    if q.is_empty() {
+        return;
+    }
+
+    score.score = q.single().total_value as u32;
 }
 
 pub fn player_died(

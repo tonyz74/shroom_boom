@@ -24,7 +24,7 @@ impl ShopItemInfo {
             },
 
             ShopItem::WaterBucketItem => Self {
-                cost: 10,
+                cost: 15,
                 name: "Water Bucket",
                 icon: assets.waters[1].clone(),
             },
@@ -36,13 +36,13 @@ impl ShopItemInfo {
             },
 
             ShopItem::OddTonicItem => Self {
-                cost: 5,
+                cost: 10,
                 name: "Odd Tonic",
                 icon: assets.tonics[0].clone(),
             },
 
             ShopItem::StrangeTonicItem => Self {
-                cost: 10,
+                cost: 15,
                 name: "Strange Tonic",
                 icon: assets.tonics[1].clone(),
             },
@@ -89,5 +89,13 @@ impl ShopItemInfo {
 }
 
 fn cost_for_upgrading(lvl: u8) -> i32 {
-    (lvl as i32 + 1) * 5
+    match lvl {
+        0 => 10,
+        1 => 20,
+        2 => 40,
+        3 => 60,
+        4 => 80,
+
+        _ => i32::MAX
+    }
 }

@@ -2,6 +2,8 @@ use bevy::prelude::*;
 use kayak_ui::prelude::*;
 use kayak_ui::widgets::*;
 use crate::assets::UiAssets;
+use crate::coin::drops::CoinHolder;
+use crate::player::logic::PlayerScore;
 use crate::player::Player;
 use crate::state::GameState;
 use crate::ui::EventInput;
@@ -53,8 +55,17 @@ fn lose_menu_render(
     In((widget_context, entity)): In<(KayakWidgetContext, Entity)>,
     mut commands: Commands,
     assets: Res<UiAssets>,
+    score: Res<PlayerScore>
 ) -> bool {
     let button_styles = button_style();
+
+    let score_styles = KStyle {
+        width: StyleProp::Value(Units::Percentage(40.0)),
+        height: StyleProp::Value(Units::Pixels(24.0)),
+        left: StyleProp::Value(Units::Stretch(0.0)),
+        font_size: StyleProp::Value(20.0),
+        ..default()
+    };
 
     let title_styles = KStyle {
         top: StyleProp::Value(Units::Pixels(0.0)),
@@ -164,6 +175,12 @@ fn lose_menu_render(
                     }}
                     on_event={click_exit}
                 />
+
+                <TextWidgetBundle text={TextProps {
+                    content: format!("Score: {:?}", score.score),
+                    alignment: Alignment::Middle,
+                    ..default()
+                }} styles={score_styles}/>
             </BackgroundBundle>
 
         </BackgroundBundle>

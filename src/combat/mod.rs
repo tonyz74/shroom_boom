@@ -44,7 +44,7 @@ impl Plugin for AttackPlugin {
                 SystemSet::on_update(GameState::Gameplay)
                     .with_system(resolve_melee_attacks)
                     .with_system(handle_hits)
-                    .with_system(temp_explosion)
+                    // .with_system(temp_explosion)
             )
 
             .add_event::<CombatEvent>()

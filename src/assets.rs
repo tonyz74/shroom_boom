@@ -96,7 +96,7 @@ impl PlayerAssets {
 
 
         // SLASH
-        let slash_sheet = asset_server.load("slash/slash longgg.png");
+        let slash_sheet = asset_server.load("art/player/Slash.png");
         let slash_atlas =
             TextureAtlas::from_grid(slash_sheet, Vec2::new(36.0, 24.0), 3, 1, None, None);
         let slash_handle = texture_atlases.add(slash_atlas);

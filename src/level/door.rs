@@ -53,7 +53,7 @@ fn spawn_doors(
                         ..default()
                     },
                     texture_atlas: assets.anims["SOLID"].tex.clone(),
-                    transform: Transform::from_xyz(0.0, 0.0, 100.0),
+                    transform: Transform::from_xyz(0.0, 0.0, 5.0),
                     ..default()
                 }
             ));

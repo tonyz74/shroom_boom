@@ -158,7 +158,7 @@ fn setup_player(
 
             skill_levels: PlayerSkillLevels::default(),
 
-            coin_holder: CoinHolder { total_value: 1000 },
+            coin_holder: CoinHolder { total_value: 0 },
             coin_collector: CoinCollector,
 
             input: InputAction::input_manager_bundle(),
@@ -166,7 +166,7 @@ fn setup_player(
             state_machine: state_machine::player_state_machine(),
 
             combat_layer: CombatLayerMask::PLAYER,
-            health: Health::new(HEALTH_LEVELS[0] - 99),
+            health: Health::new(HEALTH_LEVELS[0]),
 
             immunity: Immunity::default()
         }

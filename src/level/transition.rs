@@ -1,10 +1,12 @@
 use bevy::prelude::*;
+use bevy_debug_text_overlay::screen_print;
 use bevy_ecs_ldtk::prelude::*;
 use crate::camera::GameCamera;
 use crate::coin::coin::Coin;
 use crate::combat::{ExplosionAttack, ProjectileAttack};
 use crate::enemies::Enemy;
-use crate::level::{FinishedTransitioning, exit::LevelExit};
+use crate::level::{FinishedTransitioning, exit::LevelExit, LevelInfo};
+use crate::level::consts::TILE_SIZE;
 use crate::level::tutorial::HelpText;
 use crate::state::GameState;
 use crate::player::Player;
@@ -137,7 +139,11 @@ pub fn transition_cleanup_old(
 
 pub fn transition_setup_new(
     mut setup: EventReader<TransitionSetupEvent>,
-    mut sel: ResMut<LevelSelection>
+    mut sel: ResMut<LevelSelection>,
+    levels: Query<&Handle<LdtkAsset>>,
+    assets: Res<Assets<LdtkAsset>>,
+
+    mut lvl_info: ResMut<LevelInfo>
 ) {
     if setup.is_empty() {
         return;
@@ -146,6 +152,15 @@ pub fn transition_setup_new(
     for ev in setup.iter() {
         *sel = LevelSelection::Identifier(ev.new_level.clone());
     }
+
+    let lvl = assets
+        .get(levels.single())
+        .unwrap()
+        .get_level(&sel)
+        .unwrap();
+
+    lvl_info.grid_size = IVec2::new(lvl.px_wid, lvl.px_hei).as_vec2() / TILE_SIZE;
+    println!("Set new level");
 }
 
 pub fn transition_on_start(
@@ -194,7 +209,7 @@ pub fn transition_on_update(
     match &mut trans.transition_effect {
         TransitionEffect::Fade(fade) => {
             if next_level == "None" {
-                trans.next = String::from("Level_0");
+                trans.next = String::from("Init");
                 state.push(GameState::GameWonMenu).unwrap();
                 return;
             }

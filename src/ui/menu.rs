@@ -106,7 +106,7 @@ pub fn menu_state_setup(
     }
 
     trans.next = String::from("Level_0");
-    *sel = LevelSelection::Identifier(String::from("Level_0"));
+    *sel = LevelSelection::Identifier(String::from("Init"));
 }
 
 

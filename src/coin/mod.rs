@@ -27,6 +27,6 @@ fn print_coin_holder_values(
     }
 
     for (ent, holder) in holders.iter() {
-        screen_print!("{:?} has {:?} coins", ent, holder);
+        // screen_print!("{:?} has {:?} coins", ent, holder);
     }
 }

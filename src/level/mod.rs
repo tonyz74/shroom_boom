@@ -16,10 +16,12 @@ use crate::level::consts::{RENDERED_TILE_SIZE, TILE_SIZE};
 use crate::pathfind::Region;
 use crate::state::GameState;
 use bevy::prelude::*;
+use bevy_debug_text_overlay::screen_print;
 use bevy_ecs_ldtk::prelude::*;
 use bevy_rapier2d::prelude::*;
+use crate::level::transition::LevelTransition;
 
-#[derive(Resource, Default, Copy, Clone)]
+#[derive(Resource, Default, Copy, Clone, Debug)]
 pub struct LevelInfo {
     pub grid_size: Vec2,
 }
@@ -117,19 +119,27 @@ pub fn refresh_level(
     levels: Query<&Handle<LdtkAsset>>,
     assets: Res<Assets<LdtkAsset>>,
     sel: Res<LevelSelection>,
+    trans: Res<LevelTransition>,
 
-    mut lvl_info: ResMut<LevelInfo>,
+    mut lvl_info: ResMut<LevelInfo>
 ) {
     if levels.is_empty() || assets.is_empty() {
         return;
     }
+
+    let old_grid_size = lvl_info.grid_size;
 
     let lvl = assets
         .get(levels.single())
         .unwrap()
         .get_level(&sel)
         .unwrap();
-    lvl_info.grid_size = IVec2::new(lvl.px_wid, lvl.px_hei).as_vec2() / TILE_SIZE;
+
+    // lvl_info.grid_size = IVec2::new(lvl.px_wid, lvl.px_hei).as_vec2() / TILE_SIZE;
+
+    // if old_grid_size != lvl_info.grid_size {
+    //     println!("changed: {:?}", lvl_info.grid_size);
+    // }
 }
 
 pub fn reconfigure_region_to_fit_level(

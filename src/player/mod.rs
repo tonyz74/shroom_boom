@@ -87,7 +87,7 @@ impl Plugin for PlayerPlugin {
         );
 
         app
-            .add_system(player_print_health)
+            // .add_system(player_print_health)
             .add_system(player_pos)
             .add_system(upgrade_player_from_skills);
 
@@ -179,17 +179,17 @@ fn setup_player(
         });
     });
 }
-
-pub fn player_print_health(p: Query<(&Health, &Immunity), Changed<Health>>) {
-    for (hp, imm) in p.iter() {
-        println!("hp changed: {:?}, immunity: {:?}", hp, imm);
-    }
-}
+//
+// pub fn player_print_health(p: Query<(&Health, &Immunity), Changed<Health>>) {
+//     for (hp, imm) in p.iter() {
+//         println!("hp changed: {:?}, immunity: {:?}", hp, imm);
+//     }
+// }
 
 pub fn player_pos(
     p: Query<&GlobalTransform, With<Player>>
 ) {
-    for _tf in p.iter() {
+    for tf in p.iter() {
         // screen_print!("{:?}", tf.translation());
     }
 }

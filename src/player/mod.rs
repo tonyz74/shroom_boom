@@ -25,6 +25,7 @@ use abilities::dash::DashAbility;
 use crate::coin::drops::CoinHolder;
 use crate::coin::pickup::CoinCollector;
 use crate::combat::{AttackStrength, ColliderAttack, CombatLayerMask, Health, HurtAbility, Immunity};
+use crate::input::PlayerControls;
 use crate::level::consts::SOLIDS_INTERACTION_GROUP;
 use crate::player::abilities::slash::SlashAbility;
 use crate::player::abilities::jump::JumpAbility;
@@ -104,7 +105,8 @@ pub struct FollowMarker;
 fn setup_player(
     mut commands: Commands,
     assets: Res<PlayerAssets>,
-    exists: Query<&Player>
+    exists: Query<&Player>,
+    controls: Res<PlayerControls>,
 ) {
     if !exists.is_empty() {
         return;
@@ -161,7 +163,7 @@ fn setup_player(
             coin_holder: CoinHolder { total_value: 0 },
             coin_collector: CoinCollector,
 
-            input: InputAction::input_manager_bundle(),
+            input: InputAction::input_manager_bundle(&controls),
 
             state_machine: state_machine::player_state_machine(),
 
@@ -179,12 +181,6 @@ fn setup_player(
         });
     });
 }
-//
-// pub fn player_print_health(p: Query<(&Health, &Immunity), Changed<Health>>) {
-//     for (hp, imm) in p.iter() {
-//         println!("hp changed: {:?}, immunity: {:?}", hp, imm);
-//     }
-// }
 
 pub fn player_pos(
     p: Query<&GlobalTransform, With<Player>>

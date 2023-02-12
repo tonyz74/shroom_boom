@@ -3248,7 +3248,7 @@
 									"entityIid": "84684d60-9f30-11ed-ada5-2fb97de72a2c",
 									"layerIid": "c57e9b10-9f30-11ed-ada5-f7a0e7519c2a",
 									"levelIid": "c57e4cf0-9f30-11ed-ada5-076362e12df3",
-									"worldIid": "67db9f80-9f30-11ed-8ac1-f5552c376d42"
+									"worldIid": "fa248610-9f30-11ed-ba25-1d55593b04e0"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["84684d60-9f30-11ed-ada5-2fb97de72a2c"]
@@ -3322,7 +3322,7 @@
 									"entityIid": "d630ed90-9f30-11ed-ada5-53b51b606dea",
 									"layerIid": "c57e9b10-9f30-11ed-ada5-f7a0e7519c2a",
 									"levelIid": "c57e4cf0-9f30-11ed-ada5-076362e12df3",
-									"worldIid": "67db9f80-9f30-11ed-8ac1-f5552c376d42"
+									"worldIid": "fa248610-9f30-11ed-ba25-1d55593b04e0"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["d630ed90-9f30-11ed-ada5-53b51b606dea"]
@@ -3345,9 +3345,11 @@
 							"height": 8,
 							"defUid": 92,
 							"px": [64,48],
-							"fieldInstances": [{ "__identifier": "Text", "__value": "This lawnmower is you.\nUse [A] and [D] to move left and right.", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
+							"fieldInstances": [{ "__identifier": "Text", "__value": "This lawnmower is you.\nUse [${Controls.MoveLeft}] and [${Controls.MoveRight}] to\nmove left and right.", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
 								"id": "V_String",
-								"params": ["This lawnmower is you.\nUse [A] and [D] to move left and right."]
+								"params": [
+									"This lawnmower is you.\nUse [${Controls.MoveLeft}] and [${Controls.MoveRight}] to\nmove left and right."
+								]
 							}] }]
 						},
 						{
@@ -3362,9 +3364,9 @@
 							"height": 8,
 							"defUid": 92,
 							"px": [136,64],
-							"fieldInstances": [{ "__identifier": "Text", "__value": "When you need to go up,\npress [Space] to jump!", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
+							"fieldInstances": [{ "__identifier": "Text", "__value": "When you need to go up,\nuse [${Controls.Jump}] to jump!", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
 								"id": "V_String",
-								"params": ["When you need to go up,\npress [Space] to jump!"]
+								"params": ["When you need to go up,\nuse [${Controls.Jump}] to jump!"]
 							}] }]
 						},
 						{
@@ -3379,10 +3381,10 @@
 							"height": 8,
 							"defUid": 92,
 							"px": [448,40],
-							"fieldInstances": [{ "__identifier": "Text", "__value": "This is a one-way platform.\nPress [S] to drop down.\n[S] can also be used while jumping,\nwhich makes you fall down faster.", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
+							"fieldInstances": [{ "__identifier": "Text", "__value": "This is a one-way platform.\nPress [${Controls.Crouch}] to drop down.\n[${Controls.Crouch}] can also be used while jumping,\nwhich makes you fall down faster.", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
 								"id": "V_String",
 								"params": [
-									"This is a one-way platform.\nPress [S] to drop down.\n[S] can also be used while jumping,\nwhich makes you fall down faster."
+									"This is a one-way platform.\nPress [${Controls.Crouch}] to drop down.\n[${Controls.Crouch}] can also be used while jumping,\nwhich makes you fall down faster."
 								]
 							}] }]
 						},
@@ -3415,9 +3417,9 @@
 							"height": 8,
 							"defUid": 92,
 							"px": [416,104],
-							"fieldInstances": [{ "__identifier": "Text", "__value": "This is a walking enemy.\nTry using [LEFT] to slash at it.", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
+							"fieldInstances": [{ "__identifier": "Text", "__value": "This is a walking enemy.\nTry using [${Controls.Slash}] to slash at it.", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
 								"id": "V_String",
-								"params": ["This is a walking enemy.\nTry using [LEFT] to slash at it."]
+								"params": ["This is a walking enemy.\nTry using [${Controls.Slash}] to slash at it."]
 							}] }]
 						},
 						{
@@ -3432,9 +3434,11 @@
 							"height": 8,
 							"defUid": 92,
 							"px": [232,112],
-							"fieldInstances": [{ "__identifier": "Text", "__value": "This is a flying enemy.\nTry using [UP] to shoot\nat it with your garden hose!", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
+							"fieldInstances": [{ "__identifier": "Text", "__value": "This is a flying enemy.\nTry using [${Controls.Shoot}] to shoot\nat it with your garden hose!", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
 								"id": "V_String",
-								"params": ["This is a flying enemy.\nTry using [UP] to shoot\nat it with your garden hose!"]
+								"params": [
+									"This is a flying enemy.\nTry using [${Controls.Shoot}] to shoot\nat it with your garden hose!"
+								]
 							}] }]
 						},
 						{
@@ -3472,7 +3476,7 @@
 									"entityIid": "bb689090-9f30-11ed-b0d8-ad17f8c8ae2c",
 									"layerIid": "c57e9b10-9f30-11ed-ada5-f7a0e7519c2a",
 									"levelIid": "c57e4cf0-9f30-11ed-ada5-076362e12df3",
-									"worldIid": "67db9f80-9f30-11ed-8ac1-f5552c376d42"
+									"worldIid": "fa248610-9f30-11ed-ba25-1d55593b04e0"
 								}, "__type": "EntityRef", "__tile": null, "defUid": 62, "realEditorValues": [{
 									"id": "V_String",
 									"params": ["bb689090-9f30-11ed-b0d8-ad17f8c8ae2c"]
@@ -3495,9 +3499,11 @@
 							"height": 8,
 							"defUid": 92,
 							"px": [40,176],
-							"fieldInstances": [{ "__identifier": "Text", "__value": "This next one is a ranged\nenemy. Use [RIGHT] to dash\nthrough the bullets.\n", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
+							"fieldInstances": [{ "__identifier": "Text", "__value": "This next one is a ranged\nenemy. Use [${Controls.Dash}] to dash\nthrough the bullets.\n", "__type": "String", "__tile": null, "defUid": 93, "realEditorValues": [{
 								"id": "V_String",
-								"params": ["This next one is a ranged\nenemy. Use [RIGHT] to dash\nthrough the bullets.\n"]
+								"params": [
+									"This next one is a ranged\nenemy. Use [${Controls.Dash}] to dash\nthrough the bullets.\n"
+								]
 							}] }]
 						},
 						{

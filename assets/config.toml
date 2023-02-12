@@ -1,0 +1,9 @@
+# Supported keys: A-Z, Space, Up, Down, Left, Right
+[controls]
+move_left = "A"
+move_right = "D"
+jump = "Space"
+crouch = "S"
+slash = "J"
+shoot = "K"
+dash = "L"

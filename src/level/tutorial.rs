@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
 use crate::assets::UiAssets;
+use crate::input::PlayerControls;
 use crate::interact::Interact;
 use crate::level::{coord, LevelInfo, util};
 use crate::state::GameState;
@@ -27,7 +28,8 @@ fn spawn_tutorial_text(
     mut commands: Commands,
     ui_assets: Res<UiAssets>,
     q: Query<&EntityInstance, Added<HelpTextSpawnpointMarker>>,
-    lvl_info: Res<LevelInfo>
+    lvl_info: Res<LevelInfo>,
+    ctrl: Res<PlayerControls>
 ) {
     for inst in q.iter() {
         let pos_vec2 = coord::grid_coord_to_translation(
@@ -35,7 +37,21 @@ fn spawn_tutorial_text(
             lvl_info.grid_size.as_ivec2()
         );
 
-        let content = util::val_expect_string(&inst.field_instances[0].value).unwrap();
+        let mut content = util::val_expect_string(&inst.field_instances[0].value).unwrap();
+
+        let replacements = &[
+            ("MoveLeft", ctrl.move_left),
+            ("MoveRight", ctrl.move_right),
+            ("Jump", ctrl.jump),
+            ("Crouch", ctrl.crouch),
+            ("Slash", ctrl.slash),
+            ("Shoot", ctrl.shoot),
+            ("Dash", ctrl.dash),
+        ];
+
+        for (pattern, new) in replacements {
+            content = content.replace(&format!("${{Controls.{}}}", pattern), &format!("{:?}", new));
+        }
 
         commands.spawn(HelpTextBundle::new(&ui_assets, pos_vec2, content));
     }

@@ -1,5 +1,5 @@
 # Shroom Boom
-A game for MYP personal project. A gardener tries to exterminate infected plants using their trusty machete, gardening hose, and lawnmower.
+A game for MYP personal project. A lawnmower tries to exterminate infected plants using their trusty machete and gardening hose.
 
 # Screenshots
 
